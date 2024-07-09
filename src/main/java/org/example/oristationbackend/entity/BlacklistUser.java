@@ -32,9 +32,9 @@ public class BlacklistUser {
   @Column(name = "ban_start_date", nullable = false)
   private Date banStartDate;
 
-//  @OneToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "user_id")
-//  private User user;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "admin_id")

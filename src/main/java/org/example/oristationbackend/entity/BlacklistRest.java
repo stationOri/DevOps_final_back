@@ -32,9 +32,9 @@ public class BlacklistRest {
   @Column(name = "ban_start_date", nullable = false)
   private Date banStartDate;
 
-//  @OneToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "rest_id")
-//  private Restaurant restaurant;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "rest_id")
+  private Restaurant restaurant;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "admin_id")

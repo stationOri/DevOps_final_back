@@ -24,13 +24,13 @@ public class Login {
   @Column(name = "type", length = 10, insertable = false, updatable = false)
   private ChatType chatType;
 
-//  @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//  @JoinColumn(name="user_id")
-//  private User user;
+  @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinColumn(name="user_id")
+  private User user;
 
   @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Admin admin;
 
-//  @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//  private Restaurant restaurant;
+  @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Restaurant restaurant;
 }
