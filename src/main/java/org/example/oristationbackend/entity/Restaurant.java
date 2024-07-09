@@ -35,6 +35,7 @@ public class Restaurant {
     @Column(nullable = false)
     private Date join_date;
     private Date quit_date;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RestaurantStatus rest_status;
     @Column(nullable = false)

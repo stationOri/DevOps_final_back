@@ -24,6 +24,7 @@ public class RestaurantPeak {
     private Date date_end;
     @Column(nullable = false)
     private Timestamp peak_opendate;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PeriodType peak_interval;
 
