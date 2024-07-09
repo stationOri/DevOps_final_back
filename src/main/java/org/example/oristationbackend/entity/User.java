@@ -14,8 +14,11 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
+//    @OneToOne
+//    @MapsId
+//    @JoinColumn(name = "user_id")
+//    private Login login;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int user_id;
 
     @Column(length=20)
@@ -29,10 +32,5 @@ public class User {
     private boolean is_blocked;
     private Date join_date;
     private Date quit_date;
-//
-//    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-//    @JoinColumn(name = "login_id")
-//    @JsonBackReference
-//    @JsonIgnore
-//    private Login login;
+
 }
