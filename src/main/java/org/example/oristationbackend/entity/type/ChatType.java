@@ -13,5 +13,4 @@ public enum ChatType {
   ChatType(String description) {
     this.description = description;
   }
-
 }
