@@ -15,10 +15,10 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-//    @OneToOne
-//    @MapsId
-//    @JoinColumn(name = "user_id")
-//    private Login login;
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private Login login;
     @Id
     private int user_id;
 

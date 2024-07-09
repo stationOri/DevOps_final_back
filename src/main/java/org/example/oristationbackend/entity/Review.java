@@ -30,9 +30,10 @@ public class Review {
     private Timestamp review_date;
     private int like_num;
 
-    //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="rest_id")
-//    private Restaurant restaurant;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="rest_id")
+    private Restaurant restaurant;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;

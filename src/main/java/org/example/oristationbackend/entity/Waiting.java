@@ -23,9 +23,9 @@ public class Waiting {
     @JoinColumn(name="user_id")
     private User user;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="rest_id")
-//    private Restaurant restaurant;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="rest_id")
+    private Restaurant restaurant;
 
     private int waiting_num;
     private Timestamp waiting_date;

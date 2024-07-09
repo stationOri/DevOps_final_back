@@ -28,16 +28,16 @@ public class ReportUser {
   @Column(name = "report_status", nullable = false, length = 1)
   private ReportStatus reportStatus;
 
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "user_id")
-//  private User user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "admin_id")
   private Admin admin;
 
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "rest_id")
-//  private Restaurant restaurant;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "rest_id")
+  private Restaurant restaurant;
 
 }

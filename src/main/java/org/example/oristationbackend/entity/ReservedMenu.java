@@ -16,13 +16,13 @@ public class ReservedMenu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int rev_menu_id;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="res_id")
-//    private Reservation reservation;
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name="menu_id")
-//    private RestaurantMenu restaurantMenu;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="res_id")
+    private Reservation reservation;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="menu_id")
+    private RestaurantMenu restaurantMenu;
 
     private int amount;
 }
