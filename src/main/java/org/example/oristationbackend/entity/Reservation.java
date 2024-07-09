@@ -10,7 +10,6 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
-@Table(name = "reservation")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Reservation {
