@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
+@Table(name = "review")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review {

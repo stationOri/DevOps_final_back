@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "reservedMenu")
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservedMenu {

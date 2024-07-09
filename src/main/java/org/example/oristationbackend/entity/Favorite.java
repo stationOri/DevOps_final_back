@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "favorite")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Favorite {
@@ -17,7 +18,7 @@ public class Favorite {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
-//
+
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name="rest_id")
 //    private Restaurant restaurant;

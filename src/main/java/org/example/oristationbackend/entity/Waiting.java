@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
+@Table(name = "waiting")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Waiting {

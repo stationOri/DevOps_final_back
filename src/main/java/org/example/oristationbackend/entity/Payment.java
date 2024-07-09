@@ -8,6 +8,7 @@ import org.example.oristationbackend.entity.type.PaymentStatus;
 
 @Entity
 @Getter
+@Table(name = "payment")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Payment {
