@@ -24,5 +24,7 @@ public class Payment {
     private User user;
 
     private int amount;
+
+    private int refund;
     private PaymentStatus status;
 }

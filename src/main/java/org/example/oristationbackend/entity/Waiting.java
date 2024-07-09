@@ -36,6 +36,8 @@ public class Waiting {
     @Column(length=20)
     private String waiting_name;
     private int waiting_ppl;
+
+    @Enumerated(EnumType.STRING)
     private UserWaitingStatus user_waiting_status;
 
 }

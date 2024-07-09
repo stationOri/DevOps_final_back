@@ -22,8 +22,10 @@ public class Reservation {
   private Timestamp res_datetime;
   private Timestamp status_changed_date;
   private int res_num;
-  private ReservationStatus status;
   private int refund;
+
+  @Enumerated(EnumType.STRING)
+  private ReservationStatus status;
 
   @Column(length=200)
   private String request;
