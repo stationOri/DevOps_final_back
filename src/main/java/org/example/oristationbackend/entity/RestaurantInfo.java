@@ -25,7 +25,7 @@ public class RestaurantInfo {
     @Column(length=100)
     private String rest_intro;
     private int rest_closeday;
-    @Column(length=11)
+    @Column(length=20)
     private String rest_phone;
     @Enumerated(EnumType.STRING)
     private PeriodType rest_reserveopen_rule;
