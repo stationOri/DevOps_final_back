@@ -20,11 +20,11 @@ public class Restaurant {
     @Id
     private int rest_id;
 
-    @Column(nullable = false, length=20)
+    @Column(nullable = false, length=30)
     private String rest_name;
     @Column(nullable = false, length=20)
     private String rest_owner;
-    @Column(nullable = false, length=11)
+    @Column(nullable = false, length=20)
     private String rest_phone;
     private String rest_photo;
     @Column(nullable = false)

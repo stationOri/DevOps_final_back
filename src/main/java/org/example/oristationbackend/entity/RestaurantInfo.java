@@ -13,7 +13,7 @@ import org.example.oristationbackend.entity.type.*;
 public class RestaurantInfo {
     @Id
     private int rest_id;
-    @Column(length = 100)
+    @Column(length = 200)
     private String rest_opentime;
     private int keyword;
     private boolean rest_holiday;
