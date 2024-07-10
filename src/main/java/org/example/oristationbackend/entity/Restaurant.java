@@ -45,4 +45,16 @@ public class Restaurant {
 
     @OneToOne(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private RestaurantInfo restaurantInfo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="key_id")
+    private Keyword keyword;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="key_id2")
+    private Keyword keyword2;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="key_id3")
+    private Keyword keyword3;
 }
