@@ -13,11 +13,11 @@ import java.sql.Date;
 public class RestTempHoliday {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int temp_holiday_id;
+    private int tempHolidayId;
     @Column(nullable = false)
-    private Date start_date;
+    private Date startDate;
     @Column(nullable = false)
-    private Date end_date;
+    private Date endDate;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
     private Restaurant restaurant;

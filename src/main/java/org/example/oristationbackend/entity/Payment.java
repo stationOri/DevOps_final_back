@@ -17,7 +17,7 @@ public class Payment {
     @JoinColumn(name = "res_id")
     private Reservation reservation;
     @Id
-    private int res_id;
+    private int resId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")

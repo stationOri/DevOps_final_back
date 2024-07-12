@@ -20,18 +20,18 @@ public class User {
     @JoinColumn(name = "user_id")
     private Login login;
     @Id
-    private int user_id;
+    private int userId;
 
     @Column(length=20)
-    private String user_name;
+    private String userName;
 
     @Column(length=20)
-    private String user_nickname;
+    private String userNickname;
 
     @Column(length=11)
-    private String user_phone;
-    private boolean is_blocked;
-    private Date join_date;
-    private Date quit_date;
+    private String userPhone;
+    private boolean isBlocked;
+    private Date joinDate;
+    private Date quitDate;
 
 }

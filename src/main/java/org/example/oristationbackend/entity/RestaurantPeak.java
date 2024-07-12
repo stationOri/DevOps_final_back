@@ -17,16 +17,16 @@ import java.sql.Timestamp;
 public class RestaurantPeak {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int peak_id;
+    private int peakId;
     @Column(nullable = false)
-    private Date date_start;
+    private Date dateStart;
     @Column(nullable = false)
-    private Date date_end;
+    private Date dateEnd;
     @Column(nullable = false)
-    private Timestamp peak_opendate;
+    private Timestamp peakOpendate;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PeriodType peak_interval;
+    private PeriodType peakInterval;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")

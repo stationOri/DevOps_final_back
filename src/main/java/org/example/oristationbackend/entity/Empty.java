@@ -15,7 +15,7 @@ import java.sql.Time;
 public class Empty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int empty_id;
+    private int emptyId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
     private Restaurant restaurant;

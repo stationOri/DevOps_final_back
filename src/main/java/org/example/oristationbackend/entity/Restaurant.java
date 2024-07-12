@@ -18,43 +18,33 @@ public class Restaurant {
     @JoinColumn(name = "rest_id")
     private Login login;
     @Id
-    private int rest_id;
+    private int restId;
 
     @Column(nullable = false, length=30)
-    private String rest_name;
+    private String restName;
     @Column(nullable = false, length=20)
-    private String rest_owner;
+    private String restOwner;
     @Column(nullable = false, length=20)
-    private String rest_phone;
-    private String rest_photo;
+    private String restPhone;
+    private String restPhoto;
     @Column(nullable = false)
-    private String rest_data;
+    private String restData;
     @Column(nullable = false, length=10)
-    private String rest_num;
-    private boolean is_blocked;
+    private String restNum;
+    private boolean isBlocked;
     @Column(nullable = false)
-    private Date join_date;
-    private Date quit_date;
+    private Date joinDate;
+    private Date quitDate;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RestaurantStatus rest_status;
+    private RestaurantStatus restStatus;
     @Column(nullable = false)
-    private boolean rest_isopen;
+    private boolean restIsopen;
     @Column(length=30)
-    private String rest_account;
+    private String restAccount;
 
     @OneToOne(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private RestaurantInfo restaurantInfo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="key_id")
-    private Keyword keyword;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="key_id2")
-    private Keyword keyword2;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="key_id3")
-    private Keyword keyword3;
 }

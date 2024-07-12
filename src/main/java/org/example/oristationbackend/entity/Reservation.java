@@ -16,12 +16,12 @@ public class Reservation {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int res_id;
+  private int resId;
 
-  private Timestamp req_datetime;
-  private Timestamp res_datetime;
+  private Timestamp reqDatetime;
+  private Timestamp resDatetime;
   private Timestamp status_changed_date;
-  private int res_num;
+  private int resNum;
   private int refund;
 
   @Enumerated(EnumType.STRING)

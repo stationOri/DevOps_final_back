@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 public class Waiting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int waiting_id;
+    private int waitingId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
@@ -27,17 +27,17 @@ public class Waiting {
     @JoinColumn(name="rest_id")
     private Restaurant restaurant;
 
-    private int waiting_num;
-    private Timestamp waiting_date;
+    private int waitingNum;
+    private Timestamp waitingDate;
 
     @Column(length=11)
-    private String waiting_phone;
+    private String waitingPhone;
 
     @Column(length=20)
-    private String waiting_name;
-    private int waiting_ppl;
+    private String waitingName;
+    private int waitingPpl;
 
     @Enumerated(EnumType.STRING)
-    private UserWaitingStatus user_waiting_status;
+    private UserWaitingStatus userWaitingStatus;
 
 }

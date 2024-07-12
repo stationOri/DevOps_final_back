@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 public class RestaurantMenu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int menu_id;
+    private int menuId;
     @Column(length=20,nullable = false)
-    private String menu_name;
+    private String menuName;
     @Column(nullable = false)
-    private int menu_price;
+    private int menuPrice;
     @Column(nullable = false)
-    private String menu_photo;
+    private String menuPhoto;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")

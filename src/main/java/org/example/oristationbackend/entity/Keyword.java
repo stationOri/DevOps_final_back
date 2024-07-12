@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Keyword {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int keyword_id;
+  private int keywordId;
 
   @Column(length=10, nullable=false)
   private String keyword;

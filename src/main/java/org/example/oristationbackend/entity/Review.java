@@ -16,19 +16,19 @@ public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int review_id;
+    private int reviewId;
 
-    private double review_grade;
+    private double reviewGrade;
 
     @Column(length=500)
-    private String review_data;
+    private String reviewData;
 
-    private String review_img;
-    private String review_img2;
-    private String review_img3;
+    private String reviewImg;
+    private String reviewImg2;
+    private String reviewImg3;
     private boolean blind;
-    private Timestamp review_date;
-    private int like_num;
+    private Timestamp reviewDate;
+    private int likeNum;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
