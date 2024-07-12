@@ -40,4 +40,13 @@ public class ReportUser {
   @JoinColumn(name = "rest_id")
   private Restaurant restaurant;
 
+  @OneToOne(fetch=FetchType.LAZY)
+  @JoinColumn(name="review_id")
+  private Review review;
+
+  public ReportUser changeStatus(ReportStatus status,Admin admin){
+    this.reportStatus=status;
+    this.admin=admin;
+    return this;
+  }
 }

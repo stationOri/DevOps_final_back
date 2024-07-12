@@ -39,4 +39,11 @@ public class BlacklistUser {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "admin_id")
   private Admin admin;
+  
+  public int addreport(){
+      return ++this.reportNum;
+  }
+  public void changeStatus(BlackStatus status){
+    this.blackStatus=status;
+  }
 }

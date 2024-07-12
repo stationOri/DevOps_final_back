@@ -34,4 +34,8 @@ public class User {
     private Date joinDate;
     private Date quitDate;
 
+    public User quitUser(){
+        this.quitDate=new java.sql.Date(System.currentTimeMillis());
+        return this;
+    }
 }

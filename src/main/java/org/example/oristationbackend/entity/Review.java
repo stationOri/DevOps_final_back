@@ -37,4 +37,9 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
+
+    public Review blindReview(){
+        this.blind=true;
+        return this;
+    }
 }
