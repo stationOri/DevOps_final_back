@@ -2,11 +2,13 @@ package org.example.oristationbackend.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReviewResDto {
     private String restName;
     private String userNickname;

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.example.oristationbackend.dto.user.ReviewReqDto;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,16 +40,22 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
     private List<ReviewLikes> reviewLikes;
 
     public Review blindReview(){
         this.blind=true;
         return this;
     }
-    public Review like(ReviewLikes reviewlikes){
+    public Review like(ReviewLikes reviewlikes) {
         this.likeNum++;
-        this.reviewLikes.add(reviewlikes);
+        if (this.reviewLikes == null) {
+            this.reviewLikes = new ArrayList<>();
+        }
+        if (reviewlikes != null) {
+            this.reviewLikes.add(reviewlikes);
+        }
         return this;
     }
 

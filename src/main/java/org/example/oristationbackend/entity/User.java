@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 
 @Entity
-@Getter
+@Data
 @Table(name = "user")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,4 +39,5 @@ public class User {
         this.quitDate=new java.sql.Date(System.currentTimeMillis());
         return this;
     }
+
 }

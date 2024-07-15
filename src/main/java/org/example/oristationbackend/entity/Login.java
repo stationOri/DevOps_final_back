@@ -5,7 +5,7 @@ import lombok.*;
 import org.example.oristationbackend.entity.type.ChatType;
 
 @Entity
-@Getter
+@Data
 @Table(name = "login")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class Login {
   private String password;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "type", length = 10, insertable = false, updatable = false)
+  @Column(name = "type", length = 10)
   private ChatType chatType;
 
   @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -33,4 +33,17 @@ public class Login {
 
   @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Restaurant restaurant;
+  @PrePersist
+  @PreUpdate
+  public void setChatType() {
+    if (user != null) {
+      this.chatType = ChatType.USER;
+    } else if (admin != null) {
+      // Assuming Admin entity exists
+      this.chatType = ChatType.ADMIN;
+    } else if (restaurant != null) {
+      // Assuming Restaurant entity exists
+      this.chatType = ChatType.RESTAURANT;
+    }
+  }
 }

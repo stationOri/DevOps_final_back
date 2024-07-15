@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
 @Table(name = "reviewLikes")
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 public class ReviewLikes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

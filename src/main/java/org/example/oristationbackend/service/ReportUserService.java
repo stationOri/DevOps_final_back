@@ -30,6 +30,7 @@ public class ReportUserService {
     private final AdminRepository adminRepository;
     private final BlacklistUserRepository blacklistUserRepository;
     private final ReviewRepository reviewRepository;
+    @Transactional(readOnly = false)
     public int reportUser(UserReportReqDto userReportReqDto){
         try {
                 Review review = reviewRepository.findById(userReportReqDto.getReviewId()).get();
@@ -58,7 +59,7 @@ public class ReportUserService {
         }
 
     }
-
+    @Transactional(readOnly = false)
     public int changeReportStatus(UserReportStatusReqDto changeDto){
         Optional<ReportUser> optionalruser= reportUserRepository.findById(changeDto.getUserReportId());
         ReportUser ruser = optionalruser.orElseThrow(() -> new IllegalArgumentException("User report not found with id: " + changeDto.getUserReportId()));
@@ -92,6 +93,7 @@ public class ReportUserService {
         }
         return id;
     }
+
     private void quitUser(int userId){
         Optional<User> optionaluser=userRepository.findById(userId);
         User user = optionaluser.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));

@@ -30,7 +30,7 @@ public class ChatRoomService {
     public List<ChatMessageDto> getChatMessages(int chatRoomId){
         return chatRoomRepository.findMessagesByChatRoomId(chatRoomId);
     }
-
+    @Transactional(readOnly = false)
     public int sendMessage(SendMessageDto sendMessageDto){
         Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByQuestioner_LoginIdAndAnswerer_LoginId(sendMessageDto.getSenderId(), sendMessageDto.getReceiverId());
 

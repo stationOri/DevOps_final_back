@@ -34,7 +34,7 @@ public class ReviewService {
     public List<ReviewResDto> getReviewsByuserId(int userId){
         return reviewRepository.findByUser_UserId(userId);
     }
-
+    @Transactional(readOnly = false)
     public int addReview(ReviewReqDto reviewReqDto) {
         User user = userRepository.findById(reviewReqDto.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found with id: " +reviewReqDto.getUserId()));
         Restaurant restaurant = restaurantRepository.findById(reviewReqDto.getRestId()).orElseThrow(() -> new IllegalArgumentException("Restaurant not found with id: " +reviewReqDto.getRestId()));
@@ -43,7 +43,7 @@ public class ReviewService {
         ,reviewReqDto.getReviewImg2(),reviewReqDto.getReviewImg3(),false, new Timestamp(System.currentTimeMillis()),0,restaurant,user,null);
         return reviewRepository.save(review).getReviewId();
     }
-
+    @Transactional(readOnly = false)
     public int likeReview(int reviewId, int userId) {
         if(reviewLikesRepository.existsByUser_UserIdAndReview_ReviewId(userId,reviewId) ){
             throw new DuplicateLikeException("이미 좋아요 한 리뷰입니다.");
@@ -52,13 +52,15 @@ public class ReviewService {
         Review review=reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found with id: " +reviewId));
 
         ReviewLikes like= new ReviewLikes(0,review,user);
-        review.like(like);
+        review=review.like(like);
+        like.setReview(review);
         reviewRepository.save(review);
         return reviewLikesRepository.save(like).getLikeId();
     }
-
+    @Transactional(readOnly = false)
     public void deleteReview(int reviewId) {
-        reviewRepository.delete(reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found with id: " +reviewId)));
-
+        Review review=reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found with id: " +reviewId));
+        reviewLikesRepository.deleteByReview(review);
+        reviewRepository.delete(review);
     }
 }
