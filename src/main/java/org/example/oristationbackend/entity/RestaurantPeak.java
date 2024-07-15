@@ -30,7 +30,7 @@ public class RestaurantPeak {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PeriodType peakInterval; // 성수기 예약 오픈 단위 -> 일주일 / 한달
+    private PeriodType peakInterval; // 성수기 예약 오픈 단위 -> WEEK(일주일) / MONTH(한달)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
