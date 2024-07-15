@@ -12,52 +12,56 @@ import org.example.oristationbackend.entity.type.*;
 @NoArgsConstructor
 public class RestaurantInfo {
     @Id
-    private int restId;
-    @Column(length = 200)
-    private String restOpentime;
+    private int restId; // 식당 id
 
-    private boolean restHoliday;
+    private int restDeposit; // 예약금
 
-    private int restDeposit;
     @Enumerated(EnumType.STRING)
-    private MoneyMethod restDepositMethod;
-    @Column(length=100)
-    private String restAddress;
+    private MoneyMethod restDepositMethod; // 예약금 받는 방법
 
     @Column(length=100)
-    private String restIntro;
-    private int restCloseday;
+    private String restAddress; // 식당 주소
+
+    @Column(length=100)
+    private String restIntro; // 식당 소개
+
     @Column(length=20)
-    private String restPhone;
+    private String restPhone; // 식당 전화번호
 
     @Enumerated(EnumType.STRING)
-    private PeriodType restReserveopenRule;
-    @Enumerated(EnumType.STRING)
-    private MinuteType restReserveInterval;
+    private PeriodType restReserveopenRule; // 예약 오픈 단위 -> 일주일 / 한달
 
-    private double restGrade;
-    private int maxPpl;
-    private int restTablenum;
+    @Enumerated(EnumType.STRING)
+    private MinuteType restReserveInterval; // 예약 받을 간격(분) -> 1시간 / 30분
 
-    private String restPost;
+    private double restGrade; // 식당 별점
+
+    private int maxPpl; // 예약 최대 인원(한 테이블 최대 인원)
+
+    private int restTablenum; // 한 타임에 예약 가능한 테이블 수
+
+    private String restPost; // 가게 공지
+
     @Enumerated(EnumType.STRING)
-    private ReservationType revWait;
+    private ReservationType revWait; // 예약 대기 방식 -> 웨이팅 / 예약 / 둘다
+
     @Enumerated(EnumType.STRING)
-    private RestWatingStatus restWaitingStatus;
+    private RestWatingStatus restWaitingStatus; // 웨이팅 오픈 여부 -> 오픈 / 클로즈
 
     @OneToOne
     @MapsId
     @JoinColumn(name = "rest_id")
-    private Restaurant restaurant;
+    private Restaurant restaurant; // 식당 id
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="key_id")
-    private Keyword keyword1;
+    private Keyword keyword1; // 키워드1 id
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="key_id2")
-    private Keyword keyword2;
+    private Keyword keyword2; // 키워드2 id
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="key_id3")
-    private Keyword keyword3;
+    private Keyword keyword3; // 키워드3 id
 }

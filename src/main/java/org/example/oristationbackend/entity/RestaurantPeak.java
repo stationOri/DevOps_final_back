@@ -17,18 +17,22 @@ import java.sql.Timestamp;
 public class RestaurantPeak {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int peakId;
+    private int peakId; // 성수기 예약 id
+
     @Column(nullable = false)
-    private Date dateStart;
+    private Date dateStart; // 성수기 시작 날짜
+
     @Column(nullable = false)
-    private Date dateEnd;
+    private Date dateEnd; // 성수기 마감 날짜
+
     @Column(nullable = false)
-    private Timestamp peakOpendate;
+    private Timestamp peakOpendate; // 성수기 예약 오픈 날짜
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PeriodType peakInterval;
+    private PeriodType peakInterval; // 성수기 예약 오픈 단위 -> 일주일 / 한달
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
-    private Restaurant restaurant;
+    private Restaurant restaurant; // 식당 id
 }

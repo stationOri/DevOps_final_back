@@ -18,33 +18,43 @@ public class Restaurant {
     @JoinColumn(name = "rest_id")
     private Login login;
     @Id
-    private int restId;
+    private int restId; // 식당 id
+
+    @Column(nullable = false, length=20)
+    private String restOwner; // 점주 이름
+
+    @Column(nullable = false, length=20)
+    private String restPhone; // 점주 전화번호
 
     @Column(nullable = false, length=30)
-    private String restName;
-    @Column(nullable = false, length=20)
-    private String restOwner;
-    @Column(nullable = false, length=20)
-    private String restPhone;
-    private String restPhoto;
-    @Column(nullable = false)
-    private String restData;
+    private String restName; // 식당 이름
+
+    @Column(nullable = false, length=250)
+    private String restPhoto; // 식당 사진
+
+    @Column(nullable = false, length=250)
+    private String restData; // 사업자등록증 경로
+
     @Column(nullable = false, length=10)
-    private String restNum;
-    private boolean isBlocked;
+    private String restNum; // 사업자등록번호
+
+    private boolean isBlocked; // 계정 금지 유무
+
     @Column(nullable = false)
-    private Date joinDate;
-    private Date quitDate;
+    private Date joinDate; // 식당 가입일
+
+    private Date quitDate; // 식당 탈퇴일
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RestaurantStatus restStatus;
+    private RestaurantStatus restStatus; // 식당 상태
+
     @Column(nullable = false)
-    private boolean restIsopen;
+    private boolean restIsopen; // 예약 오픈 여부
+
     @Column(length=30)
-    private String restAccount;
+    private String restAccount; // 식당 계좌
 
     @OneToOne(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private RestaurantInfo restaurantInfo;
-
-
 }

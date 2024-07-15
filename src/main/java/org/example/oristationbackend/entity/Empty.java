@@ -15,21 +15,25 @@ import java.sql.Time;
 public class Empty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int emptyId;
+    private int emptyId; // 빈자리 알림 id
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
-    private Restaurant restaurant;
+    private Restaurant restaurant; // 식당 id
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
-    private User user;
+    private User user; // 사용자 id
 
     @Column(nullable = false)
-    private Date date;
+    private Date date; // 타겟 날짜
+
     @Column(nullable = false)
-    private Time time;
+    private Time time; // 타겟 시간
+
     @Column(nullable = false)
-    private int people;
+    private int people; // 예약 인원
+
     @Column(nullable = false)
-    private boolean status;
+    private boolean status; // 알림 전송 여부
 }

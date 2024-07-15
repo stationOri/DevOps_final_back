@@ -13,12 +13,15 @@ import java.sql.Date;
 public class RestTempHoliday {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int tempHolidayId;
+    private int tempHolidayId; // 임시 휴무 id
+
     @Column(nullable = false)
-    private Date startDate;
+    private Date startDate; // 임시 휴무 시작일
+
     @Column(nullable = false)
-    private Date endDate;
+    private Date endDate; // 임시 휴무 종료일
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
-    private Restaurant restaurant;
+    private Restaurant restaurant; // 식당 id
 }
