@@ -17,7 +17,7 @@ public class RestaurantInfo {
     private int restDeposit; // 예약금
 
     @Enumerated(EnumType.STRING)
-    private MoneyMethod restDepositMethod; // 예약금 받는 방법
+    private MoneyMethod restDepositMethod; // 예약금 받는 방법 -> A(고정금) / B(메뉴 20%)
 
     @Column(length=100)
     private String restAddress; // 식당 주소
