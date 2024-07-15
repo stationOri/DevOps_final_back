@@ -33,7 +33,7 @@ public class RestaurantService {
   // 식당 id로 식당 정보 조회
   public SearchResDto findRestaurantById(int restId) {
     RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restId)
-        .orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + restId));
+        .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restId));
 
     return convertToDto(restaurantInfo);
   }
@@ -41,7 +41,7 @@ public class RestaurantService {
   // 엔티티를 DTO로 변환
   private SearchResDto convertToDto(RestaurantInfo restaurantInfo) {
     Restaurant restaurant = restaurantRepository.findById(restaurantInfo.getRestId())
-        .orElseThrow(() -> new RuntimeException("Restaurant not found with id: " + restaurantInfo.getRestId()));
+        .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restaurantInfo.getRestId()));
 
     Keyword keyword1 = restaurantInfo.getKeyword1();
     Keyword keyword2 = restaurantInfo.getKeyword2();
