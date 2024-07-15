@@ -15,24 +15,28 @@ import org.example.oristationbackend.entity.type.OpenDay;
 public class RestaurantOpen {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int restaurantOpenId;
+    private int restaurantOpenId; // 식당 오픈 시간 id
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="rest_id")
-    private Restaurant restaurant;
-    @Column(length=20)
-    private String restOpen;
-    @Column(length=20)
-    private String restClose;
-    @Column(length=20)
-    private String restBreakstart;
-    @Column(length=20)
-    private String restBreakend;
+    private Restaurant restaurant; // 식당 id
 
     @Enumerated(EnumType.STRING)
-    private OpenDay restDay;
-    @Column(length=20)
-    private String restLastorder;
+    private OpenDay restDay; // 식당 영업 요일
 
+    @Column(length=20)
+    private String restOpen; // 식당 오픈 시간
+
+    @Column(length=20)
+    private String restClose; // 식당 마감 시간
+
+    @Column(length=20)
+    private String restLastorder; // 식당 마지막 주문 시간
+
+    @Column(length=20)
+    private String restBreakstart; // 식당 휴식 시작 시간
+
+    @Column(length=20)
+    private String restBreakend; // 식당 휴식 마감 시간
 }
 
