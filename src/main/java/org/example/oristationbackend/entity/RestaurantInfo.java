@@ -17,7 +17,7 @@ public class RestaurantInfo {
     private int restDeposit; // 예약금
 
     @Enumerated(EnumType.STRING)
-    private MoneyMethod restDepositMethod; // 예약금 받는 방법
+    private MoneyMethod restDepositMethod; // 예약금 받는 방법 -> A(고정금) / B(메뉴 20%)
 
     @Column(length=100)
     private String restAddress; // 식당 주소
@@ -29,10 +29,10 @@ public class RestaurantInfo {
     private String restPhone; // 식당 전화번호
 
     @Enumerated(EnumType.STRING)
-    private PeriodType restReserveopenRule; // 예약 오픈 단위 -> 일주일 / 한달
+    private PeriodType restReserveopenRule; // 예약 오픈 단위 -> WEEK(일주일) / MONTH(한달)
 
     @Enumerated(EnumType.STRING)
-    private MinuteType restReserveInterval; // 예약 받을 간격(분) -> 1시간 / 30분
+    private MinuteType restReserveInterval; // 예약 받을 간격(분) -> ONEHOUR(1시간) / HALFHOUR(30분)
 
     private double restGrade; // 식당 별점
 
@@ -43,10 +43,10 @@ public class RestaurantInfo {
     private String restPost; // 가게 공지
 
     @Enumerated(EnumType.STRING)
-    private ReservationType revWait; // 예약 대기 방식 -> 웨이팅 / 예약 / 둘다
+    private ReservationType revWait; // 예약 대기 방식 -> A(웨이팅) / B(예약) / C(둘다)
 
     @Enumerated(EnumType.STRING)
-    private RestWatingStatus restWaitingStatus; // 웨이팅 오픈 여부 -> 오픈 / 클로즈
+    private RestWatingStatus restWaitingStatus; // 웨이팅 오픈 여부 -> A(접수 중지) / B(접수 종료) / C(접수 중)
 
     @OneToOne
     @MapsId

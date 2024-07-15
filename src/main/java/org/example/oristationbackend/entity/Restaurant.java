@@ -47,7 +47,7 @@ public class Restaurant {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RestaurantStatus restStatus; // 식당 상태
+    private RestaurantStatus restStatus; // 식당 상태 -> A("승인 대기") / B("승인 완료") / C("승인 거부")
 
     @Column(nullable = false)
     private boolean restIsopen; // 예약 오픈 여부
