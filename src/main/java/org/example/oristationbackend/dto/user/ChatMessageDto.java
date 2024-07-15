@@ -12,8 +12,8 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class ChatMessageDto {
-    String senderName;
-    String senderType;//qs or ans
-    String messageContent;
-    Timestamp sendTime;
+    private String senderName;
+    private String senderType;//qs or ans
+    private String messageContent;
+    private Timestamp sendTime;
 }

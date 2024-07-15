@@ -12,7 +12,7 @@ import java.sql.Date;
 @Getter
 @Setter
 public class UserReportReqDto {
-    int reviewId;
-    Date reportDate;
-    String reportContent;
+    private int reviewId;
+    private Date reportDate;
+    private String reportContent;
 }

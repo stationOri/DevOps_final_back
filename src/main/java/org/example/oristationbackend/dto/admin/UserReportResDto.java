@@ -13,12 +13,12 @@ import java.sql.Date;
 @Getter
 @Setter
 public class UserReportResDto {
-    int userReportId;
-    String userEmail;
-    String userName;
-    Date reportDate;
-    String reportContent;
-    ReportStatus reportStatus;
-    int adminId;
+    private int userReportId;
+    private String userEmail;
+    private String userName;
+    private Date reportDate;
+    private String reportContent;
+    private ReportStatus reportStatus;
+    private int adminId;
 
 }

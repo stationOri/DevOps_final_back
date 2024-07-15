@@ -17,23 +17,28 @@ public class RestaurantInfo {
     private String restOpentime;
 
     private boolean restHoliday;
+
     private int restDeposit;
     @Enumerated(EnumType.STRING)
     private MoneyMethod restDepositMethod;
     @Column(length=100)
     private String restAddress;
+
     @Column(length=100)
     private String restIntro;
     private int restCloseday;
     @Column(length=20)
     private String restPhone;
+
     @Enumerated(EnumType.STRING)
     private PeriodType restReserveopenRule;
     @Enumerated(EnumType.STRING)
     private MinuteType restReserveInterval;
+
     private double restGrade;
     private int maxPpl;
     private int restTablenum;
+
     private String restPost;
     @Enumerated(EnumType.STRING)
     private ReservationType revWait;

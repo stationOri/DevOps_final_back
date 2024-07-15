@@ -11,7 +11,7 @@ import org.example.oristationbackend.entity.type.ReportStatus;
 @Getter
 @Setter
 public class UserReportStatusReqDto {
-    int userReportId;
-    ReportStatus reportStatus;
-    int adminId;
+    private int userReportId;
+    private ReportStatus reportStatus;
+    private int adminId;
 }

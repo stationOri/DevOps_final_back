@@ -12,8 +12,8 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class SendMessageDto {
-    int receiverId;
-    int senderId;
-    String messageContent;
-    Timestamp sendTime;
+    private int receiverId;
+    private int senderId;
+    private String messageContent;
+    private Timestamp sendTime;
 }
