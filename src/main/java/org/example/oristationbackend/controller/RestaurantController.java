@@ -1,6 +1,8 @@
 package org.example.oristationbackend.controller;
 
+import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
+import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,16 @@ public class RestaurantController {
       return ResponseEntity.notFound().build();
     } else {
       return ResponseEntity.ok(restaurant);
+    }
+  }
+
+  @GetMapping("/beforeAccept")
+  public ResponseEntity<List<restAcceptReadyDto>> getRestaurantsBeforeAccept() {
+    List<restAcceptReadyDto> resultRestaurants = restaurantService.findRestraurantByStatus(RestaurantStatus.A);
+    if (resultRestaurants == null) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(resultRestaurants);
     }
   }
 }
