@@ -50,7 +50,7 @@ public class RestaurantController {
 
 
   // 식당 id로 식당 메뉴 전체 조회
-  @GetMapping("/menus/{restId}")
+  @GetMapping("/menu/{restId}")
   public ResponseEntity<List<MenuListResDto>> getAllMenusByRestId(@PathVariable(name = "restId") int restId) {
     List<MenuListResDto> menus = restaurantMenuService.getAllMenusByRestaurantId(restId);
     if (menus.isEmpty()) {
@@ -61,14 +61,14 @@ public class RestaurantController {
   }
 
   // 메뉴 추가
-  @PostMapping("/menus")
+  @PostMapping("/menu")
   public ResponseEntity<Integer> addRestaurantMenu(@RequestBody MenuAddReqDto menuAddReqDto) {
     int menuId = restaurantMenuService.addRestaurantMenu(menuAddReqDto);
     return ResponseEntity.ok(menuId);
   }
 
   // 메뉴 수정
-  @PutMapping("/menus/{menuId}")
+  @PutMapping("/menu/{menuId}")
   public ResponseEntity<Integer> updateRestaurantMenu(@PathVariable(name = "menuId") int menuId, @RequestBody MenuModReqDto menuModReqDto) {
     int updatedMenuId = restaurantMenuService.updateRestaurantMenu(menuId, menuModReqDto);
     return ResponseEntity.ok(updatedMenuId);
