@@ -33,6 +33,7 @@ public class Login {
 
   @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Restaurant restaurant;
+
   @PrePersist
   @PreUpdate
   public void setChatType() {
