@@ -1,10 +1,12 @@
 package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.Keyword;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantInfo;
+import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.repository.KeywordRepository;
 import org.example.oristationbackend.repository.RestaurantInfoRepository;
 import org.example.oristationbackend.repository.RestaurantRepository;
@@ -37,6 +39,23 @@ public class RestaurantService {
 
     return convertToDto(restaurantInfo);
   }
+
+  //식당 승인 전 매장 불러오기
+  public List<restAcceptReadyDto> findRestraurantByStatus(RestaurantStatus status) {
+    List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
+
+    return restaurants.stream()
+            .map(restaurant -> new restAcceptReadyDto(
+                    restaurant.getRestId(),
+                    restaurant.getRestName(),
+                    restaurant.getRestStatus(),
+                    restaurant.getRestNum(),
+                    restaurant.getRestOwner(),
+                    restaurant.getRestPhone(),
+                    restaurant.getRestData(),
+                    restaurant.getJoinDate()))
+            .collect(Collectors.toList());
+  };
 
   // 엔티티를 DTO로 변환
   private SearchResDto convertToDto(RestaurantInfo restaurantInfo) {
