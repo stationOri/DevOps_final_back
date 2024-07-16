@@ -50,7 +50,7 @@ public class RestaurantController {
 
 
   // 식당 id로 식당 메뉴 전체 조회
-  @GetMapping("/{restId}/menus")
+  @GetMapping("/menus/{restId}")
   public ResponseEntity<List<MenuListResDto>> getAllMenusByRestId(@PathVariable(name = "restId") int restId) {
     List<MenuListResDto> menus = restaurantMenuService.getAllMenusByRestaurantId(restId);
     if (menus.isEmpty()) {
