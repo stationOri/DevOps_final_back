@@ -4,14 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
 import org.example.oristationbackend.service.RestAvailableResService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/res/available")
+@RequestMapping("/reservations")
 @RequiredArgsConstructor
-public class RestAvailableController {
-
+public class ReservationController {
   private final RestAvailableResService restAvailableResService;
 
   // 특정 식당의 특정 날짜의 예약 가능 시간 조회
@@ -21,4 +24,5 @@ public class RestAvailableController {
     RestAvailableResDto dto = restAvailableResService.getAvailableTimes(restId, date);
     return ResponseEntity.ok(dto);
   }
+
 }
