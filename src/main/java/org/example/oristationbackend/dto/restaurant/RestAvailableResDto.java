@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 public class RestAvailableResDto {
-  private int restaurantId; // 식당 id
+  private int restId; // 식당 id
   private OpenDay restDay; // 식당 영업 요일
   private List<String> availableTimes; // 예약 가능 시간대
 }

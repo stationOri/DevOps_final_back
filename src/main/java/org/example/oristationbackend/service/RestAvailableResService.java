@@ -39,7 +39,7 @@ public class RestAvailableResService {
     }
 
     RestAvailableResDto dto = new RestAvailableResDto();
-    dto.setRestaurantId(restId);
+    dto.setRestId(restId);
     dto.setRestDay(day);
     dto.setAvailableTimes(availableTimes);
 
