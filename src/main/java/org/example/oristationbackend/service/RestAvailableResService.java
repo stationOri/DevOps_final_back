@@ -6,6 +6,7 @@ import org.example.oristationbackend.entity.RestaurantInfo;
 import org.example.oristationbackend.entity.RestaurantOpen;
 import org.example.oristationbackend.entity.type.MinuteType;
 import org.example.oristationbackend.entity.type.OpenDay;
+import org.example.oristationbackend.entity.type.ReservationStatus;
 import org.example.oristationbackend.repository.RestaurantInfoRepository;
 import org.example.oristationbackend.repository.RestaurantOpenRepository;
 import org.example.oristationbackend.repository.ReservationRepository;
@@ -17,6 +18,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +108,9 @@ public class RestAvailableResService {
     LocalDateTime endDateTime = date.atTime(endTime);
     Timestamp startTimestamp = Timestamp.valueOf(startDateTime);
     Timestamp endTimestamp = Timestamp.valueOf(endDateTime);
-    return reservationRepository.countByRestaurantAndResDatetimeBetween(restaurantInfo.getRestaurant(), startTimestamp, endTimestamp);
+
+    List<ReservationStatus> statuses = Arrays.asList(ReservationStatus.RESERVATION_READY, ReservationStatus.RESERVATION_ACCEPTED);
+
+    return reservationRepository.countByRestaurantAndResDatetimeBetweenAndStatusIn(restaurantInfo.getRestaurant(), startTimestamp, endTimestamp, statuses);
   }
 }
