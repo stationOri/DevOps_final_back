@@ -29,7 +29,7 @@ public class WaitingController {
         //0일 경우 식당이 웨이팅 받는 상태 아님
     }
     @PutMapping("/{waitingId}")
-    public int changeWaitingStatus(@PathVariable int waitingId, @RequestBody UserWaitingStatus userWaitingStatus) {
+    public int changeWaitingStatus(@PathVariable("waitingId") int waitingId, @RequestBody UserWaitingStatus userWaitingStatus) {
         return waitingService.changeWaitingStatus(waitingId, userWaitingStatus);
     }
 }
