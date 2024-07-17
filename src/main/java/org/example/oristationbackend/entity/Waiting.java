@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.oristationbackend.dto.user.WaitingReqDto;
 import org.example.oristationbackend.entity.type.UserWaitingStatus;
 
 import java.sql.Date;
@@ -39,5 +40,10 @@ public class Waiting {
 
     @Enumerated(EnumType.STRING)
     private UserWaitingStatus userWaitingStatus;
+
+    public Waiting changeStatus(UserWaitingStatus userWaitingStatus) {
+        this.userWaitingStatus = userWaitingStatus;
+        return this;
+    }
 
 }
