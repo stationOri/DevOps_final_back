@@ -3,6 +3,7 @@ package org.example.oristationbackend.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.EnumPath;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -44,36 +45,32 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
         QWaiting waiting = QWaiting.waiting;
         QRestaurant restaurant = QRestaurant.restaurant;
 
-        WaitingResDto result = queryFactory
+        List<WaitingResDto> resultList = queryFactory
                 .select(Projections.fields(WaitingResDto.class,
                         waiting.waitingId,
                         waiting.waitingNum,
-                        // 서브쿼리: 같은 레스토랑에서 해당 사용자보다 앞에 있는 웨이팅 레코드의 수를 계산
-                        queryFactory.select(waiting.count())
-                                .from(waiting)
-                                .where(waiting.restaurant.restId.eq(
-                                        queryFactory.select(waiting.restaurant.restId)
-                                                        .from(waiting)
-                                                        .where(waiting.user.userId.eq(userId)
-                                                                .and(waiting.waitingDate.goe(startoftoday())))
-                                        ).and(waiting.waitingNum.lt(
-                                        queryFactory.select(waiting.waitingNum)
-                                                        .from(waiting)
-                                                        .where(waiting.user.userId.eq(userId)
-                                                                .and(waiting.waitingDate.goe(startoftoday())))
-                                        ))
-                                ),
+                        Expressions.as(
+                                JPAExpressions.select(waiting.count())
+                                        .from(waiting)
+                                        .join(waiting.restaurant)
+                                        .where(waiting.restaurant.restId.eq(restaurant.restId)
+                                                .and(waiting.user.userId.eq(userId))
+                                                .and(waiting.waitingDate.goe(startoftoday()))),
+                                "waitingCount"
+                        ),
                         waiting.waitingPpl,
                         restaurant.restName,
                         waiting.userWaitingStatus
                 ))
                 .from(waiting)
                 .join(waiting.restaurant, restaurant)
-                .where(waiting.user.userId.eq(userId))
-                .fetchOne();
+                .where(waiting.user.userId.eq(userId)
+                        .and(waiting.waitingDate.goe(startoftoday())))
+                .fetch();
 
-        return Optional.ofNullable(result);
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
     }
+
     @Override
     public List<WaitingRestResDto> findByRestId(int restId) {
         QWaiting waiting = QWaiting.waiting;
@@ -103,46 +100,41 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
         QWaiting waiting = QWaiting.waiting;
         QUser user = QUser.user;
 
-        // 오늘 날짜의 시작 (00:00:00)
-
-        long count = Optional.ofNullable(queryFactory
+        long count = queryFactory
                 .select(waiting.count())
                 .from(waiting)
                 .join(user).on(waiting.user.userId.eq(user.userId))
                 .where(
                         waiting.restaurant.restId.eq(restId)
                                 .and(waiting.waitingDate.goe(startoftoday()))
-
                 )
-                .fetchOne()
-        ).orElse(0L);
+                .fetchOne();
 
         return count;
     }
+
 
     @Override
     public boolean existByUserIdAndDate(int userId) {
         QWaiting waiting = QWaiting.waiting;
         QUser user = QUser.user;
-        // 쿼리 실행 및 존재 여부 확인
+
         boolean exists = queryFactory
                 .select(waiting.waitingId)
                 .from(waiting)
                 .where(
                         waiting.user.userId.eq(userId)
-                                .and(waiting.waitingDate.goe(startoftoday())
-                                        .and(waiting.userWaitingStatus.eq(UserWaitingStatus.IN_QUEUE)))
+                                .and(waiting.waitingDate.goe(startoftoday()))
+                                .and(waiting.userWaitingStatus.eq(UserWaitingStatus.IN_QUEUE))
                 )
-                .fetchFirst() != null; // 결과가 존재하면 true, 없으면 false 반환
+                .fetchFirst() != null;
 
         return exists;
     }
-
-    private Timestamp startoftoday(){
+    private Timestamp startoftoday() {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIN);
-        return Timestamp.valueOf(startOfDay);
-
+        return java.sql.Timestamp.valueOf(startOfDay);
     }
 }
 

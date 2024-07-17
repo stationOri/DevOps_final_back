@@ -15,11 +15,12 @@ import java.util.List;
 public class WaitingController {
     private final WaitingService waitingService;
     @GetMapping("/rest/{restId}")
-    public List<WaitingRestResDto> getRestWaiting(@PathVariable int restId) {
+    public List<WaitingRestResDto> getRestWaiting(@PathVariable("restId") int restId) {
         return waitingService.getRestWaiting(restId);
     }
     @GetMapping("/user/{userId}")
-    public WaitingResDto getUserWaiting(@PathVariable int userId) {
+    public WaitingResDto getUserWaiting(@PathVariable("userId") int userId) {
+
         return waitingService.getUserWaiting(userId);
     }
     @PostMapping

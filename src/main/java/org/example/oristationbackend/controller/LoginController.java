@@ -1,9 +1,13 @@
 package org.example.oristationbackend.controller;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.example.oristationbackend.dto.user.RegisterDto;
+import org.example.oristationbackend.service.LoginService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,10 +24,13 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+
+
 @RestController
 @RequestMapping("/login")
 @RequiredArgsConstructor
 public class LoginController {
+    private final LoginService loginService;
     @Value("${naver.client.id}")
     private String naverClientId;
 
@@ -54,11 +61,11 @@ public class LoginController {
         String state = request.getParameter("state");
         String sessionState = String.valueOf(request.getSession().getAttribute("state"));
 
-        if (!state.equals(sessionState)) {
-            System.out.println("세션 불일치");
-            request.getSession().removeAttribute("state");
-            return ResponseEntity.status(403).body("세션 불일치");
-        }
+//        if (!state.equals(sessionState)) {
+//            System.out.println("세션 불일치");
+//            request.getSession().removeAttribute("state");
+//            return ResponseEntity.status(403).body("세션 불일치");
+//        }
 
         String tokenURL = "https://nid.naver.com/oauth2.0/token";
         String clientId = naverClientId;
@@ -85,11 +92,26 @@ public class LoginController {
 
             String accessToken = resMap.get("access_token");
 
-            // 토큰을 URL 파라미터로 프론트엔드로 전달
-            String frontendRedirectUrl = "http://localhost:3000/callback?token=" + URLEncoder.encode(accessToken, "UTF-8");
+            String userInfoURL = "https://openapi.naver.com/v1/nid/me";
+            // Header에 access_token 삽입
+            headers.set("Authorization", "Bearer "+accessToken);
+
+            // Request entity 생성
+            HttpEntity<?> userInfoEntity = new HttpEntity<>(headers);
+
+            // Post 방식으로 Http 요청
+            // 응답 데이터 형식은 Hashmap 으로 지정
+            ResponseEntity<HashMap> userResult = restTemplate.postForEntity(userInfoURL, userInfoEntity, HashMap.class);
+            HashMap<String, String> responseMap = (HashMap<String, String>) userResult.getBody().get("response"); // response 맵
+            //응답 데이터 확인
+
+            RegisterDto registerDto= new RegisterDto(responseMap.get("name"),responseMap.get("nickname"),responseMap.get("email"),RegisterDto.changeNumber(responseMap.get("mobile")));
+            Object object = loginService.checkRegister(registerDto);
+            String jwtToken=loginService.genJwtToken(registerDto.getUserName(),object);
+            String frontendRedirectUrl = "http://localhost:3000/?token=" + URLEncoder.encode(jwtToken, "UTF-8");
             return ResponseEntity.status(302).header(HttpHeaders.LOCATION, frontendRedirectUrl).build();
 
-        } catch (Exception e) {
+        }  catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("에러 발생");
         } finally {
