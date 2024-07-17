@@ -7,18 +7,20 @@ import lombok.Setter;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 
 import java.sql.Date;
-
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class restAcceptReadyDto {
-    private int restId;
+@AllArgsConstructor
+public class restAfterAcceptDto {
+    private int rest_id;
     private String rest_name;
-    private RestaurantStatus rest_status;
+    private String rest_status;
     private String rest_num;
     private String rest_owner;
     private String rest_phone;
     private String rest_data;
     private Date join_date;
+    private Date quit_date;
+    private boolean rest_isblocked;
+    private boolean rest_isopen;
 }

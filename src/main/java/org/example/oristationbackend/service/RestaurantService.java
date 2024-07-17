@@ -1,7 +1,10 @@
 package org.example.oristationbackend.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
+import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.Keyword;
 import org.example.oristationbackend.entity.Restaurant;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,7 +45,7 @@ public class RestaurantService {
   }
 
   //식당 승인 전 매장 불러오기
-  public List<restAcceptReadyDto> findRestraurantByStatus(RestaurantStatus status) {
+  public List<restAcceptReadyDto> findRestraurantByStatusBefore(RestaurantStatus status) {
     List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
 
     return restaurants.stream()
@@ -56,6 +60,40 @@ public class RestaurantService {
                     restaurant.getJoinDate()))
             .collect(Collectors.toList());
   };
+
+  //식당 승인 후 매장 불러오기
+  public List<restAfterAcceptDto> findRestraurantByStatusAfter(RestaurantStatus status) {
+    List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
+
+    return restaurants.stream()
+            .map(restaurant -> new restAfterAcceptDto(
+                    restaurant.getRestId(),
+                    restaurant.getRestName(),
+                    restaurant.getRestStatus().getDescription(),
+                    restaurant.getRestNum(),
+                    restaurant.getRestOwner(),
+                    restaurant.getRestPhone(),
+                    restaurant.getRestData(),
+                    restaurant.getJoinDate(),
+                    restaurant.getQuitDate(),
+                    restaurant.isBlocked(),
+                    restaurant.isRestIsopen()))
+            .collect(Collectors.toList());
+
+  };
+
+
+  @Transactional
+  public int updateRestaurantStatus(RestaurantStatus status, int restId) {
+    Optional<Restaurant> optionalRestaurant = restaurantRepository.findById(restId);
+    if (optionalRestaurant.isPresent()) {
+      Restaurant restaurant = optionalRestaurant.get();
+      restaurant.setRestStatus(status);
+      return restaurantRepository.save(restaurant).getRestId();
+    } else {
+      throw new EntityNotFoundException("Restaurant not found with id: " + restId);
+    }
+  }
 
   // 엔티티를 DTO로 변환
   private SearchResDto convertToDto(RestaurantInfo restaurantInfo) {

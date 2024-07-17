@@ -1,6 +1,7 @@
 package org.example.oristationbackend.controller;
 
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
+import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.service.RestaurantService;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/restaurants")
@@ -42,13 +44,35 @@ public class RestaurantController {
     }
   }
 
+  //식당 승인 전 불러오기
   @GetMapping("/beforeAccept")
   public ResponseEntity<List<restAcceptReadyDto>> getRestaurantsBeforeAccept() {
-    List<restAcceptReadyDto> resultRestaurants = restaurantService.findRestraurantByStatus(RestaurantStatus.A);
+    List<restAcceptReadyDto> resultRestaurants = restaurantService.findRestraurantByStatusBefore(RestaurantStatus.A);
     if (resultRestaurants == null) {
       return ResponseEntity.notFound().build();
     } else {
       return ResponseEntity.ok(resultRestaurants);
     }
   }
+
+  //식당 승인 후
+  @GetMapping("/afterAccept")
+  public ResponseEntity<List<restAfterAcceptDto>> getRestaurantsAfterAccept() {
+    List<restAfterAcceptDto> resultRestaurants = restaurantService.findRestraurantByStatusAfter(RestaurantStatus.B);
+    if (resultRestaurants == null) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(resultRestaurants);
+    }
+  }
+
+  //식당 승인 및 거절
+  @PutMapping("/status/{rest_id}")
+  public int updateRestStatus(@PathVariable(name = "rest_id") int restId, @RequestBody Map<String, String> body) {
+    String statusStr = body.get("status");
+    RestaurantStatus status = RestaurantStatus.fromValue(statusStr);
+    return restaurantService.updateRestaurantStatus(status, restId);
+  }
+
+
 }
