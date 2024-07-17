@@ -1,0 +1,100 @@
+package org.example.oristationbackend.controller;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+@RestController
+@RequestMapping("/login")
+@RequiredArgsConstructor
+public class LoginController {
+    @Value("${naver.client.id}")
+    private String naverClientId;
+
+    @Value("${naver.client.secret}")
+    private String naverClientSecret;
+
+    @Value("${naver.redirect.uri}")
+    private String naverRedirectUri;
+
+    @GetMapping
+    public String naverLogin(HttpServletRequest request) {
+        String clientId = naverClientId;
+        String redirectUri = naverRedirectUri;
+        String state = RandomStringUtils.randomAlphabetic(10);
+        String loginUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code"
+                + "&client_id=" + clientId
+                + "&redirect_uri=" + redirectUri
+                + "&state=" + state;
+
+        request.getSession().setAttribute("state", state);
+
+        return loginUrl;
+    }
+
+    @GetMapping("/redirect")
+    public ResponseEntity<String> naverRedirect(HttpServletRequest request) {
+        String code = request.getParameter("code");
+        String state = request.getParameter("state");
+        String sessionState = String.valueOf(request.getSession().getAttribute("state"));
+
+        if (!state.equals(sessionState)) {
+            System.out.println("세션 불일치");
+            request.getSession().removeAttribute("state");
+            return ResponseEntity.status(403).body("세션 불일치");
+        }
+
+        String tokenURL = "https://nid.naver.com/oauth2.0/token";
+        String clientId = naverClientId;
+        String clientSecret = naverClientSecret;
+
+        MultiValueMap<String, String> parameter = new LinkedMultiValueMap<>();
+        parameter.add("grant_type", "authorization_code");
+        parameter.add("client_id", clientId);
+        parameter.add("client_secret", clientSecret);
+        parameter.add("code", code);
+        parameter.add("state", state);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<?> entity = new HttpEntity<>(parameter, headers);
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+            ResponseEntity<HashMap> result = restTemplate.postForEntity(tokenURL, entity, HashMap.class);
+            Map<String, String> resMap = result.getBody();
+
+            String accessToken = resMap.get("access_token");
+
+            // 토큰을 URL 파라미터로 프론트엔드로 전달
+            String frontendRedirectUrl = "http://localhost:3000/callback?token=" + URLEncoder.encode(accessToken, "UTF-8");
+            return ResponseEntity.status(302).header(HttpHeaders.LOCATION, frontendRedirectUrl).build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("에러 발생");
+        } finally {
+            request.getSession().removeAttribute("state");
+        }
+    }
+
+}
