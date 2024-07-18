@@ -3,7 +3,7 @@ package org.example.oristationbackend.entity.type;
 import lombok.Getter;
 
 public enum ReportStatus {
-  A("처리 대기"),
+  A("처리대기"),
   B("반려"),
   C("승인");
 
