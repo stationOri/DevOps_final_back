@@ -42,11 +42,13 @@ public class Reservation {
   @JoinColumn(name="rest_id")
   private Restaurant restaurant; // 식당 id
 
-  @OneToOne(mappedBy = "reservation", fetch = FetchType.LAZY)
+  @OneToOne(fetch = FetchType.LAZY)
+  @MapsId
   @JoinColumn(name="res_id")
   private Payment payment; // 결제 정보
 
-  @OneToMany(mappedBy = "reservation", fetch = FetchType.LAZY)
+  @OneToMany(fetch = FetchType.LAZY)
+  @MapsId
   @JoinColumn(name="res_id")
   private List<ReservedMenu> reservedMenus; // 예약된 메뉴
 }
