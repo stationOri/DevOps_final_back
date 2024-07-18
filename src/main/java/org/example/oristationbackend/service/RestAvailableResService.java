@@ -1,5 +1,8 @@
 package org.example.oristationbackend.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
 import org.example.oristationbackend.entity.RestaurantInfo;
@@ -13,11 +16,9 @@ import org.example.oristationbackend.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.sql.Timestamp;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,9 @@ import java.util.Map;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class RestAvailableResService {
+
+  @PersistenceContext
+  private EntityManager entityManager;
 
   private final RestaurantOpenRepository restaurantOpenRepository;
   private final RestaurantInfoRepository restaurantInfoRepository;
@@ -98,19 +102,25 @@ public class RestAvailableResService {
     int maxTables = restaurantInfo.getRestTablenum();
     int currentTables = countReservationsForTime(currentTime, restaurantInfo, date);
 
+    System.out.println("Max Tables: " + maxTables);
+    System.out.println("Current Tables: " + currentTables);
+    System.out.println("---------------------------------------");
+
     return currentTables < maxTables;
   }
 
   // 특정 시간대에 예약된 테이블 수를 조회
-  private int countReservationsForTime(LocalTime currentTime, RestaurantInfo restaurantInfo, LocalDate date) {
-    LocalTime endTime = currentTime.plusMinutes(restaurantInfo.getRestReserveInterval() == MinuteType.ONEHOUR ? 60 : 30);
-    LocalDateTime startDateTime = date.atTime(currentTime);
-    LocalDateTime endDateTime = date.atTime(endTime);
-    Timestamp startTimestamp = Timestamp.valueOf(startDateTime);
-    Timestamp endTimestamp = Timestamp.valueOf(endDateTime);
+  public int countReservationsForTime(LocalTime currentTime, RestaurantInfo restaurantInfo, LocalDate date) {
+    ZonedDateTime startDateTime = ZonedDateTime.of(date, currentTime, ZoneId.of("Asia/Seoul"));
+    Timestamp startTimestamp = Timestamp.valueOf(startDateTime.toLocalDateTime());
+
+    System.out.println("Start Timestamp: " + startTimestamp);
 
     List<ReservationStatus> statuses = Arrays.asList(ReservationStatus.RESERVATION_READY, ReservationStatus.RESERVATION_ACCEPTED);
 
-    return reservationRepository.countByRestaurantAndResDatetimeBetweenAndStatusIn(restaurantInfo.getRestaurant(), startTimestamp, endTimestamp, statuses);
+    int count = reservationRepository.countByRestaurantAndResDatetimeAndStatusIn(restaurantInfo.getRestaurant(), startTimestamp, statuses);
+    System.out.println("Reservation Count: " + count);
+
+    return count;
   }
 }

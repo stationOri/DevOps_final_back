@@ -11,5 +11,5 @@ import java.time.LocalTime;
 import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
-  int countByRestaurantAndResDatetimeBetweenAndStatusIn(Restaurant restaurant, Timestamp startTimestamp, Timestamp endTimestamp, List<ReservationStatus> statuses);
+  int countByRestaurantAndResDatetimeAndStatusIn(Restaurant restaurant, Timestamp startTimestamp, List<ReservationStatus> statuses);
 }
