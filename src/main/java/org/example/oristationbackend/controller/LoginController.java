@@ -112,17 +112,16 @@ public class LoginController {
             String path="";
             if(loginWrapper.hasRegistered()){
                 switch(loginWrapper.whatType()){
-                    case ADMIN -> path="adminmain";
-                    case RESTAURANT -> path= "restmain";
-                    default -> path="";
+                    case ADMIN -> path="adminmain?token=";
+                    case RESTAURANT -> path= "restmain?token=";
+                    default -> path="?token=";
                 }
             }else{
-                //기업 개인 회원가입 선택하도록 하기
-
+                path="?signin=true&token=";
             }
             String jwtToken=loginService.genJwtToken(registerDto.getUserName(),loginWrapper);
 
-            String frontendRedirectUrl = "http://localhost:3000/"+path+"?token=" + URLEncoder.encode(jwtToken, "UTF-8");
+            String frontendRedirectUrl = "http://localhost:3000/"+path+ URLEncoder.encode(jwtToken, "UTF-8");
 
             return ResponseEntity.status(302).header(HttpHeaders.LOCATION, frontendRedirectUrl).build();
 

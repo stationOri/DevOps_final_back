@@ -15,7 +15,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender javaMailSender;
-    private static final String senderEmail= "waitmate";
+    private static final String senderEmail= "kosta6006new@gmail.com";
     private static String code;
 
     private String createCode() {

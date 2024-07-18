@@ -98,7 +98,7 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
                         waiting.waitingNum,
                         waiting.waitingPpl,
                         user.userName,
-                        waiting.userWaitingStatus
+                        waiting.userWaitingStatus.as("waitingStatus")
                 ))
                 .from(waiting)
                 .join(user).on(waiting.user.userId.eq(user.userId))

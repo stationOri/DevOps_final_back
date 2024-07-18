@@ -17,7 +17,7 @@ public class Login {
   @Column(name = "email", nullable = false, length = 30)
   private String email;
 
-  @Column(name = "password", nullable = false, length = 15)
+  @Column(name = "password", length = 15)
   private String password;
 
   @Enumerated(EnumType.STRING)

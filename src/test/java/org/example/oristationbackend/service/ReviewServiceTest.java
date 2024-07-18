@@ -49,9 +49,13 @@ class ReviewServiceTest {
     void 유저추가() {
 
         Login login = new Login(0, "email@email", "password", ChatType.USER, null, null, null);
-        entityManager.persist(login); // 영속 엔티티로 관리됨
+        login = loginRepository.save(login); // Save the login entity
+
+        // Create a User entity and associate it with the saved login entity
         User user = new User(login, 0, "이름", "닉네임", "01023451234", false, new Date(System.currentTimeMillis()), null);
-        user=userRepository.save(user);
+        user = userRepository.save(user); // Save the user entity
+
+        // Associate the login entity with the user entity and save it again
         login.setUser(user);
         loginRepository.save(login);
 
