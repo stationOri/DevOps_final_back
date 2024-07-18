@@ -7,7 +7,10 @@ import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.example.oristationbackend.dto.user.RegisterDto;
+<<<<<<< Updated upstream
 import org.example.oristationbackend.securiity.LoginWrapper;
+=======
+>>>>>>> Stashed changes
 import org.example.oristationbackend.service.LoginService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -107,6 +110,7 @@ public class LoginController {
             //응답 데이터 확인
 
             RegisterDto registerDto= new RegisterDto(responseMap.get("name"),responseMap.get("nickname"),responseMap.get("email"),RegisterDto.changeNumber(responseMap.get("mobile")));
+<<<<<<< Updated upstream
             LoginWrapper loginWrapper = loginService.checkRegister(registerDto);
             String path="";
             if(loginWrapper.hasRegistered()){
@@ -122,6 +126,11 @@ public class LoginController {
             String jwtToken=loginService.genJwtToken(registerDto.getUserName(),loginWrapper);
 
             String frontendRedirectUrl = "http://localhost:3000/"+path+"?token=" + URLEncoder.encode(jwtToken, "UTF-8");
+=======
+            Object object = loginService.checkRegister(registerDto);
+            String jwtToken=loginService.genJwtToken(registerDto.getUserName(),object);
+            String frontendRedirectUrl = "http://localhost:3000/?token=" + URLEncoder.encode(jwtToken, "UTF-8");
+>>>>>>> Stashed changes
             return ResponseEntity.status(302).header(HttpHeaders.LOCATION, frontendRedirectUrl).build();
 
         }  catch (Exception e) {

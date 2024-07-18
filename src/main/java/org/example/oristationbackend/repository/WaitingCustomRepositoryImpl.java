@@ -45,6 +45,7 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
         QWaiting waiting = QWaiting.waiting;
         QRestaurant restaurant = QRestaurant.restaurant;
 
+<<<<<<< Updated upstream
         // 사용자가 등록한 웨이팅 정보의 최소 대기일시를 조회
         Timestamp minWaitingDate = queryFactory
                 .select(waiting.waitingDate.max())
@@ -53,11 +54,14 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
                         .and(waiting.waitingDate.goe(startoftoday())))
                 .fetchOne();
 
+=======
+>>>>>>> Stashed changes
         List<WaitingResDto> resultList = queryFactory
                 .select(Projections.fields(WaitingResDto.class,
                         waiting.waitingId,
                         waiting.waitingNum,
                         Expressions.as(
+<<<<<<< Updated upstream
                                 JPAExpressions.select(waiting.count().intValue())
                                         .from(waiting)
                                         .join(waiting.restaurant)
@@ -67,6 +71,15 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
                                                 .and(waiting.userWaitingStatus.eq(UserWaitingStatus.IN_QUEUE))),
 
                                 "waitingLeft"
+=======
+                                JPAExpressions.select(waiting.count())
+                                        .from(waiting)
+                                        .join(waiting.restaurant)
+                                        .where(waiting.restaurant.restId.eq(restaurant.restId)
+                                                .and(waiting.user.userId.eq(userId))
+                                                .and(waiting.waitingDate.goe(startoftoday()))),
+                                "waitingCount"
+>>>>>>> Stashed changes
                         ),
                         waiting.waitingPpl,
                         waiting.userWaitingStatus.as("waitingStatus"),
