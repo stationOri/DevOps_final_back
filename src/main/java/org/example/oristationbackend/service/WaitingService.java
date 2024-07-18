@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,12 +35,12 @@ public class WaitingService {
         return waitingRepository.findByRestId(restId);
     }
 
+    @Transactional(readOnly = false)
     public WaitingResDto getUserWaiting(int userId) {
-        if(waitingRepository.findByUserId(userId).isPresent()){
-            return waitingRepository.findByUserId(userId).get();
-        };return null;
+        Optional<WaitingResDto> waiting = waitingRepository.findByUserId(userId);
+        return waiting.orElse(null);
     }
-
+    @Transactional(readOnly = false)
     public int addWaiting(WaitingReqDto waitingReqDto) {
         if(waitingRepository.existByUserIdAndDate(waitingReqDto.getUserId())){
             return -1;
@@ -61,7 +62,7 @@ public class WaitingService {
         }
         return restaurantInfo.getRestWaitingStatus() == RestWatingStatus.C;
     }
-
+    @Transactional(readOnly = false)
     public int changeWaitingStatus(int waitingId, UserWaitingStatus userWaitingStatus) {
         Waiting waiting=waitingRepository.findById(waitingId).orElseThrow(() -> new IllegalArgumentException("waiting not found with id: " +waitingId));
         waiting=waiting.changeStatus(userWaitingStatus);

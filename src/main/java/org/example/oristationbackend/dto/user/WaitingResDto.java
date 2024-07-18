@@ -13,6 +13,7 @@ public class WaitingResDto {
     private int waitingNum;
     private int waitingLeft;
     private int waitingPpl;
-    private String restName;
+
     private UserWaitingStatus waitingStatus;
+    private String restName;
 }

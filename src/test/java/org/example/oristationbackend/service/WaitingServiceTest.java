@@ -1,14 +1,8 @@
 package org.example.oristationbackend.service;
 
 import jakarta.persistence.EntityManager;
-import org.example.oristationbackend.dto.user.ReviewReqDto;
-import org.example.oristationbackend.dto.user.ReviewResDto;
-import org.example.oristationbackend.dto.user.ReviewRestDto;
-import org.example.oristationbackend.dto.user.WaitingReqDto;
-import org.example.oristationbackend.entity.Login;
-import org.example.oristationbackend.entity.Restaurant;
-import org.example.oristationbackend.entity.RestaurantInfo;
-import org.example.oristationbackend.entity.User;
+import org.example.oristationbackend.dto.user.*;
+import org.example.oristationbackend.entity.*;
 import org.example.oristationbackend.entity.type.*;
 import org.example.oristationbackend.repository.*;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WaitingServiceTest {
     @Autowired
     private EntityManager entityManager;
-
+    @Autowired
+    private WaitingRepository waitingRepository;
     @Autowired
     private LoginRepository loginRepository;
     @Autowired
@@ -85,9 +80,12 @@ class WaitingServiceTest {
         WaitingReqDto waitingReqDto = new WaitingReqDto(user.getUserId(),restaurant2.getRestId(),3,"12341234");
         assertEquals(0,waitingService.addWaiting(waitingReqDto));
         WaitingReqDto waitingReqDto2 = new WaitingReqDto(user.getUserId(),restaurant.getRestId(),3,"12341234");
-        assertTrue(waitingService.addWaiting(waitingReqDto2) > 0);
+        int a=waitingService.addWaiting(waitingReqDto2);
         WaitingReqDto waitingReqDto4 = new WaitingReqDto(user.getUserId(),restaurant2.getRestId(),3,"12341234");
-        assertEquals(-1,waitingService.addWaiting(waitingReqDto4));
+
+        waitingService.changeWaitingStatus(a,UserWaitingStatus.IN_QUEUE);
+        WaitingResDto waiting = waitingService.getUserWaiting(user.getUserId());
+        assertEquals(UserWaitingStatus.IN_QUEUE,waiting.getWaitingStatus());
         assertEquals(1,waitingService.getRestWaiting(restaurant.getRestId()).size());
 
     }
