@@ -13,6 +13,11 @@ import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.repository.KeywordRepository;
 import org.example.oristationbackend.repository.RestaurantInfoRepository;
 import org.example.oristationbackend.repository.RestaurantRepository;
+
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,4 +128,14 @@ public class RestaurantService {
         keyword3Name
     );
   }
+
+  public List<SearchResDto> getRestaurantsByPage(int page) {
+
+    Pageable pageable = PageRequest.of(page, 20);
+    Page<RestaurantInfo> restaurantInfos=restaurantInfoRepository.findAll(pageable);
+    return restaurantInfos.getContent().stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+  }
+
 }

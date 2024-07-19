@@ -38,6 +38,16 @@ public class RestaurantController {
       return ResponseEntity.ok(restaurants);
     }
   }
+  @GetMapping("/page/{page}")
+  public ResponseEntity<List<SearchResDto>> getRestaurantsByPage(@PathVariable("page") int page) {
+    List<SearchResDto> restaurants = restaurantService.getRestaurantsByPage(page);
+
+    if (restaurants.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(restaurants);
+    }
+  }
 
   // 식당 id로 식당 정보 조회
   @GetMapping("/{restId}")
