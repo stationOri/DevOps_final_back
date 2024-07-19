@@ -21,7 +21,6 @@ public class EmailController {
     @PostMapping("/send")
     public ResponseEntity<String> MailSend(HttpSession httpSession, @RequestParam("mail") String mail) {
         String num = emailService.sendMail(mail);
-
         httpSession.setAttribute("code", num);
 
         return ResponseEntity.ok("Verification code sent and stored in session");
