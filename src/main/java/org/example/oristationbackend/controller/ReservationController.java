@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
+import org.example.oristationbackend.dto.user.UserReservationResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.service.ReservationService;
 import org.example.oristationbackend.service.RestAvailableResService;
@@ -31,6 +32,7 @@ public class ReservationController {
     return ResponseEntity.ok(dto);
   }
 
+  // 관리자 예약 조회
   @GetMapping ("/reservation/admin")
   public ResponseEntity<List<AdminReservationResDto>> getAllReservationInfos() {
     List<AdminReservationResDto> resultreservations = reservationService.findAllReservations();
@@ -39,6 +41,12 @@ public class ReservationController {
     } else {
       return ResponseEntity.ok(resultreservations);
     }
+  }
+
+  // 사용자 예약 내역 조회
+  @GetMapping("/user/{userId}")
+  public List<UserReservationResDto> getRecentReservations(@PathVariable(name = "userId") int userId) {
+    return reservationService.getRecentReservations(userId);
   }
 
 }

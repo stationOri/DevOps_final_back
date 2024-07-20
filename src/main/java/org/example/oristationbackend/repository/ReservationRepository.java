@@ -16,6 +16,7 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
   int countByRestaurantAndResDatetimeAndStatusIn(Restaurant restaurant, Timestamp startTimestamp, List<ReservationStatus> statuses);
 
+  // 많이 방문한 식당 조회
   @Query("SELECT res.restaurant, COUNT(res) AS revCount " +
       "FROM Reservation res " +
       "WHERE res.user.userId = :userId AND res.resDatetime BETWEEN :startDate AND :endDate " +
@@ -26,4 +27,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
                                                    @Param("startDate") LocalDateTime startDate,
                                                    @Param("endDate") LocalDateTime endDate,
                                                    @Param("status") ReservationStatus status);
+
+  // 사용자 예약 내역 조회
+  @Query("SELECT r FROM Reservation r WHERE r.user.userId = :userId AND r.resDatetime >= :oneYearAgo ORDER BY r.resDatetime DESC")
+  List<Reservation> findRecentReservationsByUserId(@Param("userId") int userId, @Param("oneYearAgo") Timestamp oneYearAgo);
+
 }
