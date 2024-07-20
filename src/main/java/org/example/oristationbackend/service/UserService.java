@@ -1,6 +1,7 @@
 package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.oristationbackend.dto.user.UserInfoModReqDto;
 import org.example.oristationbackend.dto.user.UserInfoResDto;
 import org.example.oristationbackend.dto.user.UserRegisterReqDto;
 import org.example.oristationbackend.entity.Login;
@@ -42,7 +43,16 @@ public class UserService {
     }
 
     // 사용자 정보 수정
+    @Transactional(readOnly = false)
+    public UserInfoResDto updateUser(int userId, UserInfoModReqDto userInfoModReqDto) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
+        user.setUserNickname(userInfoModReqDto.getUserNickname());
+        User updatedUser = userRepository.save(user);
+
+        return convertToDto(updatedUser);
+    }
 
     // 사용자 정보 조회 - 전체 사용자 조회
     public List<UserInfoResDto> getAllUsers() {

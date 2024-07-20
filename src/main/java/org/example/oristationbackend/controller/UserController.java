@@ -1,11 +1,9 @@
 package org.example.oristationbackend.controller;
 
+import org.example.oristationbackend.dto.user.UserInfoModReqDto;
 import org.example.oristationbackend.dto.user.UserInfoResDto;
 import org.example.oristationbackend.service.UserService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +26,12 @@ public class UserController {
   @GetMapping("/{userId}")
   public UserInfoResDto getUserById(@PathVariable(name = "userId") int userId) {
     return userService.getUserById(userId);
+  }
+
+  // 사용자 정보 수정
+  @PutMapping("/{userId}")
+  public UserInfoResDto updateUser(@PathVariable(name = "userId") int userId, @RequestBody UserInfoModReqDto userInfoModReqDto) {
+    return userService.updateUser(userId, userInfoModReqDto);
   }
 
 }
