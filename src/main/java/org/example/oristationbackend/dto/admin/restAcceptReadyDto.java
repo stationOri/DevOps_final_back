@@ -20,5 +20,5 @@ public class restAcceptReadyDto {
     private String rest_owner;
     private String rest_phone;
     private String rest_data;
-    private Date join_date;
+    private String join_date;
 }
