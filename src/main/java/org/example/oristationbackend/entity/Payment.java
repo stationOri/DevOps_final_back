@@ -26,5 +26,7 @@ public class Payment {
     private int amount;
 
     private int refund;
+
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }

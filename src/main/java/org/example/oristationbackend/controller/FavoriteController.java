@@ -1,5 +1,6 @@
 package org.example.oristationbackend.controller;
 
+import org.example.oristationbackend.dto.user.FavRestResDto;
 import org.example.oristationbackend.dto.user.FavoriteDto;
 import org.example.oristationbackend.entity.Favorite;
 import org.example.oristationbackend.entity.Restaurant;
@@ -32,6 +33,12 @@ public class FavoriteController {
     }
   }
 
+  // 사용자 id에 따라 찜한 식당 정보 조회
+  @GetMapping("/{userId}/rest")
+  public List<FavRestResDto> getFavoriteRestaurants(@PathVariable(name = "userId") int userId) {
+    return favoriteService.getFavoriteRestaurants(userId);
+  }
+
   // 찜 추가
   @PostMapping("/{userId}/rest/{restId}")
   public ResponseEntity<FavoriteDto> addFavorite(@PathVariable(name = "userId") int userId, @PathVariable(name = "restId") int restId) {
@@ -49,10 +56,19 @@ public class FavoriteController {
     return ResponseEntity.ok(favoriteDto);
   }
 
-  // 찜 삭제
+  // 찜 삭제 - favoriteId 로 삭제
   @DeleteMapping("/{favoriteId}")
   public ResponseEntity<Void> deleteFavorite(@PathVariable(name = "favoriteId") int favoriteId) {
     favoriteService.deleteFavorite(favoriteId);
     return ResponseEntity.ok().build();
   }
+
+  // 찜 삭제 - userId, restId 로 삭제
+  @DeleteMapping("/{userId}/rest/{restId}")
+  public ResponseEntity<Void> deleteFavoriteByUserId_RestId(@PathVariable(name = "userId") int userId, @PathVariable(name = "restId") int restId) {
+    favoriteService.deleteFavoriteByUserIdRestId(userId, restId);
+    return ResponseEntity.ok().build();
+  }
+
+
 }

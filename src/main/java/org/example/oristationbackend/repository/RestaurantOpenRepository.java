@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface RestaurantOpenRepository extends JpaRepository<RestaurantOpen, Integer> {
   List<RestaurantOpen> findByRestaurant(Restaurant restaurant);
   List<RestaurantOpen> findByRestaurantAndRestDay(Restaurant restaurant, OpenDay day);
+  List<RestaurantOpen> findByRestaurantRestId(int restId);
 }

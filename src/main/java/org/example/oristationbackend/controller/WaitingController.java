@@ -20,7 +20,6 @@ public class WaitingController {
     }
     @GetMapping("/user/{userId}")
     public WaitingResDto getUserWaiting(@PathVariable("userId") int userId) {
-
         return waitingService.getUserWaiting(userId);
     }
     @PostMapping

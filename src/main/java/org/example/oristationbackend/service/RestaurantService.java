@@ -5,19 +5,28 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
+import org.example.oristationbackend.dto.user.MostRestDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.Keyword;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantInfo;
+import org.example.oristationbackend.entity.type.ReservationStatus;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.repository.KeywordRepository;
+import org.example.oristationbackend.repository.ReservationRepository;
 import org.example.oristationbackend.repository.RestaurantInfoRepository;
 import org.example.oristationbackend.repository.RestaurantRepository;
+
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +37,7 @@ import java.util.stream.Collectors;
 public class RestaurantService {
   private final RestaurantRepository restaurantRepository;
   private final RestaurantInfoRepository restaurantInfoRepository;
+  private final ReservationRepository reservationRepository;
   private final KeywordRepository keywordRepository;
 
   // 전체 식당 정보 조회
@@ -86,7 +96,7 @@ public class RestaurantService {
             .collect(Collectors.toList());
   }
 
-
+  // 식당 정보 수정
   @Transactional
   public int updateRestaurantStatus(RestaurantStatus status, int restId) {
     Optional<Restaurant> optionalRestaurant = restaurantRepository.findById(restId);
@@ -126,5 +136,40 @@ public class RestaurantService {
         keyword2Name,
         keyword3Name
     );
+  }
+
+  // 페이징 처리된 식당 정보 조회
+  public List<SearchResDto> getRestaurantsByPage(int page) {
+    Pageable pageable = PageRequest.of(page, 20);
+    Page<RestaurantInfo> restaurantInfos=restaurantInfoRepository.findAll(pageable);
+    return restaurantInfos.getContent().stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+  }
+
+  // 자주 방문한 식당 조회
+  public List<MostRestDto> getMostReservedRestaurantsByUser(int userId) {
+    LocalDateTime twoYearsAgo = LocalDateTime.now().minusYears(2);
+    LocalDateTime now = LocalDateTime.now();
+    ReservationStatus visitedStatus = ReservationStatus.VISITED;
+
+    List<Object[]> results = reservationRepository.findMostReservedRestaurantsByUser(userId, twoYearsAgo, now, visitedStatus);
+
+    return results.stream()
+        .map(result -> {
+          Restaurant restaurant = (Restaurant) result[0];
+          Long revCount = (Long) result[1];
+          return new MostRestDto(
+              restaurant.getRestId(),
+              restaurant.getRestName(),
+              restaurant.getRestaurantInfo().getRestAddress(),
+              restaurant.getRestPhone(),
+              restaurant.getRestaurantInfo().getRestGrade(),
+              restaurant.getRestPhoto(),
+              Math.toIntExact(revCount)
+          );
+        })
+        .limit(4) // 4개만 반환
+        .collect(Collectors.toList());
   }
 }

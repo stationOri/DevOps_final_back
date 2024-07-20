@@ -12,27 +12,27 @@ import org.example.oristationbackend.entity.type.ChatType;
 public class Login {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int loginId;
+  private int loginId; // 로그인 id
 
   @Column(name = "email", nullable = false, length = 30)
-  private String email;
+  private String email; // 이메일
 
   @Column(name = "password", length = 15)
-  private String password;
+  private String password; // 비밀번호
 
   @Enumerated(EnumType.STRING)
   @Column(name = "type", length = 10)
-  private ChatType chatType;
+  private ChatType chatType; // 사용자 유형
 
   @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinColumn(name="user_id")
-  private User user;
+  private User user; // 사용자 id
 
   @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private Admin admin;
+  private Admin admin; // 관리자 id
 
   @OneToOne(mappedBy = "login", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private Restaurant restaurant;
+  private Restaurant restaurant; // 식당 id
 
   @PrePersist
   @PreUpdate

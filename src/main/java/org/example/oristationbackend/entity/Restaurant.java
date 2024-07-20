@@ -28,7 +28,7 @@ public class Restaurant {
     @Column(nullable = false, length=20)
     private String restPhone; // 점주 전화번호
 
-    @Column(nullable = false, length=30)
+    @Column(nullable = false, length=100)
     private String restName; // 식당 이름
 
     @Column(nullable = false, length=250)

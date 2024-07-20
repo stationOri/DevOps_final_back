@@ -2,15 +2,22 @@ package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
+import org.example.oristationbackend.dto.user.ResRestCountDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
+import org.example.oristationbackend.dto.user.UserReservationResDto;
+import org.example.oristationbackend.entity.Payment;
 import org.example.oristationbackend.entity.Reservation;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantInfo;
+import org.example.oristationbackend.entity.type.ReservationStatus;
+import org.example.oristationbackend.repository.PaymentRepository;
 import org.example.oristationbackend.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.sql.Timestamp;
 import java.util.stream.Collectors;
@@ -20,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReservationService {
     private final ReservationRepository reservationRepository;
+    private final PaymentRepository paymentRepository;
 
     // 어드민 예약 조회
     public List<AdminReservationResDto> findAllReservations() {
@@ -45,4 +53,40 @@ public class ReservationService {
         }
         return null;
     }
+
+    // 사용자 예약 내역 조회
+    public List<UserReservationResDto> getRecentReservations(int userId) {
+        LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
+        Timestamp oneYearAgoTimestamp = Timestamp.valueOf(oneYearAgo);
+
+        List<Reservation> reservations = reservationRepository.findRecentReservationsByUserId(userId, oneYearAgoTimestamp);
+
+        return reservations.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    // 엔티티를 DTO로 변환
+    private UserReservationResDto convertToDto(Reservation reservation) {
+        return new UserReservationResDto(
+            reservation.getResId(),
+            reservation.getRestaurant().getRestId(),
+            reservation.getResDatetime(),
+            reservation.getRestaurant().getRestName(),
+            reservation.getRestaurant().getRestPhoto(),
+            reservation.getResNum(),
+            reservation.getStatus(),
+            reservation.getPayment().getStatus(),
+            reservation.getRefund()
+        );
+    }
+
+    // 사용자 예약/방문한 식당 수 조회
+    public ResRestCountDto getReservationCounts(int userId) {
+        List<ReservationStatus> nowStatuses = Arrays.asList(ReservationStatus.RESERVATION_READY, ReservationStatus.RESERVATION_ACCEPTED);
+        int nowCount = reservationRepository.countNowReservations(userId, nowStatuses);
+        int pastCount = reservationRepository.countPastReservations(userId, ReservationStatus.VISITED);
+        int restCount = reservationRepository.countVisitedRestaurants(userId, ReservationStatus.VISITED);
+
+        return new ResRestCountDto(nowCount, pastCount, restCount);
+    }
+
 }
