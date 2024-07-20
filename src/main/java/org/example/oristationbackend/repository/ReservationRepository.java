@@ -32,4 +32,14 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
   @Query("SELECT r FROM Reservation r WHERE r.user.userId = :userId AND r.resDatetime >= :oneYearAgo ORDER BY r.resDatetime DESC")
   List<Reservation> findRecentReservationsByUserId(@Param("userId") int userId, @Param("oneYearAgo") Timestamp oneYearAgo);
 
+  // 사용자가 예약/방문한 식당 수 조회
+  @Query("SELECT COUNT(r) FROM Reservation r WHERE r.user.userId = :userId AND r.status IN (:statuses) AND r.resDatetime < CURRENT_DATE")
+  int countNowReservations(@Param("userId") int userId, @Param("statuses") List<ReservationStatus> statuses);
+
+  @Query("SELECT COUNT(r) FROM Reservation r WHERE r.user.userId = :userId AND r.status = :status")
+  int countPastReservations(@Param("userId") int userId, @Param("status") ReservationStatus status);
+
+  @Query("SELECT COUNT(DISTINCT r.restaurant.restId) FROM Reservation r WHERE r.user.userId = :userId AND r.status = :status")
+  int countVisitedRestaurants(@Param("userId") int userId, @Param("status") ReservationStatus status);
+
 }
