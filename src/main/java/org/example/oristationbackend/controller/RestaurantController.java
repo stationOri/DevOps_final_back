@@ -5,6 +5,7 @@ import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.MenuAddReqDto;
 import org.example.oristationbackend.dto.restaurant.MenuListResDto;
 import org.example.oristationbackend.dto.restaurant.MenuModReqDto;
+import org.example.oristationbackend.dto.user.MostRestDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.service.RestaurantMenuService;
@@ -38,6 +39,8 @@ public class RestaurantController {
       return ResponseEntity.ok(restaurants);
     }
   }
+
+  // 식당 페이지별 조회
   @GetMapping("/page/{page}")
   public ResponseEntity<List<SearchResDto>> getRestaurantsByPage(@PathVariable("page") int page) {
     List<SearchResDto> restaurants = restaurantService.getRestaurantsByPage(page);
@@ -122,5 +125,10 @@ public class RestaurantController {
     return restaurantService.updateRestaurantStatus(status, restId);
   }
 
+  // 최근 2년간 가장 많이 예약된 식당 조회
+  @GetMapping("/most/{userId}")
+  public List<MostRestDto> getMostReservedRestaurantsByUser(@PathVariable(name = "userId") int userId) {
+    return restaurantService.getMostReservedRestaurantsByUser(userId);
+  }
 
 }
