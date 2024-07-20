@@ -1,6 +1,5 @@
 package org.example.oristationbackend.repository;
 
-import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
