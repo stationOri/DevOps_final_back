@@ -16,6 +16,8 @@ import org.example.oristationbackend.repository.RestaurantRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,6 +48,8 @@ public class RestaurantService {
 
   //식당 승인 전 매장 불러오기
   public List<restAcceptReadyDto> findRestraurantByStatusBefore(RestaurantStatus status) {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
     List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
 
     return restaurants.stream()
@@ -57,12 +61,13 @@ public class RestaurantService {
                     restaurant.getRestOwner(),
                     restaurant.getRestPhone(),
                     restaurant.getRestData(),
-                    restaurant.getJoinDate()))
+                    formatter.format(restaurant.getJoinDate())))
             .collect(Collectors.toList());
-  };
+  }
 
   //식당 승인 후 매장 불러오기
   public List<restAfterAcceptDto> findRestraurantByStatusAfter(RestaurantStatus status) {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
 
     return restaurants.stream()
@@ -74,13 +79,12 @@ public class RestaurantService {
                     restaurant.getRestOwner(),
                     restaurant.getRestPhone(),
                     restaurant.getRestData(),
-                    restaurant.getJoinDate(),
-                    restaurant.getQuitDate(),
+                    restaurant.getJoinDate() != null ? formatter.format(restaurant.getJoinDate()) : "",
+                    restaurant.getQuitDate() != null ? formatter.format(restaurant.getQuitDate()) : "",
                     restaurant.isBlocked(),
                     restaurant.isRestIsopen()))
             .collect(Collectors.toList());
-
-  };
+  }
 
 
   @Transactional

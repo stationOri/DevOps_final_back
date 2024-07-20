@@ -19,8 +19,8 @@ public class restAfterAcceptDto {
     private String rest_owner;
     private String rest_phone;
     private String rest_data;
-    private Date join_date;
-    private Date quit_date;
+    private String join_date;
+    private String quit_date;
     private boolean rest_isblocked;
     private boolean rest_isopen;
 }
