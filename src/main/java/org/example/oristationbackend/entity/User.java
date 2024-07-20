@@ -18,19 +18,22 @@ public class User {
     @JoinColumn(name = "user_id")
     private Login login;
     @Id
-    private int userId;
+    private int userId; // 사용자 id
 
     @Column(length=20)
-    private String userName;
+    private String userName; // 사용자 이름
 
     @Column(length=20)
-    private String userNickname;
+    private String userNickname; // 사용자 닉네임
 
     @Column(length=11)
-    private String userPhone;
-    private boolean isBlocked;
-    private Date joinDate;
-    private Date quitDate;
+    private String userPhone; // 사용자 전화번호
+
+    private boolean isBlocked; // 사용자 정지 여부
+
+    private Date joinDate; // 가입일
+
+    private Date quitDate; // 탈퇴일
 
     public User quitUser(){
         this.quitDate=new java.sql.Date(System.currentTimeMillis());
