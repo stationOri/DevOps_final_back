@@ -5,17 +5,15 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
+import org.example.oristationbackend.dto.restaurant.RestRegisterDto;
 import org.example.oristationbackend.dto.user.MostRestDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
-import org.example.oristationbackend.entity.Keyword;
-import org.example.oristationbackend.entity.Restaurant;
-import org.example.oristationbackend.entity.RestaurantInfo;
+import org.example.oristationbackend.dto.user.UserRegisterReqDto;
+import org.example.oristationbackend.entity.*;
+import org.example.oristationbackend.entity.type.ChatType;
 import org.example.oristationbackend.entity.type.ReservationStatus;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
-import org.example.oristationbackend.repository.KeywordRepository;
-import org.example.oristationbackend.repository.ReservationRepository;
-import org.example.oristationbackend.repository.RestaurantInfoRepository;
-import org.example.oristationbackend.repository.RestaurantRepository;
+import org.example.oristationbackend.repository.*;
 
 
 import org.springframework.data.domain.Page;
@@ -24,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
@@ -39,7 +38,7 @@ public class RestaurantService {
   private final RestaurantInfoRepository restaurantInfoRepository;
   private final ReservationRepository reservationRepository;
   private final KeywordRepository keywordRepository;
-
+  private final LoginRepository loginRepository;
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
     List<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findAll();
@@ -172,4 +171,22 @@ public class RestaurantService {
         .limit(4) // 4개만 반환
         .collect(Collectors.toList());
   }
+  @Transactional(readOnly = false)
+  public int addRestaurant(RestRegisterDto restRegisterDto) {
+      if(existRestaurant((restRegisterDto.getRestPhone()))){
+        return 0;
+      }
+    Login login = new Login(0, restRegisterDto.getEmail(), null, ChatType.RESTAURANT, null, null, null);
+    login = loginRepository.save(login);
+    Restaurant restaurant= new Restaurant(login,0,restRegisterDto.getRestName(),restRegisterDto.getRestPhone(),restRegisterDto.getRestName2(),"",restRegisterDto.getRestData(),
+            restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
+    restaurantRepository.save(restaurant);
+    login.setRestaurant(restaurant);
+    return loginRepository.save(login).getLoginId();
+  }
+  private boolean existRestaurant(String phone) {
+    return restaurantRepository.existsByRestPhone(phone);
+  }
+
+
 }

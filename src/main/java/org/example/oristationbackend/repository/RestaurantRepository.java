@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface RestaurantRepository extends JpaRepository<Restaurant, Integer> {
     List<Restaurant> findRestaurantByRestStatus(RestaurantStatus restaurantStatus);
     Optional<Restaurant> findByRestPhone(String phone);
+    boolean existsByRestPhone(String phone);
 }
