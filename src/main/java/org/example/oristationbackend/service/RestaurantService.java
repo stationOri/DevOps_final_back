@@ -4,17 +4,15 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
+import org.example.oristationbackend.dto.restaurant.RestRegisterDto;
 import org.example.oristationbackend.dto.user.MostRestDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
-import org.example.oristationbackend.entity.Keyword;
-import org.example.oristationbackend.entity.Restaurant;
-import org.example.oristationbackend.entity.RestaurantInfo;
+import org.example.oristationbackend.dto.user.UserRegisterReqDto;
+import org.example.oristationbackend.entity.*;
+import org.example.oristationbackend.entity.type.ChatType;
 import org.example.oristationbackend.entity.type.ReservationStatus;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
-import org.example.oristationbackend.repository.KeywordRepository;
-import org.example.oristationbackend.repository.ReservationRepository;
-import org.example.oristationbackend.repository.RestaurantInfoRepository;
-import org.example.oristationbackend.repository.RestaurantRepository;
+import org.example.oristationbackend.repository.*;
 
 
 import org.springframework.data.domain.Page;
@@ -23,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,7 +36,7 @@ public class RestaurantService {
   private final RestaurantInfoRepository restaurantInfoRepository;
   private final ReservationRepository reservationRepository;
   private final KeywordRepository keywordRepository;
-
+  private final LoginRepository loginRepository;
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
     List<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findAll();
@@ -52,6 +51,14 @@ public class RestaurantService {
         .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restId));
 
     return convertToDto(restaurantInfo);
+  }
+
+  // 식당 이름으로 식당 정보 조회
+  public List<SearchResDto> findRestaurantsByName(String restName) {
+    List<Restaurant> restaurants = restaurantRepository.findRestaurantInfoByRestNameContaining(restName);
+    return restaurants.stream()
+        .map(this::convertToDtoRest)
+        .collect(Collectors.toList());
   }
 
   //식당 승인 전 매장 불러오기
@@ -135,6 +142,33 @@ public class RestaurantService {
         keyword3Name
     );
   }
+  private SearchResDto convertToDtoRest(Restaurant restaurant) {
+    RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restaurant.getRestId())
+        .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restaurant.getRestId()));
+
+    Keyword keyword1 = restaurantInfo.getKeyword1();
+    Keyword keyword2 = restaurantInfo.getKeyword2();
+    Keyword keyword3 = restaurantInfo.getKeyword3();
+
+    String keyword1Name = keyword1 != null ? keyword1.getKeyword() : null;
+    String keyword2Name = keyword2 != null ? keyword2.getKeyword() : null;
+    String keyword3Name = keyword3 != null ? keyword3.getKeyword() : null;
+
+    return new SearchResDto(
+        restaurant.getRestId(),
+        restaurant.getRestName(),
+        restaurantInfo.getRestAddress(),
+        restaurant.getRestPhone(),
+        restaurantInfo.getRestGrade(),
+        restaurant.getRestPhoto(),
+        restaurantInfo.getRestIntro(),
+        restaurantInfo.getRestPost(),
+        restaurantInfo.getRevWait(),
+        keyword1Name,
+        keyword2Name,
+        keyword3Name
+    );
+  }
 
   // 페이징 처리된 식당 정보 조회
   public List<SearchResDto> getRestaurantsByPage(int page) {
@@ -170,4 +204,22 @@ public class RestaurantService {
         .limit(4) // 4개만 반환
         .collect(Collectors.toList());
   }
+  @Transactional(readOnly = false)
+  public int addRestaurant(RestRegisterDto restRegisterDto) {
+      if(existRestaurant((restRegisterDto.getRestPhone()))){
+        return 0;
+      }
+    Login login = new Login(0, restRegisterDto.getEmail(), null, ChatType.RESTAURANT, null, null, null);
+    login = loginRepository.save(login);
+    Restaurant restaurant= new Restaurant(login,0,restRegisterDto.getRestName(),restRegisterDto.getRestPhone(),restRegisterDto.getRestName2(),"",restRegisterDto.getRestData(),
+            restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
+    restaurantRepository.save(restaurant);
+    login.setRestaurant(restaurant);
+    return loginRepository.save(login).getLoginId();
+  }
+  private boolean existRestaurant(String phone) {
+    return restaurantRepository.existsByRestPhone(phone);
+  }
+
+
 }

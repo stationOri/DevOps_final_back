@@ -1,6 +1,7 @@
 package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.oristationbackend.dto.restaurant.ReviewInfoDto;
 import org.example.oristationbackend.dto.user.ReviewReqDto;
 import org.example.oristationbackend.dto.user.ReviewResDto;
 import org.example.oristationbackend.dto.user.ReviewRestDto;
@@ -28,12 +29,23 @@ public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final ReviewLikesRepository reviewLikesRepository;
 
-    public List<ReviewRestDto> getReviewsByrestId(int restId,int userId){
+    // 식당 페이지에서 리뷰 조회(사용자 화면)
+    public List<ReviewRestDto> getReviewsByrestIdAnduserId(int restId,int userId){
         return reviewRepository.findReviewAndLikesByRestaurantIdAndUserId(restId,userId);
     }
+
+    // 식당 페이지에서 리뷰 조회(식당 화면)
+    public List<ReviewInfoDto> getReviewsByrestId(int restId){
+        return reviewRepository.findReviewAndLikesByRestaurantId(restId);
+    }
+
+
+    // 사용자가 작성한 리뷰 조회
     public List<ReviewResDto> getReviewsByuserId(int userId){
         return reviewRepository.findByUser_UserId(userId);
     }
+
+    // 리뷰 등록
     @Transactional(readOnly = false)
     public int addReview(ReviewReqDto reviewReqDto) {
         User user = userRepository.findById(reviewReqDto.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found with id: " +reviewReqDto.getUserId()));
@@ -43,6 +55,8 @@ public class ReviewService {
         ,reviewReqDto.getReviewImg2(),reviewReqDto.getReviewImg3(),false, new Timestamp(System.currentTimeMillis()),0,restaurant,user,null);
         return reviewRepository.save(review).getReviewId();
     }
+
+    // 리뷰 좋아요
     @Transactional(readOnly = false)
     public int likeReview(int reviewId, int userId) {
         if(reviewLikesRepository.existsByUser_UserIdAndReview_ReviewId(userId,reviewId) ){
@@ -57,6 +71,8 @@ public class ReviewService {
         reviewRepository.save(review);
         return reviewLikesRepository.save(like).getLikeId();
     }
+
+    // 리뷰 삭제
     @Transactional(readOnly = false)
     public void deleteReview(int reviewId) {
         Review review=reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found with id: " +reviewId));

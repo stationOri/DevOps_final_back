@@ -19,5 +19,9 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> , Revie
             "FROM Review r WHERE r.user.userId = :userId")
     List<ReviewResDto> findByUser_UserId(@Param("userId") int userId);
 
+    @Query("SELECT new org.example.oristationbackend.dto.restaurant.ReviewInfoDto(r.reviewId, r.user.userNickname, r.reviewGrade, r.reviewData, r.reviewImg, r.reviewImg2, r.reviewImg3, r.reviewDate, r.likeNum, r.blind) " +
+            "FROM Review r WHERE r.restaurant.restId = :restId")
+    List<ReviewInfoDto> findReviewAndLikesByRestaurantId(@Param("restId") int restId);
+
 
 }
