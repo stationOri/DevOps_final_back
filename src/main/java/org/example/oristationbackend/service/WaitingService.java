@@ -1,7 +1,9 @@
 package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.example.oristationbackend.dto.restaurant.WaitingRestResDto;
+import org.example.oristationbackend.dto.user.SmsDto;
 import org.example.oristationbackend.dto.user.WaitingReqDto;
 import org.example.oristationbackend.dto.user.WaitingResDto;
 import org.example.oristationbackend.entity.Restaurant;
@@ -27,6 +29,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class WaitingService {
+    private final SmsService smsService;
     private final WaitingRepository waitingRepository;
     private final RestaurantInfoRepository restaurantInfoRepository;
     private final UserRepository userRepository;
@@ -66,7 +69,20 @@ public class WaitingService {
     public int changeWaitingStatus(int waitingId, UserWaitingStatus userWaitingStatus) {
         Waiting waiting=waitingRepository.findById(waitingId).orElseThrow(() -> new IllegalArgumentException("waiting not found with id: " +waitingId));
         waiting=waiting.changeStatus(userWaitingStatus);
-        //만약 userwaitingstatus가 입장요청이면 알림톡 보내기
+        if(userWaitingStatus==UserWaitingStatus.WALKIN_REQUESTED){
+            String tonumber=waiting.getWaitingPhone();
+            String username=waiting.getUser().getUserName();
+            String restname=waiting.getRestaurant().getRestName();
+            StringBuilder sb = new StringBuilder();
+            sb.append("[WaitMate]\n ");
+            sb.append(username);
+            sb.append("고객님, 기다리느라 고생하셨어요!\n 지금 [");
+            sb.append(restname);
+            sb.append("]으로 입장해주세요. ");
+            SmsDto smsDto=new SmsDto(tonumber,sb.toString());
+            SingleMessageSentResponse resp=smsService.sendOne(smsDto);
+            System.out.println(resp.getStatusMessage());
+        }
         return waitingRepository.save(waiting).getWaitingId();
     }
 }
