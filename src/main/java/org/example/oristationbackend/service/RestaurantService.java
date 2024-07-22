@@ -55,6 +55,14 @@ public class RestaurantService {
     return convertToDto(restaurantInfo);
   }
 
+  // 식당 이름으로 식당 정보 조회
+  public List<SearchResDto> findRestaurantsByName(String restName) {
+    List<Restaurant> restaurants = restaurantRepository.findRestaurantInfoByRestNameContaining(restName);
+    return restaurants.stream()
+        .map(this::convertToDtoRest)
+        .collect(Collectors.toList());
+  }
+
   //식당 승인 전 매장 불러오기
   public List<restAcceptReadyDto> findRestraurantByStatusBefore(RestaurantStatus status) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -112,6 +120,33 @@ public class RestaurantService {
   private SearchResDto convertToDto(RestaurantInfo restaurantInfo) {
     Restaurant restaurant = restaurantRepository.findById(restaurantInfo.getRestId())
         .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restaurantInfo.getRestId()));
+
+    Keyword keyword1 = restaurantInfo.getKeyword1();
+    Keyword keyword2 = restaurantInfo.getKeyword2();
+    Keyword keyword3 = restaurantInfo.getKeyword3();
+
+    String keyword1Name = keyword1 != null ? keyword1.getKeyword() : null;
+    String keyword2Name = keyword2 != null ? keyword2.getKeyword() : null;
+    String keyword3Name = keyword3 != null ? keyword3.getKeyword() : null;
+
+    return new SearchResDto(
+        restaurant.getRestId(),
+        restaurant.getRestName(),
+        restaurantInfo.getRestAddress(),
+        restaurant.getRestPhone(),
+        restaurantInfo.getRestGrade(),
+        restaurant.getRestPhoto(),
+        restaurantInfo.getRestIntro(),
+        restaurantInfo.getRestPost(),
+        restaurantInfo.getRevWait(),
+        keyword1Name,
+        keyword2Name,
+        keyword3Name
+    );
+  }
+  private SearchResDto convertToDtoRest(Restaurant restaurant) {
+    RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restaurant.getRestId())
+        .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restaurant.getRestId()));
 
     Keyword keyword1 = restaurantInfo.getKeyword1();
     Keyword keyword2 = restaurantInfo.getKeyword2();

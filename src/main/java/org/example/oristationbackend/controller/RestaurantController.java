@@ -63,6 +63,17 @@ public class RestaurantController {
     }
   }
 
+  // 식당 이름으로 식당 정보 조회
+  @GetMapping("/name/{restName}")
+  public ResponseEntity<List<SearchResDto>> getRestaurantsByName(@PathVariable(name = "restName") String restName) {
+    List<SearchResDto> restaurants = restaurantService.findRestaurantsByName(restName);
+    if (restaurants.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(restaurants);
+    }
+  }
+
   // 식당 id로 식당 메뉴 전체 조회
   @GetMapping("/menu/{restId}")
   public ResponseEntity<List<MenuListResDto>> getAllMenusByRestId(@PathVariable(name = "restId") int restId) {
