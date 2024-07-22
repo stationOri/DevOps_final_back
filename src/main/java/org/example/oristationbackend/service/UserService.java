@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,8 +78,18 @@ public class UserService {
             user.getUserNickname(),
             user.getUserPhone(),
             user.getLogin().getEmail(),
+            formatDate(user.getJoinDate()),
+            formatDate(user.getQuitDate()),
             user.isBlocked(),
             user.getQuitDate() != null
         );
+    }
+
+    private String formatDate(Date date) {
+        if (date != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            return sdf.format(date);
+        }
+        return null;
     }
 }

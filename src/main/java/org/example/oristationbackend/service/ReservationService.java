@@ -15,11 +15,14 @@ import org.example.oristationbackend.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.sql.Timestamp;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +31,38 @@ import java.util.stream.Collectors;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
+
+    //예약 시간 조회
+    public List<String> findReservedTime(int restId, String targetDate) {
+        try {
+            // 날짜 문자열을 Timestamp로 변환
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+            java.util.Date parsedDate = dateFormat.parse(targetDate);
+            Timestamp startTimestamp = new Timestamp(parsedDate.getTime());
+
+            // targetDate의 날짜 끝 시간을 구하기 위해 하루를 더함
+            Timestamp endTimestamp = new Timestamp(startTimestamp.getTime() + 24 * 60 * 60 * 1000 - 1);
+
+            // 로그 추가
+            System.out.println("Start Timestamp: " + startTimestamp);
+            System.out.println("End Timestamp: " + endTimestamp);
+
+            // 예약 조회
+            List<Reservation> reservations = reservationRepository.findReservationsByDateRange(restId, startTimestamp, endTimestamp);
+
+            // 로그 추가
+            System.out.println("Reservations found: " + reservations.size());
+
+            // 예약 시간 포맷팅 및 반환
+            return reservations.stream()
+                    .map(reservation -> formatTimestamp(reservation.getResDatetime()))
+                    .collect(Collectors.toList());
+        } catch (ParseException e) {
+            throw new RuntimeException("Invalid date format. Please use 'yyyy-MM-dd'");
+        }
+    }
+
 
     // 어드민 예약 조회
     public List<AdminReservationResDto> findAllReservations() {

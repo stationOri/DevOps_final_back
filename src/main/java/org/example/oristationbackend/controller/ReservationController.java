@@ -15,8 +15,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+import java.sql.Timestamp;
+import java.util.TimeZone;
 
 @RestController
 @RequestMapping("/reservations")
@@ -34,7 +39,7 @@ public class ReservationController {
   }
 
   // 관리자 예약 조회
-  @GetMapping ("/reservation/admin")
+  @GetMapping ("/admin")
   public ResponseEntity<List<AdminReservationResDto>> getAllReservationInfos() {
     List<AdminReservationResDto> resultreservations = reservationService.findAllReservations();
     if (resultreservations == null) {
@@ -42,6 +47,13 @@ public class ReservationController {
     } else {
       return ResponseEntity.ok(resultreservations);
     }
+  }
+
+  @GetMapping("/rest/{restId}/time/{targetDate}")
+  public List<String> getReservationTimes(
+          @PathVariable("restId") int restId,
+          @PathVariable("targetDate") String targetDate) {
+    return reservationService.findReservedTime(restId, targetDate);
   }
 
   // 사용자 예약 내역 조회
