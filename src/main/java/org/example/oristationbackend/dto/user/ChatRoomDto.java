@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChatRoomDto {
-    private int chattimgRoomId;
+    private int chattingRoomId;
     private  String qsName;
     private String ansName;
     private String lastMsg;
