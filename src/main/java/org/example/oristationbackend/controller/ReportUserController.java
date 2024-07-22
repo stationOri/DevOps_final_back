@@ -26,11 +26,11 @@ public class ReportUserController {
         return reportUserService.changeReportStatus(userReportStatusReqDto);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public List<UserReportResDto> getReportListByUser(@PathVariable("userId") int userId){
         return reportUserService.getReportListByUser(userId);
     }
-    @GetMapping("/{reportStatus}")
+    @GetMapping("/status/{reportStatus}")
     public List<UserReportResDto> getReportListByStatus(@PathVariable("reportStatus")ReportStatus status){
         return reportUserService.getReportListByStatus(status);
     }

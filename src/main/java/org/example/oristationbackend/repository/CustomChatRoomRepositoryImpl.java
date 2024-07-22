@@ -89,65 +89,6 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
                 .fetch();
     }
 
-//    @Override
-//    public List<ChatRoomDto> findChatRoomsByUserId(int userId) {
-//        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-//        QChatRoom chatRoom = QChatRoom.chatRoom;
-//        QLogin questioner = QLogin.login;
-//        QLogin answerer = QLogin.login;
-//        QUser questionerUser = QUser.user;
-//        QAdmin questionerAdmin = QAdmin.admin;
-//        QRestaurant questionerRestaurant = QRestaurant.restaurant;
-//        QUser answererUser = QUser.user;
-//        QAdmin answererAdmin = QAdmin.admin;
-//        QRestaurant answererRestaurant = QRestaurant.restaurant;
-//
-//        // 동적 조건을 위한 BooleanBuilder
-//        BooleanBuilder whereClause = new BooleanBuilder();
-//
-//        // userId와 questioner의 id가 일치하는 경우
-//        whereClause.or(questioner.user.userId.eq(userId));
-//        whereClause.or(questioner.restaurant.restId.eq(userId));
-//        whereClause.or(questioner.admin.adminId.eq(userId));
-//        // userId와 answerer의 id가 일치하는 경우
-//        whereClause.or(answerer.user.userId.eq(userId));
-//        whereClause.or(answerer.restaurant.restId.eq(userId));
-//        whereClause.or(answerer.admin.adminId.eq(userId));
-//
-//        QMessage subMessage = new QMessage("subMessage");
-//        var subQuery = JPAExpressions.select(subMessage.messageContent)
-//                .from(subMessage)
-//                .where(subMessage.chatRoom.chattingRoomId.eq(chatRoom.chattingRoomId))
-//                .orderBy(subMessage.sendTime.desc())
-//                .limit(1);
-//        return queryFactory
-//                .select(Projections.fields(ChatRoomDto.class,
-//                        chatRoom.chattingRoomId.as("chattingRoomId"),
-//                        new CaseBuilder()
-//                                .when(questioner.user.userId.isNotNull()).then(questionerUser.userName)
-//                                .when(questioner.restaurant.restId.isNotNull()).then(questionerRestaurant.restName)
-//                                .when(questioner.admin.adminId.isNotNull()).then(questionerAdmin.adminName)
-//                                .otherwise("unknown")
-//                                .as("qsName"),
-//                        new CaseBuilder()
-//                                .when(answerer.user.userId.isNotNull()).then(answererUser.userName)
-//                                .when(answerer.restaurant.restId.isNotNull()).then(answererRestaurant.restName)
-//                                .when(answerer.admin.adminId.isNotNull()).then(answererAdmin.adminName)
-//                                .otherwise("unknown")
-//                                .as("ansName"),
-//                        Expressions.asString(subQuery).as("lastMsg")))
-//                .from(chatRoom)
-//                .leftJoin(chatRoom.questioner, questioner)
-//                .leftJoin(questioner.user, questionerUser)
-//                .leftJoin(questioner.restaurant, questionerRestaurant)
-//                .leftJoin(questioner.admin, questionerAdmin)
-//                .leftJoin(chatRoom.answerer, answerer)
-//                .leftJoin(answerer.user, answererUser)
-//                .leftJoin(answerer.admin, questionerAdmin)
-//                .leftJoin(answerer.restaurant, answererRestaurant)
-//                .where(whereClause) // 동적 조건 적용
-//                .fetch();
-//    }
     @Override
     public List<ChatMessageDto> findMessagesByChatRoomId(int chatRoomId) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
