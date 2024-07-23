@@ -112,8 +112,8 @@ public class LoginController {
             String path="";
             if(loginWrapper.hasRegistered()){
                 switch(loginWrapper.whatType()){
-                    case ADMIN -> path="adminmain?token=";
-                    case RESTAURANT -> path= "restmain?token=";
+                    case ADMIN -> path="admin?token=";
+                    case RESTAURANT -> path= "rest?token=";
                     default -> path="?token=";
                 }
             }else{

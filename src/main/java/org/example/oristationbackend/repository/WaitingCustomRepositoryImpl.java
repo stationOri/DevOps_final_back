@@ -46,14 +46,13 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
         QRestaurant restaurant = QRestaurant.restaurant;
 
 
-        // 사용자가 등록한 웨이팅 정보의 최소 대기일시를 조회
         Timestamp minWaitingDate = queryFactory
                 .select(waiting.waitingDate.max())
                 .from(waiting)
                 .where(waiting.user.userId.eq(userId)
                         .and(waiting.waitingDate.goe(startoftoday())))
                 .fetchOne();
-
+        System.out.println(minWaitingDate+"==================================");
 
         List<WaitingResDto> resultList = queryFactory
                 .select(Projections.fields(WaitingResDto.class,
@@ -80,7 +79,8 @@ public class WaitingCustomRepositoryImpl implements WaitingCustomRepository{
                 .from(waiting)
                 .join(waiting.restaurant, restaurant)
                 .where(waiting.user.userId.eq(userId)
-                        .and(waiting.waitingDate.goe(startoftoday())))
+                        .and(waiting.waitingDate.goe(startoftoday()))
+                        .and(waiting.waitingDate.eq(minWaitingDate))                        )
                 .fetch();
 
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.get(0));
