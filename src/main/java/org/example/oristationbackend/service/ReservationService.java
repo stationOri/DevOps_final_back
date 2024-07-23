@@ -3,6 +3,7 @@ package org.example.oristationbackend.service;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.restaurant.DateRequestDto;
+import org.example.oristationbackend.dto.restaurant.MenuDto;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
@@ -130,7 +131,7 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findByRestIDAndDate(restId,startofday,endofday);
         List<RestReservationResDto> result= new ArrayList<>();
         for (Reservation reservation : reservations) {
-        List<ReservedMenu> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
+        List<MenuDto> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
             RestReservationResDto restReservationResDto = new RestReservationResDto(reservation.getUser().getUserName(), reservation.getUser().getUserId(), reservation.getRestaurant().getRestName(),
                     reservation.getRestaurant().getRestId(), reservation.getResId(), reservation.getResDatetime(), reservation.getReqDatetime(), reservation.getResNum(),
                     reservation.getStatus(), reservation.getRequest(), reservation.getStatus_changed_date(), reservedMenus);

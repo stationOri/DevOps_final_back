@@ -24,5 +24,5 @@ public class RestReservationResDto {
     private ReservationStatus status;
     private String request;
     private Timestamp statusChangeDate;
-    private List<ReservedMenu> menuList;
+    private List<MenuDto> menuList;
 }
