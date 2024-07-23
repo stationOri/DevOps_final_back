@@ -221,5 +221,8 @@ public class RestaurantService {
     return restaurantRepository.existsByRestPhone(phone);
   }
 
-
+  public int getRestaurantDeposit(int restId) {
+    //예약
+    return 0;
+  }
 }

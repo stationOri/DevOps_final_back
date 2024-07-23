@@ -62,6 +62,11 @@ public class RestaurantController {
       return ResponseEntity.ok(restaurant);
     }
   }
+  //식당이 환불받을 예약금 조회
+  @GetMapping("/deposit/{restId}")
+  public int getRestaurantDeposit(@PathVariable(name = "restId") int restId){
+    return restaurantService.getRestaurantDeposit(restId);
+  }
 
   // 식당 이름으로 식당 정보 조회
   @GetMapping("/name/{restName}")

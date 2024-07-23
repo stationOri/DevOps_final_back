@@ -11,4 +11,5 @@ public interface RestaurantInfoRepository extends JpaRepository<RestaurantInfo, 
     public RestaurantInfo findRestaurantInfoByRestId(int restId);
     Page<RestaurantInfo> findAll(Pageable pageable);
     List<RestaurantInfo> findAll();
+
 }
