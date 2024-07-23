@@ -73,7 +73,9 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
                                 .when(answererLogin.restaurant.restId.isNotNull()).then(answererRestaurant.restName)
                                 .when(answererLogin.admin.adminId.isNotNull()).then(answererAdmin.adminName)
                                 .otherwise("unknown")
-                                .as("ansName")))
+                                .as("ansName"),
+                        questionerLogin.loginId.as("qsId"),   // 질문자 ID
+                        answererLogin.loginId.as("ansId")))
                 .from(chatRoom)
 
                 .leftJoin(chatRoom.questioner, questionerLogin)
@@ -107,7 +109,9 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
                 .map(dto -> new ChatRoomDto(
                         dto.getChattingRoomId(),
                         dto.getQsName(),
+                        dto.getQsId(),
                         dto.getAnsName(),
+                        dto.getAnsId(),
                         lastMsgMap.get(dto.getChattingRoomId()) // Retrieve last message, handle null
                 ))
                 .collect(Collectors.toList());

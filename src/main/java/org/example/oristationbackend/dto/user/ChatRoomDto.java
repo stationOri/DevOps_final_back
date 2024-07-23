@@ -13,7 +13,9 @@ import lombok.Setter;
 public class ChatRoomDto {
     private int chattingRoomId;
     private  String qsName;
+    private int qsId;
     private String ansName;
+    private int ansId;
     private String lastMsg;
 }
 
