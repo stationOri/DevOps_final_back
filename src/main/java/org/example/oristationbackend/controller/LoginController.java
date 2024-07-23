@@ -111,10 +111,20 @@ public class LoginController {
             LoginWrapper loginWrapper = loginService.checkRegister(registerDto);
             String path="";
             if(loginWrapper.hasRegistered()){
-                switch(loginWrapper.whatType()){
-                    case ADMIN -> path="admin?token=";
-                    case RESTAURANT -> path= "rest?token=";
-                    default -> path="?token=";
+                String msg=loginService.LoginOk(loginWrapper.getLoginDto());
+                if(msg==null){
+                    switch(loginWrapper.whatType()){
+                        case ADMIN:
+                            path="admin?token=";
+                            break;
+                        case RESTAURANT:
+                            path= "rest?token=";
+                            break;
+                        default:
+                            path="?token=";
+                    }
+                }else{
+                    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "http://localhost:3000/?isok="+msg).build();
                 }
             }else{
                 path="?signin=true&token=";

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.oristationbackend.entity.type.PaymentStatus;
 
+import java.sql.Timestamp;
+
 @Entity
 @Getter
 @Table(name = "payment")
@@ -26,7 +28,7 @@ public class Payment {
     private int amount;
 
     private int refund;
-
+    private Timestamp statusChangeDate;
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }

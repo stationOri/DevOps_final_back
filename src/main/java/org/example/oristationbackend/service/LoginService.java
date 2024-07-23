@@ -9,6 +9,7 @@ import org.example.oristationbackend.entity.Login;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.User;
 import org.example.oristationbackend.entity.type.ChatType;
+import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.repository.AdminRepository;
 import org.example.oristationbackend.repository.LoginRepository;
 import org.example.oristationbackend.repository.RestaurantRepository;
@@ -56,5 +57,26 @@ public class LoginService {
     private Long expiredMs = 1000 * 60 * 60L;
     public String genJwtToken(String username,Object object) {
         return JwtUtil.createJwt(username, object, secretKey, expiredMs);
+    }
+    public String LoginOk(LoginDto loginDto){
+        switch (loginDto.getChatType()){
+            case RESTAURANT:
+                Restaurant restaurant=restaurantRepository.findById(loginDto.getId()).get();
+                if(restaurant.isBlocked()){
+                    return "1";
+                }else if(restaurant.getRestStatus()== RestaurantStatus.A){
+                    return "2";
+                }
+                break;
+            case USER:
+                User user=userRepository.findById(loginDto.getId()).get();
+                if(user.isBlocked()){
+                    return "3";
+                }
+                break;
+            default:
+                return null;
+        }
+        return null;
     }
 }
