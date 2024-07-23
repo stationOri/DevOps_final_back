@@ -4,21 +4,27 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.Subquery;
 import org.example.oristationbackend.dto.user.ChatMessageDto;
 import org.example.oristationbackend.dto.user.ChatRoomDto;
 import org.example.oristationbackend.entity.*;
+import org.example.oristationbackend.entity.type.UserWaitingStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
@@ -52,15 +58,8 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
         whereClause.or(answererLogin.admin.adminId.eq(userId));
 
         QMessage subMessage = new QMessage("subMessage");
-        String subQuery = queryFactory.select(subMessage.messageContent)
-                .from(subMessage)
-                .where(subMessage.chatRoom.chattingRoomId.eq(chatRoom.chattingRoomId))
-                .orderBy(subMessage.sendTime.desc())
-                .offset(0)
-                .limit(1)
-                .fetchOne();
-        System.out.println(subQuery+"=============================================");
-        return queryFactory
+
+        List<ChatRoomDto> chatRoomDtos=queryFactory
                 .select(Projections.fields(ChatRoomDto.class,
                         chatRoom.chattingRoomId.as("chattingRoomId"),
                         new CaseBuilder()
@@ -74,9 +73,9 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
                                 .when(answererLogin.restaurant.restId.isNotNull()).then(answererRestaurant.restName)
                                 .when(answererLogin.admin.adminId.isNotNull()).then(answererAdmin.adminName)
                                 .otherwise("unknown")
-                                .as("ansName"),
-                        Expressions.stringTemplate("({0})", subQuery).as("lastMsg")))
+                                .as("ansName")))
                 .from(chatRoom)
+
                 .leftJoin(chatRoom.questioner, questionerLogin)
                 .leftJoin(questionerLogin.user, questionerUser)
                 .leftJoin(questionerLogin.restaurant, questionerRestaurant)
@@ -87,6 +86,31 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
                 .leftJoin(answererLogin.admin, answererAdmin)
                 .where(whereClause) // 동적 조건 적용
                 .fetch();
+
+// Step 3: Update DTOs with the last message
+        Map<Integer, String> lastMsgMap = chatRoomDtos.stream()
+                .map(ChatRoomDto::getChattingRoomId)
+                .collect(Collectors.toMap(
+                        roomId -> roomId,
+                        roomId -> {
+                            String messageContent = queryFactory
+                                    .select(subMessage.messageContent)
+                                    .from(subMessage)
+                                    .where(subMessage.chatRoom.chattingRoomId.eq(roomId))
+                                    .orderBy(subMessage.sendTime.desc())
+                                    .limit(1)
+                                    .fetchOne();
+                            return messageContent != null ? messageContent : "No Messages"; // Default value for null
+                        }
+                ));
+        return chatRoomDtos.stream()
+                .map(dto -> new ChatRoomDto(
+                        dto.getChattingRoomId(),
+                        dto.getQsName(),
+                        dto.getAnsName(),
+                        lastMsgMap.get(dto.getChattingRoomId()) // Retrieve last message, handle null
+                ))
+                .collect(Collectors.toList());
     }
 
     @Override

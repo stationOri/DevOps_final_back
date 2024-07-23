@@ -36,7 +36,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     testImplementation 'org.springframework.security:spring-security-test'
     //implementation 'com.sun.mail:javax.mail:1.6.1'
-
+    compile 'com.paypal.sdk:rest-api-sdk:+'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -79,3 +79,4 @@ configurations { //쿼리DSL추가 빌드
 compileQuerydsl { //쿼리DSL추가 빌드
     options.annotationProcessorPath = configurations.querydsl
 }
+
