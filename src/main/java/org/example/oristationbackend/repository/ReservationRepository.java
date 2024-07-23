@@ -1,5 +1,6 @@
 package org.example.oristationbackend.repository;
 
+import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.entity.Reservation;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.type.ReservationStatus;
@@ -7,16 +8,24 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
   int countByRestaurantAndResDatetimeAndStatusIn(Restaurant restaurant, Timestamp startTimestamp, List<ReservationStatus> statuses);
 
-
+  @Query("SELECT r " +
+          "FROM Reservation r " +
+          "WHERE r.restaurant.restId = :restId " +
+          "AND r.resDatetime BETWEEN :startTimestamp AND :endTimestamp")
+  List<Reservation> findByRestIDAndDate(    @Param("restId") int restId,
+                                            @Param("startTimestamp") Timestamp startTimestamp,
+                                            @Param("endTimestamp") Timestamp endTimestamp);
   @Query("SELECT r " +
           "FROM Reservation r " +
           "WHERE r.restaurant.restId = :restId " +
@@ -26,7 +35,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
           @Param("startTimestamp") Timestamp startTimestamp,
           @Param("endTimestamp") Timestamp endTimestamp
   );
-
 
   // 많이 방문한 식당 조회
   @Query("SELECT res.restaurant, COUNT(res) AS revCount " +

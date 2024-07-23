@@ -3,17 +3,16 @@ package org.example.oristationbackend.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
+import org.example.oristationbackend.dto.restaurant.DateRequestDto;
 import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
+import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
 import org.example.oristationbackend.dto.user.UserReservationResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.service.ReservationService;
 import org.example.oristationbackend.service.RestAvailableResService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -66,6 +65,12 @@ public class ReservationController {
   @GetMapping("/user/{userId}/counts")
   public ResRestCountDto getReservationCounts(@PathVariable(name = "userId") int userId) {
     return reservationService.getReservationCounts(userId);
+  }
+  //식당 예약 상세페이지
+  @GetMapping("/reservation/rest/{restId}/{date}")
+  public List<RestReservationResDto> getReservationByRestIdAndDate(@PathVariable(name = "restId") int restId,@PathVariable(name="date") LocalDate date) {
+    DateRequestDto dateRequestDto = new DateRequestDto(restId, date);
+    return reservationService.getReservationByRestIdAndDate(dateRequestDto);
   }
 
 }

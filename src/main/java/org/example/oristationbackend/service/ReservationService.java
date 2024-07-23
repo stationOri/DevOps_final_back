@@ -2,27 +2,25 @@ package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
+import org.example.oristationbackend.dto.restaurant.DateRequestDto;
+import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.dto.user.UserReservationResDto;
-import org.example.oristationbackend.entity.Payment;
-import org.example.oristationbackend.entity.Reservation;
-import org.example.oristationbackend.entity.Restaurant;
-import org.example.oristationbackend.entity.RestaurantInfo;
+import org.example.oristationbackend.entity.*;
 import org.example.oristationbackend.entity.type.ReservationStatus;
 import org.example.oristationbackend.repository.PaymentRepository;
 import org.example.oristationbackend.repository.ReservationRepository;
+import org.example.oristationbackend.repository.ReservedMenuRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.sql.Timestamp;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +29,7 @@ import java.util.stream.Collectors;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
-
+    private final ReservedMenuRepository reservedMenuRepository;
     //예약 시간 조회
     public List<String> findReservedTime(int restId, String targetDate) {
         try {
@@ -122,6 +120,23 @@ public class ReservationService {
         int restCount = reservationRepository.countVisitedRestaurants(userId, ReservationStatus.VISITED);
 
         return new ResRestCountDto(nowCount, pastCount, restCount);
+    }
+
+    public List<RestReservationResDto> getReservationByRestIdAndDate(DateRequestDto dateRequestDto) {
+        int restId = dateRequestDto.getRestId();
+        LocalDate date = dateRequestDto.getDate(); //localdate에서 date로 바꾸기
+        Timestamp startofday=Timestamp.valueOf(date.atStartOfDay());
+        Timestamp endofday= Timestamp.valueOf(date.atTime(23, 59, 59));
+        List<Reservation> reservations = reservationRepository.findByRestIDAndDate(restId,startofday,endofday);
+        List<RestReservationResDto> result= new ArrayList<>();
+        for (Reservation reservation : reservations) {
+        List<ReservedMenu> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
+            RestReservationResDto restReservationResDto = new RestReservationResDto(reservation.getUser().getUserName(), reservation.getUser().getUserId(), reservation.getRestaurant().getRestName(),
+                    reservation.getRestaurant().getRestId(), reservation.getResId(), reservation.getResDatetime(), reservation.getReqDatetime(), reservation.getResNum(),
+                    reservation.getStatus(), reservation.getRequest(), reservation.getStatus_changed_date(), reservedMenus);
+            result.add(restReservationResDto);
+        }
+        return result;
     }
 
 }
