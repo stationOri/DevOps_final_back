@@ -11,10 +11,8 @@ import org.example.oristationbackend.dto.user.MostRestDto;
 import org.example.oristationbackend.dto.user.RecommendRestDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
-import org.example.oristationbackend.service.ReservationService;
-import org.example.oristationbackend.service.RestTempHolidayService;
-import org.example.oristationbackend.service.RestaurantMenuService;
-import org.example.oristationbackend.service.RestaurantService;
+import org.example.oristationbackend.repository.RestaurantPeakRepository;
+import org.example.oristationbackend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +26,17 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
     private final RestaurantMenuService restaurantMenuService;
     private final RestTempHolidayService restTempHolidayService;
+    private final RestaurantPeakRepository restaurantPeakRepository;
+    private final RestaurantPeakService restaurantPeakService;
 
 
     @Autowired
-    public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService, RestTempHolidayService restTempHolidayService) {
+    public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService, RestTempHolidayService restTempHolidayService, RestaurantPeakRepository restaurantPeakRepository, RestaurantPeakService restaurantPeakService) {
         this.restaurantService = restaurantService;
         this.restaurantMenuService = restaurantMenuService;
         this.restTempHolidayService = restTempHolidayService;
+        this.restaurantPeakRepository = restaurantPeakRepository;
+        this.restaurantPeakService = restaurantPeakService;
     }
 
     // 식당 전체 조회
@@ -173,7 +175,6 @@ public class RestaurantController {
   // 주변 식당 조회(사용자 위치로부터 주변 5km 이내의 식당)
 
 
-
     //임시휴무 받아오기
     @GetMapping("/rest-temp-holiday/{rest-id}")
     public ResponseEntity<List<TempHolidayResDto>> gettempholidaybyRestId(@PathVariable(name = "rest-id") int restId) {
@@ -191,10 +192,33 @@ public class RestaurantController {
         return restTempHolidayService.deleteTempHoliday(tempHolidayId);
     }
 
-    //임시휴무 등록 /restaurant
+    //임시휴무 등록
     @PostMapping("/rest-temp-holiday")
     public int addTempHoliday(@RequestBody TempHolidayReqDto tempHolidayReqDto) {
         return restTempHolidayService.addTempholiday(tempHolidayReqDto);
+    }
+
+    //성수기 등록
+    @PostMapping("/peak")
+    public int addPeak(@RequestBody PeakReqDto peakReqDto) {
+        return restaurantPeakService.addRestaurantPeak(peakReqDto);
+    }
+
+    //성수기 받아오기
+    @GetMapping("/peak/{rest-id}")
+    public ResponseEntity<List<PeakListResDto>> getPeakList(@PathVariable(name = "rest-id") int restId) {
+        List<PeakListResDto> resultRestaurants = restaurantPeakService.getPeakHolidays(restId);
+        if (resultRestaurants == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(resultRestaurants);
+        }
+    }
+
+    //성수기 삭제
+    @DeleteMapping("/peak/{peak_id}")
+    public int deletePeak(@PathVariable(name = "peak_id") int peakId) {
+        return restaurantPeakService.deleteRestaurantPeak(peakId);
     }
 
 

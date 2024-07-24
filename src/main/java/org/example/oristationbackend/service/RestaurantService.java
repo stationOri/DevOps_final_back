@@ -33,6 +33,7 @@ public class RestaurantService {
   private final RestaurantRepository restaurantRepository;
   private final RestaurantInfoRepository restaurantInfoRepository;
   private final ReservationRepository reservationRepository;
+  private final RestaurantPeakRepository restaurantPeakRepository;
   private final KeywordRepository keywordRepository;
   private final LoginRepository loginRepository;
   private final ReviewRepository reviewRepository;
