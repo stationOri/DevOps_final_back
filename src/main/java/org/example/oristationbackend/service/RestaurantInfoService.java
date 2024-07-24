@@ -114,6 +114,14 @@ public class RestaurantInfoService {
         return 0; // Indicates that no keyword was deleted
     }
 
+    // 식당 공지 수정
+    @Transactional
+    public void updateRestPost(int restId, String restPost) {
+        RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid restaurant ID: " + restId));
+        restaurantInfo.setRestPost(restPost);
+        restaurantInfoRepository.save(restaurantInfo);
+    }
 
 
 
