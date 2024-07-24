@@ -9,9 +9,12 @@ import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantMenu;
 import org.example.oristationbackend.repository.RestaurantMenuRepository;
 import org.example.oristationbackend.repository.RestaurantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,14 @@ import java.util.stream.Collectors;
 public class RestaurantMenuService {
   private final RestaurantRepository restaurantRepository;
   private final RestaurantMenuRepository restaurantMenuRepository;
+  private final S3Service s3Service;
+
+  @Autowired
+  public RestaurantMenuService(S3Service s3Service, RestaurantRepository restaurantRepository, RestaurantMenuRepository restaurantMenuRepository) {
+    this.s3Service = s3Service;
+    this.restaurantRepository = restaurantRepository;
+    this.restaurantMenuRepository = restaurantMenuRepository;
+  }
 
   // 식당 id로 식당 메뉴 전체 조회
   public List<MenuListResDto> getAllMenusByRestaurantId(int restId) {
@@ -32,19 +43,15 @@ public class RestaurantMenuService {
 
   // 메뉴 추가
   @Transactional
-  public int addRestaurantMenu(MenuAddReqDto menuAddReqDto) {
+  public int addRestaurantMenu(MenuAddReqDto menuAddReqDto, MultipartFile file) throws IOException {
     Restaurant restaurant = restaurantRepository.findById(menuAddReqDto.getRestId())
         .orElseThrow(() -> new IllegalArgumentException("식당을 찾을 수 없습니다: " + menuAddReqDto.getRestId()));
 
-    restaurantMenuRepository.findByMenuNameAndRestaurant_RestId(menuAddReqDto.getMenuName(), menuAddReqDto.getRestId())
-        .ifPresent(existingMenu -> {
-          throw new IllegalArgumentException("이 식당에 이미 같은 이름의 메뉴가 등록되어 있습니다: " + menuAddReqDto.getMenuName());
-        });
-
+    String fileUrl = s3Service.uploadFile(file);
     RestaurantMenu restaurantMenu = new RestaurantMenu();
     restaurantMenu.setMenuName(menuAddReqDto.getMenuName());
     restaurantMenu.setMenuPrice(menuAddReqDto.getMenuPrice());
-    restaurantMenu.setMenuPhoto(menuAddReqDto.getMenuPhoto());
+    restaurantMenu.setMenuPhoto(fileUrl); // Use the file URL obtained from S3
     restaurantMenu.setRestaurant(restaurant);
 
     return restaurantMenuRepository.save(restaurantMenu).getMenuId();

@@ -1,5 +1,6 @@
 package org.example.oristationbackend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.MenuAddReqDto;
@@ -8,12 +9,15 @@ import org.example.oristationbackend.dto.restaurant.MenuModReqDto;
 import org.example.oristationbackend.dto.user.*;
 import org.example.oristationbackend.dto.restaurant.*;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
+import org.example.oristationbackend.repository.RestaurantMenuRepository;
 import org.example.oristationbackend.repository.RestaurantPeakRepository;
 import org.example.oristationbackend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -25,15 +29,18 @@ public class RestaurantController {
     private final RestTempHolidayService restTempHolidayService;
     private final RestaurantPeakRepository restaurantPeakRepository;
     private final RestaurantPeakService restaurantPeakService;
-
+    private final RestaurantMenuRepository restaurantMenuRepository;
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService, RestTempHolidayService restTempHolidayService, RestaurantPeakRepository restaurantPeakRepository, RestaurantPeakService restaurantPeakService) {
+    public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService, RestTempHolidayService restTempHolidayService, RestaurantPeakRepository restaurantPeakRepository, RestaurantPeakService restaurantPeakService, RestaurantMenuRepository restaurantMenuRepository, ObjectMapper objectMapper) {
         this.restaurantService = restaurantService;
         this.restaurantMenuService = restaurantMenuService;
         this.restTempHolidayService = restTempHolidayService;
         this.restaurantPeakRepository = restaurantPeakRepository;
         this.restaurantPeakService = restaurantPeakService;
+        this.restaurantMenuRepository = restaurantMenuRepository;
+        this.objectMapper = new ObjectMapper();
     }
 
     // 식당 전체 조회
@@ -100,9 +107,17 @@ public class RestaurantController {
 
     // 메뉴 추가
     @PostMapping("/menu")
-    public ResponseEntity<Integer> addRestaurantMenu(@RequestBody MenuAddReqDto menuAddReqDto) {
-        int menuId = restaurantMenuService.addRestaurantMenu(menuAddReqDto);
+    public ResponseEntity<Integer> addRestaurantMenu(
+        @RequestParam("menuData") String menuData,
+        @RequestParam("file") MultipartFile file) {
+      try {
+        MenuAddReqDto menuAddReqDto = new ObjectMapper().readValue(menuData, MenuAddReqDto.class);
+        int menuId = restaurantMenuService.addRestaurantMenu(menuAddReqDto, file);
         return ResponseEntity.ok(menuId);
+      } catch (IOException e) {
+        e.printStackTrace();
+        return ResponseEntity.internalServerError().body(null);
+      }
     }
 
     // 메뉴 수정

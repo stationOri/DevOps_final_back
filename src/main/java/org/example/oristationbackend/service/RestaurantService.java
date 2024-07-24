@@ -344,4 +344,14 @@ public class RestaurantService {
     //예약
     return 0;
   }
+
+  // 식당 계좌 수정
+  @Transactional
+  public void updateRestaurantAccount(int restId, String restAccount) {
+    Restaurant restaurant = restaurantRepository.findById(restId)
+        .orElseThrow(() -> new IllegalArgumentException("Invalid restaurant ID: " + restId));
+    restaurant.setRestAccount(restAccount);
+    restaurantRepository.save(restaurant);
+  }
+
 }
