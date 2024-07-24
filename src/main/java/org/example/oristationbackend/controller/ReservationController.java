@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.DateRequestDto;
+import org.example.oristationbackend.dto.restaurant.ReservationUpdateDto;
 import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.dto.user.CombinedDto;
@@ -87,11 +88,11 @@ public class ReservationController {
     return reservationService.saveReservation(combinedDto.getReservationReqDto(),combinedDto.getPayDto());
   }
   @PutMapping("/changestatus/{resId}")
-  public String changeState(@PathVariable(name = "resId") int resId,@RequestBody ReservationStatus status) throws IamportResponseException, IOException {
-      return switch (status) {
-          case RESERVATION_ACCEPTED, VISITED, NOSHOW -> reservationService.changeStatus(resId, status);
+  public String changeState(@PathVariable(name = "resId") int resId,@RequestBody ReservationUpdateDto updateDto) throws IamportResponseException, IOException {
+      return switch (updateDto.getStatus()) {
+          case RESERVATION_ACCEPTED, VISITED, NOSHOW -> reservationService.changeStatus(resId, updateDto.getStatus());
           case RESERVATION_CANCELED_BYREST, RESERVATION_CANCELED_BYUSER, RESERVATION_REJECTED ->
-                  reservationService.changeCancel(resId, status);
+                  reservationService.changeCancel(resId, updateDto.getStatus(),updateDto.getReason());
           default -> "예약 대기 상태로 변경은 불가합니다.";
       };
   }

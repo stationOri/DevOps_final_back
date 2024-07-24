@@ -235,7 +235,7 @@ public class ReservationService {
                 return "예약 승인이 가능한 상태가 아닙니다.";
             }
             reservationRepository.save(reservation.changeStatus(status));
-            LocalDateTime localDateTime = reservation.getReqDatetime().toLocalDateTime();
+            LocalDateTime localDateTime = reservation.getResDatetime().toLocalDateTime();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             StringBuilder sb= new StringBuilder();
             sb.append("[WaitMate]");
@@ -261,7 +261,7 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = false)
-    public String changeCancel(int resId, ReservationStatus status) throws IamportResponseException, IOException {
+    public String changeCancel(int resId, ReservationStatus status, String reason) throws IamportResponseException, IOException {
         Reservation reservation = reservationRepository.findById(resId).orElseThrow(() -> new RuntimeException("reservation not found with reservation ID"));
         Payment payment = paymentRepository.findById(resId).orElseThrow(()-> new RuntimeException("payment not found with reservation ID"));
         if(!(reservation.getStatus()==ReservationStatus.RESERVATION_ACCEPTED||reservation.getStatus()==ReservationStatus.RESERVATION_READY)){
@@ -272,9 +272,24 @@ public class ReservationService {
 
         switch (status) {
             case RESERVATION_CANCELED_BYREST:
-                PayCancelDto cancelDto = new PayCancelDto("식당 측 취소",payment.getImpUid(),payment.getMerchantUid(),payment.getAmount(),payment.getAmount());
+                PayCancelDto cancelDto = new PayCancelDto("식당 측 취소: "+reason,payment.getImpUid(),payment.getMerchantUid(),payment.getAmount(),payment.getAmount());
                 paymentService.refundPayment(cancelDto);
                 paymentRepository.save(payment.refund(payment.getAmount()));
+                LocalDateTime localDateTime = reservation.getResDatetime().toLocalDateTime();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                StringBuilder sb= new StringBuilder();
+                sb.append("[WaitMate]");
+                sb.append(reservation.getUser().getUserName());
+                sb.append("고객님, ");
+                sb.append(reservation.getRestaurant().getRestName());
+                sb.append(" 식당에 ");
+                sb.append(localDateTime.format(formatter));
+                sb.append(" 예약 요청하신 건이 식당 측에서 취소되었습니다. (사유: ");
+                sb.append(reason);
+                sb.append(")");
+                SmsDto smsDto=new SmsDto(reservation.getUser().getUserPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+                SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+                System.out.println(resp.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
                 return  "success";
             case RESERVATION_CANCELED_BYUSER:
                 LocalDate today = LocalDate.now();
