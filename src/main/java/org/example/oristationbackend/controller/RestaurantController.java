@@ -5,11 +5,8 @@ import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.MenuAddReqDto;
 import org.example.oristationbackend.dto.restaurant.MenuListResDto;
 import org.example.oristationbackend.dto.restaurant.MenuModReqDto;
-import org.example.oristationbackend.dto.user.HotRestDto;
+import org.example.oristationbackend.dto.user.*;
 import org.example.oristationbackend.dto.restaurant.*;
-import org.example.oristationbackend.dto.user.MostRestDto;
-import org.example.oristationbackend.dto.user.RecommendRestDto;
-import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.repository.RestaurantPeakRepository;
 import org.example.oristationbackend.service.*;
@@ -173,7 +170,10 @@ public class RestaurantController {
   }
 
   // 주변 식당 조회(사용자 위치로부터 주변 5km 이내의 식당)
-
+  @GetMapping("/near/lat/{lat}/lng/{lng}")
+  public List<NearRestDto> getNearbyRestaurants(@PathVariable(name = "lat") double lat, @PathVariable(name = "lng") double lng) {
+    return restaurantService.getNearbyRestaurants(lat, lng);
+  }
 
     //임시휴무 받아오기
     @GetMapping("/rest-temp-holiday/{rest-id}")

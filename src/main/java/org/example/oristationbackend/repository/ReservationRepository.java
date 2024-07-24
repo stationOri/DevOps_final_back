@@ -23,13 +23,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
           "FROM Reservation r " +
           "WHERE r.restaurant.restId = :restId " +
           "AND r.resDatetime BETWEEN :startTimestamp AND :endTimestamp")
-  List<Reservation> findByRestIDAndDate(    @Param("restId") int restId,
-                                            @Param("startTimestamp") Timestamp startTimestamp,
-                                            @Param("endTimestamp") Timestamp endTimestamp);
-  @Query("SELECT r " +
-          "FROM Reservation r " +
-          "WHERE r.restaurant.restId = :restId " +
-          "AND r.resDatetime BETWEEN :startTimestamp AND :endTimestamp")
   List<Reservation> findReservationsByDateRange(
           @Param("restId") int restId,
           @Param("startTimestamp") Timestamp startTimestamp,
