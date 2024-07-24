@@ -40,6 +40,9 @@ public class RestaurantInfo {
 
     private String restPost; // 가게 공지
 
+    private double lat;
+    private double lng;
+
     @Enumerated(EnumType.STRING)
     private ReservationType revWait; // 예약 대기 방식 -> A(웨이팅) / B(예약) / C(둘다)
 

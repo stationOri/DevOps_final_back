@@ -31,6 +31,10 @@ public class Payment {
 
     private Timestamp statusChangedDate;
 
+    private String imp_uid;
+
+    private String merchant_uid;
+
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }
