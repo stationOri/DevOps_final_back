@@ -49,6 +49,7 @@ public class RestaurantInfoService {
         }
     }
     // 키워드 등록
+    @Transactional
     public int enrollkeywordByRestId(int restId, int keywordId) {
         RestaurantInfo restaurantInfo = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
         Keyword key = keywordRepository.findKeywordByKeywordId(keywordId);
@@ -78,6 +79,7 @@ public class RestaurantInfoService {
     }
 
     // 키워드 삭제
+    @Transactional
     public int deleteKeywordByRestId(int restId, int keywordId) {
         RestaurantInfo restaurantInfo = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
 
