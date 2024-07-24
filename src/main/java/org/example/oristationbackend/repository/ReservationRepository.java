@@ -62,4 +62,27 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
   @Query("SELECT COUNT(DISTINCT r.restaurant.restId) FROM Reservation r WHERE r.user.userId = :userId AND r.status = :status")
   int countVisitedRestaurants(@Param("userId") int userId, @Param("status") ReservationStatus status);
 
+  // 추천 식당 조회 쿼리 (평점 4.0 이상, 최근 3개월간 예약이 가장 많은 식당 7개)
+  @Query("SELECT r.restaurant, COUNT(r) AS revCount " +
+      "FROM Reservation r " +
+      "WHERE r.resDatetime >= :threeMonthsAgo AND r.status = :status " +
+      "AND r.restaurant.restaurantInfo.restGrade >= 4.0 " +
+      "GROUP BY r.restaurant " +
+      "ORDER BY revCount DESC")
+  List<Object[]> findRecommendedRestaurants(@Param("threeMonthsAgo") LocalDateTime threeMonthsAgo,
+                                            @Param("status") ReservationStatus status);
+
+  // 최근 2주 동안 예약이 가장 많은 식당 조회
+  @Query("SELECT r.restaurant, COUNT(r) AS reservationCount " +
+      "FROM Reservation r " +
+      "WHERE r.resDatetime >= :twoWeeksAgo AND r.status = :status " +
+      "GROUP BY r.restaurant " +
+      "ORDER BY reservationCount DESC")
+  List<Object[]> findHotRestaurants(@Param("twoWeeksAgo") LocalDateTime twoWeeksAgo,
+                                    @Param("status") ReservationStatus status);
+
+
+
+
+
 }
