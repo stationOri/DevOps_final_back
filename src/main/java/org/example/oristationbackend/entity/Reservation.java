@@ -22,7 +22,7 @@ public class Reservation {
 
     private Timestamp resDatetime; // 예약 시간
 
-    private Timestamp status_changed_date; // 예약 상태 변경 시간
+    private Timestamp statusChangedDate; // 예약 상태 변경 시간
 
     private int resNum; // 예약 인원
 
