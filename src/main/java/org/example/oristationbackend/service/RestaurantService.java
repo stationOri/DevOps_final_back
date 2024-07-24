@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.RestRegisterDto;
-import org.example.oristationbackend.dto.user.MostRestDto;
-import org.example.oristationbackend.dto.user.SearchResDto;
-import org.example.oristationbackend.dto.user.UserRegisterReqDto;
+import org.example.oristationbackend.dto.user.*;
 import org.example.oristationbackend.entity.*;
 import org.example.oristationbackend.entity.type.ChatType;
 import org.example.oristationbackend.entity.type.ReservationStatus;
@@ -37,6 +35,9 @@ public class RestaurantService {
   private final ReservationRepository reservationRepository;
   private final KeywordRepository keywordRepository;
   private final LoginRepository loginRepository;
+  private final ReviewRepository reviewRepository;
+  private final ReviewLikesRepository reviewLikesRepository;
+
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
     List<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findAll();
@@ -204,6 +205,57 @@ public class RestaurantService {
         .limit(4) // 4개만 반환
         .collect(Collectors.toList());
   }
+
+  // 추천 식당 조회 (평점 4.0 이상, 최근 3개월간 예약이 가장 많은 식당 7개)
+  public List<RecommendRestDto> getRecommendedRestaurants() {
+    LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+    ReservationStatus visitedStatus = ReservationStatus.VISITED;
+
+    List<Object[]> results = reservationRepository.findRecommendedRestaurants(threeMonthsAgo, visitedStatus);
+
+    return results.stream()
+        .map(result -> {
+          Restaurant restaurant = (Restaurant) result[0];
+          return new RecommendRestDto(
+              restaurant.getRestId(),
+              restaurant.getRestName(),
+              restaurant.getRestPhoto(),
+              restaurant.getRestaurantInfo().getRestAddress(),
+              restaurant.getRestaurantInfo().getRestGrade()
+          );
+        })
+        .limit(7) // 7개만 반환
+        .collect(Collectors.toList());
+  }
+
+  // 주변 식당 조회(사용자 위치로부터 주변 5km 이내의 식당)
+
+  // 최근 인기 식당 조회(최근 2주 동안 예약이 가장 많은 식당 5개 순위대로)
+  public List<HotRestDto> getHotRestaurants() {
+    LocalDateTime twoWeeksAgo = LocalDateTime.now().minusWeeks(2);
+    ReservationStatus visitedStatus = ReservationStatus.VISITED;
+
+    List<Object[]> results = reservationRepository.findHotRestaurants(twoWeeksAgo, visitedStatus);
+
+    return results.stream()
+        .map(result -> {
+          Restaurant restaurant = (Restaurant) result[0];
+          return new HotRestDto(
+              restaurant.getRestId(),
+              restaurant.getRestName(),
+              restaurant.getRestPhoto(),
+              restaurant.getRestaurantInfo().getRestGrade(),
+              restaurant.getRestaurantInfo().getKeyword1().getKeyword(),
+              restaurant.getRestaurantInfo().getKeyword2().getKeyword(),
+              restaurant.getRestaurantInfo().getKeyword3().getKeyword()
+          );
+        })
+        .limit(5) // 5개만 반환
+        .collect(Collectors.toList());
+  }
+
+
+  // 식당 등록
   @Transactional(readOnly = false)
   public int addRestaurant(RestRegisterDto restRegisterDto) {
       if(existRestaurant((restRegisterDto.getRestPhone()))){
@@ -217,6 +269,8 @@ public class RestaurantService {
     login.setRestaurant(restaurant);
     return loginRepository.save(login).getLoginId();
   }
+
+
   private boolean existRestaurant(String phone) {
     return restaurantRepository.existsByRestPhone(phone);
   }

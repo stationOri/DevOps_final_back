@@ -5,9 +5,12 @@ import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.MenuAddReqDto;
 import org.example.oristationbackend.dto.restaurant.MenuListResDto;
 import org.example.oristationbackend.dto.restaurant.MenuModReqDto;
+import org.example.oristationbackend.dto.user.HotRestDto;
 import org.example.oristationbackend.dto.user.MostRestDto;
+import org.example.oristationbackend.dto.user.RecommendRestDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
+import org.example.oristationbackend.service.ReservationService;
 import org.example.oristationbackend.service.RestaurantMenuService;
 import org.example.oristationbackend.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +27,7 @@ public class RestaurantController {
   private final RestaurantMenuService restaurantMenuService;
 
   @Autowired
-  public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService) {
+  public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService, ReservationService reservationService) {
     this.restaurantService = restaurantService;
     this.restaurantMenuService = restaurantMenuService;
   }
@@ -146,5 +149,23 @@ public class RestaurantController {
   public List<MostRestDto> getMostReservedRestaurantsByUser(@PathVariable(name = "userId") int userId) {
     return restaurantService.getMostReservedRestaurantsByUser(userId);
   }
+
+  // 추천 식당 조회 (평점 4.0 이상, 최근 3개월간 예약이 가장 많은 식당 7개)
+  @GetMapping("/recommend")
+  public ResponseEntity<List<RecommendRestDto>> getRecommendedRestaurants() {
+    List<RecommendRestDto> recommendedRestaurants = restaurantService.getRecommendedRestaurants();
+    return ResponseEntity.ok(recommendedRestaurants);
+  }
+
+  // 최근 2주 동안 예약이 가장 많은 식당 조회
+  @GetMapping("/hot")
+  public ResponseEntity<List<HotRestDto>> getHotRestaurants() {
+    List<HotRestDto> hotRestaurants = restaurantService.getHotRestaurants();
+    return ResponseEntity.ok(hotRestaurants);
+  }
+
+  // 주변 식당 조회(사용자 위치로부터 주변 5km 이내의 식당)
+
+
 
 }

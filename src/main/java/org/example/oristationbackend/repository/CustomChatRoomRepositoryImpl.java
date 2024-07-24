@@ -102,7 +102,7 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
                                     .orderBy(subMessage.sendTime.desc())
                                     .limit(1)
                                     .fetchOne();
-                            return messageContent != null ? messageContent : "No Messages"; // Default value for null
+                            return messageContent != null ? messageContent : "No Messages";
                         }
                 ));
         return chatRoomDtos.stream()
@@ -129,9 +129,9 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
 
         // ChatRoom에서 answererId와 questionerId 조회
         Tuple result = queryFactory.select(qChatRoom.answerer.loginId, qChatRoom.questioner.loginId)
-                .from(qChatRoom)
-                .where(qChatRoom.chattingRoomId.eq(chatRoomId))
-                .fetchOne();
+            .from(qChatRoom)
+            .where(qChatRoom.chattingRoomId.eq(chatRoomId))
+            .fetchOne();
 
         if (result == null) {
             throw new IllegalArgumentException("Invalid chatRoomId: " + chatRoomId);
@@ -142,28 +142,29 @@ public class CustomChatRoomRepositoryImpl implements CustomChatRoomRepository {
 
         // QueryDSL을 이용하여 쿼리 작성 및 실행
         return queryFactory
-                .select(Projections.fields(ChatMessageDto.class,
-                        // senderType 설정
-                        new CaseBuilder()
-                                .when(message.senderId.eq(questionerId)).then("qs")
-                                .when(message.senderId.eq(answererId)).then("ans")
-                                .otherwise("unknown")
-                                .as("senderType"),
-                        // senderName 설정
-                        new CaseBuilder()
-                                .when(message.senderId.eq(user.userId)).then(user.userName)
-                                .when(message.senderId.eq(restaurant.restId)).then(restaurant.restName)
-                                .when(message.senderId.eq(admin.adminId)).then(admin.adminName)
-                                .otherwise("unknown")
-                                .as("senderName"),
-                        message.messageContent, // messageContent 필드 매핑
-                        message.sendTime)) // sendTime 필드 매핑
-                .from(message) // message 엔티티를 기준으로 조회
-                .leftJoin(user).on(message.senderId.eq(user.userId)) // senderId가 userId와 일치하는 경우 조인
-                .leftJoin(restaurant).on(message.senderId.eq(restaurant.restId)) // senderId가 restaurantId와 일치하는 경우 조인
-                .leftJoin(admin).on(message.senderId.eq(admin.adminId)) // senderId가 adminId와 일치하는 경우 조인
-                .where(message.chatRoom.chattingRoomId.eq(chatRoomId)) // chatRoomId와 일치하는 메시지 조회
-                .fetch(); // 결과 리스트 반환
+            .select(Projections.fields(ChatMessageDto.class,
+                message.senderId.as("senderId"), // senderId 필드 매핑 추가
+                // senderType 설정
+                new CaseBuilder()
+                    .when(message.senderId.eq(questionerId)).then("qs")
+                    .when(message.senderId.eq(answererId)).then("ans")
+                    .otherwise("unknown")
+                    .as("senderType"),
+                // senderName 설정
+                new CaseBuilder()
+                    .when(message.senderId.eq(user.userId)).then(user.userName)
+                    .when(message.senderId.eq(restaurant.restId)).then(restaurant.restName)
+                    .when(message.senderId.eq(admin.adminId)).then(admin.adminName)
+                    .otherwise("unknown")
+                    .as("senderName"),
+                message.messageContent, // messageContent 필드 매핑
+                message.sendTime)) // sendTime 필드 매핑
+            .from(message) // message 엔티티를 기준으로 조회
+            .leftJoin(user).on(message.senderId.eq(user.userId)) // senderId가 userId와 일치하는 경우 조인
+            .leftJoin(restaurant).on(message.senderId.eq(restaurant.restId)) // senderId가 restaurantId와 일치하는 경우 조인
+            .leftJoin(admin).on(message.senderId.eq(admin.adminId)) // senderId가 adminId와 일치하는 경우 조인
+            .where(message.chatRoom.chattingRoomId.eq(chatRoomId)) // chatRoomId와 일치하는 메시지 조회
+            .fetch(); // 결과 리스트 반환
     }
 
 }

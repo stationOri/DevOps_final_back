@@ -28,7 +28,9 @@ public class Payment {
     private int amount;
 
     private int refund;
-    private Timestamp statusChangeDate;
+
+    private Timestamp statusChangedDate;
+
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }

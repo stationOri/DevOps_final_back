@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class ChatMessageDto {
+    private int senderId;
     private String senderName;
     private String senderType;//qs or ans
     private String messageContent;

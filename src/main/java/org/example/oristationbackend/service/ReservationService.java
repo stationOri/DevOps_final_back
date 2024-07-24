@@ -134,7 +134,7 @@ public class ReservationService {
         List<MenuDto> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
             RestReservationResDto restReservationResDto = new RestReservationResDto(reservation.getUser().getUserName(), reservation.getUser().getUserId(), reservation.getRestaurant().getRestName(),
                     reservation.getRestaurant().getRestId(), reservation.getResId(), reservation.getResDatetime(), reservation.getReqDatetime(), reservation.getResNum(),
-                    reservation.getStatus(), reservation.getRequest(), reservation.getStatus_changed_date(), reservedMenus);
+                    reservation.getStatus(), reservation.getRequest(), reservation.getStatusChangedDate(), reservedMenus);
             result.add(restReservationResDto);
         }
         return result;
