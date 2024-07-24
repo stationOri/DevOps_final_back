@@ -53,13 +53,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
   List<Reservation> findRecentReservationsByUserId(@Param("userId") int userId, @Param("oneYearAgo") Timestamp oneYearAgo);
 
   // 사용자가 예약/방문한 식당 수 조회
-  @Query("SELECT COUNT(r) FROM Reservation r WHERE r.user.userId = :userId AND r.status IN (:statuses) AND r.resDatetime < CURRENT_DATE")
-  int countNowReservations(@Param("userId") int userId, @Param("statuses") List<ReservationStatus> statuses);
-
   @Query("SELECT COUNT(r) FROM Reservation r WHERE r.user.userId = :userId AND r.status = :status")
+  int countReservationsByStatus(@Param("userId") int userId, @Param("status") ReservationStatus status);
+
+  @Query("SELECT COUNT(r) FROM Reservation r WHERE r.user.userId = :userId AND r.status = :status AND r.resDatetime < CURRENT_TIMESTAMP")
   int countPastReservations(@Param("userId") int userId, @Param("status") ReservationStatus status);
 
-  @Query("SELECT COUNT(DISTINCT r.restaurant.restId) FROM Reservation r WHERE r.user.userId = :userId AND r.status = :status")
+  @Query("SELECT COUNT(DISTINCT r.restaurant) FROM Reservation r WHERE r.user.userId = :userId AND r.status = :status AND r.resDatetime < CURRENT_TIMESTAMP")
   int countVisitedRestaurants(@Param("userId") int userId, @Param("status") ReservationStatus status);
 
   // 추천 식당 조회 쿼리 (평점 4.0 이상, 최근 3개월간 예약이 가장 많은 식당 7개)
