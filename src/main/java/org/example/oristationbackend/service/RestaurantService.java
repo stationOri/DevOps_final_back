@@ -13,6 +13,7 @@ import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.repository.*;
 
 
+import org.example.oristationbackend.util.DistanceCalculator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class RestaurantService {
   private final LoginRepository loginRepository;
   private final ReviewRepository reviewRepository;
   private final ReviewLikesRepository reviewLikesRepository;
+  private final DistanceCalculator distanceCalculator;
 
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
@@ -230,6 +232,67 @@ public class RestaurantService {
   }
 
   // 주변 식당 조회(사용자 위치로부터 주변 5km 이내의 식당)
+  public List<NearRestDto> getNearbyRestaurants(double userLat, double userLng) {
+    // 1. 반경 내의 식당 ID를 가져온다
+    List<Integer> restIds = restaurantRepository.findNearbyRestaurantIds(userLat, userLng, 5000);
+
+    // 2. 식당 정보 및 리뷰 정보를 가져온다
+    List<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findAllById(restIds);
+
+    return restaurantInfos.stream().map(restaurantInfo -> {
+      Restaurant restaurant = restaurantInfo.getRestaurant();  // 식당 정보 가져오기 (양방향 관계 가정)
+      List<NearRestReviewDto> reviews = reviewRepository.findByRestaurant_RestId(restaurant.getRestId()).stream()
+          .map(review -> new NearRestReviewDto(
+              review.getReviewId(),
+              review.getReviewGrade(),
+              review.getUser().getUserNickname(),
+              review.getLikeNum(),
+              review.getReviewData()
+          ))
+          .collect(Collectors.toList());
+
+      return new NearRestDto(
+          restaurant.getRestId(),
+          restaurant.getRestName(),
+          restaurant.getRestaurantInfo().getRestAddress(),
+          restaurant.getRestPhoto(),
+          restaurant.getRestaurantInfo().getKeyword1().getKeyword(),
+          restaurant.getRestaurantInfo().getKeyword2().getKeyword(),
+          restaurant.getRestaurantInfo().getKeyword3().getKeyword(),
+          restaurant.getRestaurantInfo().getLat(),
+          restaurant.getRestaurantInfo().getLng(),
+          reviews
+      );
+    }).collect(Collectors.toList());
+  }
+
+  private NearRestDto convertToNearRestDto(Restaurant restaurant) {
+    // 식당 정보를 DTO로 변환
+    List<NearRestReviewDto> reviews = reviewRepository.findByRestaurant_RestId(restaurant.getRestId()).stream()
+        .map(review -> new NearRestReviewDto(
+            review.getReviewId(),
+            review.getReviewGrade(),
+            review.getUser().getUserNickname(),
+            review.getLikeNum(),
+            review.getReviewData()
+        ))
+        .collect(Collectors.toList());
+
+    RestaurantInfo info = restaurant.getRestaurantInfo();
+
+    return new NearRestDto(
+        restaurant.getRestId(),
+        restaurant.getRestName(),
+        info != null ? info.getRestAddress() : null,
+        restaurant.getRestPhoto(),
+        info != null && info.getKeyword1() != null ? info.getKeyword1().getKeyword() : null,
+        info != null && info.getKeyword2() != null ? info.getKeyword2().getKeyword() : null,
+        info != null && info.getKeyword3() != null ? info.getKeyword3().getKeyword() : null,
+        info != null ? info.getLat() : 0.0,  // 위도
+        info != null ? info.getLng() : 0.0,  // 경도
+        reviews
+    );
+  }
 
   // 최근 인기 식당 조회(최근 2주 동안 예약이 가장 많은 식당 5개 순위대로)
   public List<HotRestDto> getHotRestaurants() {
