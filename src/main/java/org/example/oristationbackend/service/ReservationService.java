@@ -5,15 +5,11 @@ import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.restaurant.DateRequestDto;
 import org.example.oristationbackend.dto.restaurant.MenuDto;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
-import org.example.oristationbackend.dto.user.ResRestCountDto;
-import org.example.oristationbackend.dto.user.ReservationReqDto;
-import org.example.oristationbackend.dto.user.SearchResDto;
-import org.example.oristationbackend.dto.user.UserReservationResDto;
+import org.example.oristationbackend.dto.user.*;
 import org.example.oristationbackend.entity.*;
+import org.example.oristationbackend.entity.type.PaymentStatus;
 import org.example.oristationbackend.entity.type.ReservationStatus;
-import org.example.oristationbackend.repository.PaymentRepository;
-import org.example.oristationbackend.repository.ReservationRepository;
-import org.example.oristationbackend.repository.ReservedMenuRepository;
+import org.example.oristationbackend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.sql.Timestamp;
@@ -33,6 +30,10 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
     private final ReservedMenuRepository reservedMenuRepository;
+    private final RestaurantRepository restaurantRepository;
+    private final RestaurantPeakRepository restaurantPeakRepository;
+    private final UserRepository userRepository;
+    private final RestaurantMenuRepository restaurantMenuRepository;
     //예약 시간 조회
     public List<String> findReservedTime(int restId, String targetDate) {
         try {
@@ -130,7 +131,7 @@ public class ReservationService {
         LocalDate date = dateRequestDto.getDate(); //localdate에서 date로 바꾸기
         Timestamp startofday=Timestamp.valueOf(date.atStartOfDay());
         Timestamp endofday= Timestamp.valueOf(date.atTime(23, 59, 59));
-        List<Reservation> reservations = reservationRepository.findByRestIDAndDate(restId,startofday,endofday);
+        List<Reservation> reservations = reservationRepository.findReservationsByDateRange(restId,startofday,endofday);
         List<RestReservationResDto> result= new ArrayList<>();
         for (Reservation reservation : reservations) {
         List<MenuDto> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
@@ -142,10 +143,17 @@ public class ReservationService {
         return result;
     }
 
-    public String addReservation(ReservationReqDto reservationReqDto) {
-        return null;
+    public String checkAvailableRes(ReservationReqDto reservationReqDto) {
+        if(!checkAvailableTable(reservationReqDto.getRestId(),reservationReqDto.getResNum(),reservationReqDto.getSelectedTime(),reservationReqDto.getSelectedDate())){
+            return "해당 시간대 예약이 마감되었습니다.";
+        }
+        if(!checkAvailableDate(reservationReqDto.getRestId(), reservationReqDto.getSelectedDate())){
+            return "해당 날짜는 성수기 예약 기간으로, 추후 오픈됩니다. 가게공지를 확인해주세요.";
+        }
+
+        return "available";
     }
-    private boolean checkavailabletable(int restId, String selectedtime, String selectedDate){
+    private boolean checkAvailableTable(int restId, int num, String selectedtime, String selectedDate){
         String dateTimeString = selectedDate + " " + selectedtime + ":00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
@@ -153,8 +161,61 @@ public class ReservationService {
         LocalDateTime after5Minutes = localDateTime.plusMinutes(5);
         Timestamp before = Timestamp.valueOf(before5Minutes);
         Timestamp after = Timestamp.valueOf(after5Minutes);
-        //reservationRepository.findReservationsByDateRange();
-return true;
+        List<Reservation> reservlist= reservationRepository.findReservationsByDateRange(restId,before,after);
+        int sum = reservlist.stream()
+                .mapToInt(Reservation::getResNum)
+                .sum();
+        RestaurantInfo restaurantinfo= restaurantRepository.findById(restId).get().getRestaurantInfo();
+        return restaurantinfo.getMaxPpl() >= (sum + num) && reservlist.size() < restaurantinfo.getRestTablenum();
+    }
+    private boolean checkAvailableDate(int restId, String selectedDate){
+        List<RestaurantPeak> peakList= restaurantPeakRepository.findByRestaurant_RestId(restId);
+        LocalDate targetDate = LocalDate.parse(selectedDate);
+        for (RestaurantPeak peak : peakList) {
+            LocalDate startDate = peak.getDateStart().toLocalDate();
+            LocalDate endDate = peak.getDateEnd().toLocalDate();
+            if (targetDate.isEqual(startDate) || targetDate.isEqual(endDate) ||
+                    (targetDate.isAfter(startDate) && targetDate.isBefore(endDate))) {
+                return false;
+            }
+        }
+        return true;
 
+    }
+    @Transactional(readOnly = false)
+    public String saveReservation(ReservationReqDto reservationReqDto, PayDto payDto) {
+        if(paymentRepository.existsByImpUid(payDto.getImp_uid())||paymentRepository.existsByMerchantUid(payDto.getMerchant_uid())){
+            return "동일한 결제 내역이 이미 존재합니다.";
+        }
+
+        User user = userRepository.findById(reservationReqDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Restaurant restaurant = restaurantRepository.findById(reservationReqDto.getRestId())
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+        String dateTimeString = reservationReqDto.getSelectedDate() + " " + reservationReqDto.getSelectedTime() + ":00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        Timestamp resdate= Timestamp.valueOf(localDateTime);
+
+        LocalDateTime now = LocalDateTime.now();
+        Timestamp currentTimestamp = Timestamp.valueOf(now);
+
+        Reservation reservation = new Reservation(0,currentTimestamp,resdate,currentTimestamp,reservationReqDto.getResNum(),0,ReservationStatus.RESERVATION_READY,
+                reservationReqDto.getRequest(),user,restaurant,null,null);
+
+        Reservation savedReservation = reservationRepository.save(reservation);
+        List<MenuReservedDto> menuList = reservationReqDto.getMenulist();
+        for (MenuReservedDto menuReservedDto : menuList) {
+            System.out.println(menuReservedDto);
+            RestaurantMenu restaurantMenu = restaurantMenuRepository.findById(menuReservedDto.getMenuId())
+                    .orElseThrow(() -> new RuntimeException("Menu not found"));
+
+            ReservedMenu reservedMenu = new ReservedMenu(0,savedReservation,restaurantMenu,menuReservedDto.getAmount());
+            reservedMenuRepository.save(reservedMenu);
+        }
+
+        Payment payment = new Payment(savedReservation,0,user,(int) payDto.getAmount().longValue(),0,currentTimestamp,payDto.getImp_uid(),payDto.getMerchant_uid(), PaymentStatus.PAYMENT_DONE);
+        paymentRepository.save(payment);
+        return "success";
     }
 }

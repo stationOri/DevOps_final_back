@@ -6,6 +6,7 @@ import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.DateRequestDto;
 import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
+import org.example.oristationbackend.dto.user.CombinedDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
 import org.example.oristationbackend.dto.user.ReservationReqDto;
 import org.example.oristationbackend.dto.user.UserReservationResDto;
@@ -73,9 +74,13 @@ public class ReservationController {
     DateRequestDto dateRequestDto = new DateRequestDto(restId, date);
     return reservationService.getReservationByRestIdAndDate(dateRequestDto);
   }
+  @PostMapping("/reservationcheck")
+  public String checkReservation(@RequestBody ReservationReqDto reservationReqDto) {
+    return reservationService.checkAvailableRes(reservationReqDto);
+  }
   @PostMapping("/reservation")
-  public String addReservation(@RequestBody ReservationReqDto reservationReqDto) {
-    return reservationService.addReservation(reservationReqDto);
+  public String addReservation(@RequestBody CombinedDto combinedDto) {
+    return reservationService.saveReservation(combinedDto.getReservationReqDto(),combinedDto.getPayDto());
   }
 
 }

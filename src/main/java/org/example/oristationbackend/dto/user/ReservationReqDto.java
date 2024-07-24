@@ -19,6 +19,6 @@ public class ReservationReqDto {
     private int resNum;
     private int deposit;
     private String request;
-    private List<MenuDto> menulist;
+    private List<MenuReservedDto> menulist;
 }
 
