@@ -29,25 +29,29 @@ public class RestaurantInfoService {
         return restaurantInfoRepository.findRestaurantInfoByRestId(restId).getRestWaitingStatus().toString();
     }
 
-    public List<String> findkeywordByRestId(int restId) {
+    public List<KeywordResponseDto> findkeywordByRestId(int restId) {
         RestaurantInfo restaurantInfoByRestId = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
 
         if (restaurantInfoByRestId != null) {
-            List<String> keywords = new ArrayList<>();
+            List<KeywordResponseDto> keywords = new ArrayList<>();
             if (restaurantInfoByRestId.getKeyword1() != null) {
-                keywords.add(restaurantInfoByRestId.getKeyword1().getKeyword());
+                Keyword keyword1 = restaurantInfoByRestId.getKeyword1();
+                keywords.add(new KeywordResponseDto(keyword1.getKeywordId(), keyword1.getKeyword()));
             }
             if (restaurantInfoByRestId.getKeyword2() != null) {
-                keywords.add(restaurantInfoByRestId.getKeyword2().getKeyword());
+                Keyword keyword2 = restaurantInfoByRestId.getKeyword2();
+                keywords.add(new KeywordResponseDto(keyword2.getKeywordId(), keyword2.getKeyword()));
             }
             if (restaurantInfoByRestId.getKeyword3() != null) {
-                keywords.add(restaurantInfoByRestId.getKeyword3().getKeyword());
+                Keyword keyword3 = restaurantInfoByRestId.getKeyword3();
+                keywords.add(new KeywordResponseDto(keyword3.getKeywordId(), keyword3.getKeyword()));
             }
             return keywords;
         } else {
             return Collections.emptyList();
         }
     }
+
     // 키워드 등록
     @Transactional
     public int enrollkeywordByRestId(int restId, int keywordId) {

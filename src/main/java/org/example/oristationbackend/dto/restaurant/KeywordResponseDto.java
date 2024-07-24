@@ -10,7 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KeywordResponseDto {
-    private String keyword1;
-    private String keyword2;
-    private String keyword3;
+    private int keywordId;
+    private String keyword;
 }

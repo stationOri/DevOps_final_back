@@ -1,5 +1,6 @@
 package org.example.oristationbackend.controller;
 
+import org.example.oristationbackend.dto.restaurant.KeywordResponseDto;
 import org.example.oristationbackend.entity.Keyword;
 import org.example.oristationbackend.service.KeywordService;
 import org.example.oristationbackend.service.RestaurantInfoService;
@@ -34,7 +35,7 @@ public class KeywordController {
 
   //식당id로 키워드 조회
   @GetMapping("/{restId}")
-  public List<String> getKeywordById(@PathVariable("restId") int restId) {
+  public List<KeywordResponseDto> getKeywordById(@PathVariable("restId") int restId) {
     return restaurantInfoService.findkeywordByRestId(restId);
   }
 
