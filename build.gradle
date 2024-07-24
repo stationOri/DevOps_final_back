@@ -20,6 +20,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -36,8 +37,9 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     testImplementation 'org.springframework.security:spring-security-test'
     //implementation 'com.sun.mail:javax.mail:1.6.1'
-    compile 'com.paypal.sdk:rest-api-sdk:+'
+    implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
 
+    implementation 'com.paypal.sdk:rest-api-sdk:1.14.0'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

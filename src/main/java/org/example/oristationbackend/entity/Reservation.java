@@ -42,7 +42,7 @@ public class Reservation {
     @JoinColumn(name = "rest_id")
     private Restaurant restaurant; // 식당 id
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "reservation", fetch = FetchType.LAZY)
     private Payment payment; // 결제 정보
 
     @OneToMany(mappedBy = "reservation", fetch = FetchType.LAZY)
