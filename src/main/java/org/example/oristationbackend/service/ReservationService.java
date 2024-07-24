@@ -1,6 +1,8 @@
 package org.example.oristationbackend.service;
 
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.restaurant.DateRequestDto;
 import org.example.oristationbackend.dto.restaurant.MenuDto;
@@ -13,12 +15,14 @@ import org.example.oristationbackend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.sql.Timestamp;
 import java.util.stream.Collectors;
@@ -34,6 +38,8 @@ public class ReservationService {
     private final RestaurantPeakRepository restaurantPeakRepository;
     private final UserRepository userRepository;
     private final RestaurantMenuRepository restaurantMenuRepository;
+    private final SmsService smsService;
+    private final PaymentService paymentService;
     //예약 시간 조회
     public List<String> findReservedTime(int restId, String targetDate) {
         try {
@@ -163,7 +169,7 @@ public class ReservationService {
         LocalDateTime after5Minutes = localDateTime.plusMinutes(5);
         Timestamp before = Timestamp.valueOf(before5Minutes);
         Timestamp after = Timestamp.valueOf(after5Minutes);
-        List<Reservation> reservlist= reservationRepository.findReservationsByDateRange(restId,before,after);
+        List<Reservation> reservlist= reservationRepository.findReservationsByDateRangeAndStatus(restId,before,after,ReservationStatus.RESERVATION_ACCEPTED);
         int sum = reservlist.stream()
                 .mapToInt(Reservation::getResNum)
                 .sum();
@@ -220,4 +226,85 @@ public class ReservationService {
         paymentRepository.save(payment);
         return "success";
     }
+
+    @Transactional(readOnly = false)
+    public String changeStatus(int resId, ReservationStatus status) {
+        Reservation reservation = reservationRepository.findById(resId).orElseThrow(() -> new RuntimeException("reservation not found with reservation ID"));
+        if(status.equals(ReservationStatus.RESERVATION_ACCEPTED)){
+            if(reservation.getStatus()!=ReservationStatus.RESERVATION_READY){
+                return "예약 승인이 가능한 상태가 아닙니다.";
+            }
+            reservationRepository.save(reservation.changeStatus(status));
+            LocalDateTime localDateTime = reservation.getReqDatetime().toLocalDateTime();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            StringBuilder sb= new StringBuilder();
+            sb.append("[WaitMate]");
+            sb.append(reservation.getUser().getUserName());
+            sb.append("고객님, ");
+            sb.append(reservation.getRestaurant().getRestName());
+            sb.append(" 식당에 ");
+            sb.append(localDateTime.format(formatter));
+            sb.append(" 예약 요청하신 건이 승인되었습니다. 예약일에 방문 부탁드립니다. 감사합니다.");
+            SmsDto smsDto=new SmsDto(reservation.getUser().getUserPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+            SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+            System.out.println(resp.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
+        }else{
+            LocalDateTime now = LocalDateTime.now();
+            Timestamp currentTimestamp = Timestamp.valueOf(now);
+            if(currentTimestamp.after(reservation.getResDatetime())){
+                return "방문 및 노쇼 처리는 예약시간이 지난 후 가능합니다.";
+            }
+            reservationRepository.save(reservation.changeStatus(status));
+
+        }
+        return  "success";
+    }
+
+    @Transactional(readOnly = false)
+    public String changeCancel(int resId, ReservationStatus status) throws IamportResponseException, IOException {
+        Reservation reservation = reservationRepository.findById(resId).orElseThrow(() -> new RuntimeException("reservation not found with reservation ID"));
+        Payment payment = paymentRepository.findById(resId).orElseThrow(()-> new RuntimeException("payment not found with reservation ID"));
+        if(!(reservation.getStatus()==ReservationStatus.RESERVATION_ACCEPTED||reservation.getStatus()==ReservationStatus.RESERVATION_READY)){
+            return "예약 취소가 가능한 상태가 아닙니다.";
+        }
+        reservationRepository.save(reservation.changeStatus(status));
+
+
+        switch (status) {
+            case RESERVATION_CANCELED_BYREST:
+                PayCancelDto cancelDto = new PayCancelDto("식당 측 취소",payment.getImpUid(),payment.getMerchantUid(),payment.getAmount(),payment.getAmount());
+                paymentService.refundPayment(cancelDto);
+                paymentRepository.save(payment.refund(payment.getAmount()));
+                return  "success";
+            case RESERVATION_CANCELED_BYUSER:
+                LocalDate today = LocalDate.now();
+                LocalDate dateFromTimestamp = reservation.getResDatetime().toLocalDateTime().toLocalDate();
+                long daysDifference = ChronoUnit.DAYS.between(dateFromTimestamp, today);
+                int amount=payment.getAmount();
+                double cal=0;
+                if(daysDifference>=7){
+                    cal= 1;
+                }else if(daysDifference>=3){
+                    cal= 0.5;
+                }else if(daysDifference>=1){
+                    cal=0.1;
+                }else{
+                    return "당일 및 예약일 이후 취소는 불가합니다.";
+                }
+                PayCancelDto cancelDto2 = new PayCancelDto("사용자 측 취소",payment.getImpUid(),payment.getMerchantUid(), (int) (payment.getAmount()*cal),payment.getAmount());
+                paymentService.refundPayment(cancelDto2);
+                paymentRepository.save(payment.refund(payment.getAmount()));
+                return "success";
+
+            case RESERVATION_REJECTED:
+                PayCancelDto cancelDto3 = new PayCancelDto("식당 측 예약 거절",payment.getImpUid(),payment.getMerchantUid(),payment.getAmount(),payment.getAmount());
+                paymentService.refundPayment(cancelDto3);
+                paymentRepository.save(payment.refund(payment.getAmount()));
+                return "success";
+            default:
+                return "";
+        }
+    }
+
+
 }

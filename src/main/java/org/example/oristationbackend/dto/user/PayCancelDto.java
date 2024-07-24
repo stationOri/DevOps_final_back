@@ -12,5 +12,5 @@ public class PayCancelDto {
     String imp_uid;
     String merchant_uid;
     int amount;
-    Long checksum;
+    int checksum;
 }

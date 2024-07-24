@@ -47,4 +47,9 @@ public class Reservation {
 
     @OneToMany(mappedBy = "reservation", fetch = FetchType.LAZY)
     private List<ReservedMenu> reservedMenus; // 예약된 메뉴
+
+    public Reservation changeStatus(ReservationStatus status){
+        this.status=status;
+        return this;
+    }
 }

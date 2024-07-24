@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.example.oristationbackend.entity.type.PaymentStatus;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -37,4 +38,13 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
+
+    public Payment refund(int amount){
+        this.amount = this.amount-amount;
+        this.refund=amount;
+        this.status=PaymentStatus.REFUND_DONE;
+        LocalDateTime now = LocalDateTime.now();
+        this.statusChangedDate= Timestamp.valueOf(now);
+        return this;
+    }
 }

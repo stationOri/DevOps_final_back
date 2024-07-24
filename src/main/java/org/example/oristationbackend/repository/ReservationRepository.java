@@ -28,6 +28,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
           @Param("startTimestamp") Timestamp startTimestamp,
           @Param("endTimestamp") Timestamp endTimestamp
   );
+  @Query("SELECT r " +
+          "FROM Reservation r " +
+          "WHERE r.restaurant.restId = :restId " +
+          "AND r.status = :status " + // 쿼리와 조건 사이에 공백 추가
+          "AND r.resDatetime BETWEEN :startTimestamp AND :endTimestamp")
+  List<Reservation> findReservationsByDateRangeAndStatus(
+          @Param("restId") int restId,
+          @Param("startTimestamp") Timestamp startTimestamp,
+          @Param("endTimestamp") Timestamp endTimestamp,
+          @Param("status") ReservationStatus status // 파라미터 사이에 쉼표 추가
+  );
 
   // 많이 방문한 식당 조회
   @Query("SELECT res.restaurant, COUNT(res) AS revCount " +

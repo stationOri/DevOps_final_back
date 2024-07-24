@@ -1,5 +1,6 @@
 package org.example.oristationbackend.controller;
 
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
@@ -10,12 +11,14 @@ import org.example.oristationbackend.dto.user.CombinedDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
 import org.example.oristationbackend.dto.user.ReservationReqDto;
 import org.example.oristationbackend.dto.user.UserReservationResDto;
+import org.example.oristationbackend.entity.type.ReservationStatus;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.service.ReservationService;
 import org.example.oristationbackend.service.RestAvailableResService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -83,5 +86,13 @@ public class ReservationController {
   public String addReservation(@RequestBody CombinedDto combinedDto) {
     return reservationService.saveReservation(combinedDto.getReservationReqDto(),combinedDto.getPayDto());
   }
-
+  @PutMapping("/changestatus/{resId}")
+  public String changeState(@PathVariable(name = "resId") int resId,@RequestBody ReservationStatus status) throws IamportResponseException, IOException {
+      return switch (status) {
+          case RESERVATION_ACCEPTED, VISITED, NOSHOW -> reservationService.changeStatus(resId, status);
+          case RESERVATION_CANCELED_BYREST, RESERVATION_CANCELED_BYUSER, RESERVATION_REJECTED ->
+                  reservationService.changeCancel(resId, status);
+          default -> "예약 대기 상태로 변경은 불가합니다.";
+      };
+  }
 }
