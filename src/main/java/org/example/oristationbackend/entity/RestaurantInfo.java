@@ -65,4 +65,12 @@ public class RestaurantInfo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="key_id3")
     private Keyword keyword3; // 키워드3 id
+
+    public RestaurantInfo(Keyword keyword1, Keyword keyword2, Keyword keyword3,ReservationType revWait, RestWatingStatus restWaitingStatus) {
+        this.keyword1 = keyword1;
+        this.keyword2 = keyword2;
+        this.keyword3 = keyword3;
+        this.revWait = revWait;
+        this.restWaitingStatus = restWaitingStatus;
+    }
 }

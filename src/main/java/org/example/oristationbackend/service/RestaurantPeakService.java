@@ -30,7 +30,7 @@ public class RestaurantPeakService {
         List<RestaurantPeak> peak = restaurantPeakRepository.findByRestaurant_RestId(restId);
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd (HH:mm)");
 
         return peak.stream()
                 .map(restaurantPeak -> new PeakListResDto(

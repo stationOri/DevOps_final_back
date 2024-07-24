@@ -2,11 +2,10 @@ package org.example.oristationbackend.controller;
 
 import org.example.oristationbackend.entity.Keyword;
 import org.example.oristationbackend.service.KeywordService;
+import org.example.oristationbackend.service.RestaurantInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,10 +13,12 @@ import java.util.List;
 @RequestMapping("/keywords")
 public class KeywordController {
   private final KeywordService keywordService;
+  private final RestaurantInfoService restaurantInfoService;;
 
   @Autowired
-  public KeywordController(KeywordService keywordService) {
+  public KeywordController(KeywordService keywordService, RestaurantInfoService restaurantInfoService) {
     this.keywordService = keywordService;
+    this.restaurantInfoService = restaurantInfoService;
   }
 
   // 키워드 전체 조회
@@ -29,6 +30,24 @@ public class KeywordController {
     } else {
       return ResponseEntity.ok(keywords);
     }
+  }
+
+  //식당id로 키워드 조회
+  @GetMapping("/{restId}")
+  public List<String> getKeywordById(@PathVariable("restId") int restId) {
+    return restaurantInfoService.findkeywordByRestId(restId);
+  }
+
+  //키워드 등록
+  @PostMapping("{keyId}/rest/{restId}")
+  public int addKeyword(@PathVariable("keyId") int keyId, @PathVariable("restId") int restId) {
+    return restaurantInfoService.enrollkeywordByRestId(restId, keyId);
+  }
+
+  //키워드 삭제
+  @DeleteMapping("/{keyId}/rest/{restId}")
+  public int deleteKeyword(@PathVariable("keyId") int keyId, @PathVariable("restId") int restId) {
+    return restaurantInfoService.deleteKeywordByRestId(restId, keyId);
   }
 
 }

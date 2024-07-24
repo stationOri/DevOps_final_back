@@ -7,9 +7,7 @@ import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.RestRegisterDto;
 import org.example.oristationbackend.dto.user.*;
 import org.example.oristationbackend.entity.*;
-import org.example.oristationbackend.entity.type.ChatType;
-import org.example.oristationbackend.entity.type.ReservationStatus;
-import org.example.oristationbackend.entity.type.RestaurantStatus;
+import org.example.oristationbackend.entity.type.*;
 import org.example.oristationbackend.repository.*;
 
 
@@ -266,7 +264,7 @@ public class RestaurantService {
     login = loginRepository.save(login);
     Restaurant restaurant= new Restaurant(login,0,restRegisterDto.getRestName(),restRegisterDto.getRestPhone(),restRegisterDto.getRestName2(),"",restRegisterDto.getRestData(),
             restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
-    RestaurantInfo restaurantInfo = new RestaurantInfo();
+    RestaurantInfo restaurantInfo = new RestaurantInfo(null,null,null, ReservationType.A, RestWatingStatus.A);
     restaurantInfo.setRestaurant(restaurant);
     restaurant.setRestaurantInfo(restaurantInfo);
     restaurantRepository.save(restaurant);
