@@ -1,14 +1,12 @@
 package org.example.oristationbackend.controller;
 
+import org.example.oristationbackend.dto.restaurant.NoticeEditDto;
 import org.example.oristationbackend.dto.restaurant.RestResInfoDto;
 import org.example.oristationbackend.service.RestResInfoService;
 import org.example.oristationbackend.service.RestaurantInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/restaurants/info")
@@ -44,6 +42,15 @@ public class RestInfoController {
   public ResponseEntity<String> getRestWaitById(@PathVariable(name = "restId") int restId) {
     String status = restaurantInfoService.FindWaitingStatusByRestId(restId);
     return ResponseEntity.ok(status);
+  }
+
+  // 식당 id로 식당 공지 수정
+  @PutMapping("/notice/{restId}")
+  public ResponseEntity<Void> updateRestPost(
+      @PathVariable(name = "restId") int restId,
+      @RequestBody NoticeEditDto noticeEditDto) {
+    restaurantInfoService.updateRestPost(restId, noticeEditDto.getRestPost());
+    return ResponseEntity.ok().build();
   }
 
 
