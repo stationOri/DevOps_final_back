@@ -7,6 +7,7 @@ import org.example.oristationbackend.dto.restaurant.DateRequestDto;
 import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
+import org.example.oristationbackend.dto.user.ReservationReqDto;
 import org.example.oristationbackend.dto.user.UserReservationResDto;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
 import org.example.oristationbackend.service.ReservationService;
@@ -71,6 +72,10 @@ public class ReservationController {
   public List<RestReservationResDto> getReservationByRestIdAndDate(@PathVariable(name = "restId") int restId,@PathVariable(name="date") LocalDate date) {
     DateRequestDto dateRequestDto = new DateRequestDto(restId, date);
     return reservationService.getReservationByRestIdAndDate(dateRequestDto);
+  }
+  @PostMapping("/reservation")
+  public String addReservation(@RequestBody ReservationReqDto reservationReqDto) {
+    return reservationService.addReservation(reservationReqDto);
   }
 
 }

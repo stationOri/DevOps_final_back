@@ -6,6 +6,7 @@ import org.example.oristationbackend.dto.restaurant.DateRequestDto;
 import org.example.oristationbackend.dto.restaurant.MenuDto;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
+import org.example.oristationbackend.dto.user.ReservationReqDto;
 import org.example.oristationbackend.dto.user.SearchResDto;
 import org.example.oristationbackend.dto.user.UserReservationResDto;
 import org.example.oristationbackend.entity.*;
@@ -20,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.sql.Timestamp;
 import java.util.stream.Collectors;
@@ -140,4 +142,19 @@ public class ReservationService {
         return result;
     }
 
+    public String addReservation(ReservationReqDto reservationReqDto) {
+        return null;
+    }
+    private boolean checkavailabletable(int restId, String selectedtime, String selectedDate){
+        String dateTimeString = selectedDate + " " + selectedtime + ":00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        LocalDateTime before5Minutes = localDateTime.minusMinutes(5);
+        LocalDateTime after5Minutes = localDateTime.plusMinutes(5);
+        Timestamp before = Timestamp.valueOf(before5Minutes);
+        Timestamp after = Timestamp.valueOf(after5Minutes);
+        //reservationRepository.findReservationsByDateRange();
+return true;
+
+    }
 }

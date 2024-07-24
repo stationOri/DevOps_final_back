@@ -265,6 +265,9 @@ public class RestaurantService {
     login = loginRepository.save(login);
     Restaurant restaurant= new Restaurant(login,0,restRegisterDto.getRestName(),restRegisterDto.getRestPhone(),restRegisterDto.getRestName2(),"",restRegisterDto.getRestData(),
             restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
+    RestaurantInfo restaurantInfo = new RestaurantInfo();
+    restaurantInfo.setRestaurant(restaurant);
+    restaurant.setRestaurantInfo(restaurantInfo);
     restaurantRepository.save(restaurant);
     login.setRestaurant(restaurant);
     return loginRepository.save(login).getLoginId();
