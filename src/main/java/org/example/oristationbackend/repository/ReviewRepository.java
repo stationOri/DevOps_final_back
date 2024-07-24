@@ -23,5 +23,5 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> , Revie
             "FROM Review r WHERE r.restaurant.restId = :restId")
     List<ReviewInfoDto> findReviewAndLikesByRestaurantId(@Param("restId") int restId);
 
-
+    List<Review> findByRestaurant_RestId(int restId);
 }

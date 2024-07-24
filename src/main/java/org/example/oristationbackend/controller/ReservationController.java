@@ -68,6 +68,7 @@ public class ReservationController {
   public ResRestCountDto getReservationCounts(@PathVariable(name = "userId") int userId) {
     return reservationService.getReservationCounts(userId);
   }
+
   //식당 예약 상세페이지
   @GetMapping("/reservation/rest/{restId}/{date}")
   public List<RestReservationResDto> getReservationByRestIdAndDate(@PathVariable(name = "restId") int restId,@PathVariable(name="date") LocalDate date) {

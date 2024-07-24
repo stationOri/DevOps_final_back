@@ -118,8 +118,10 @@ public class ReservationService {
 
     // 사용자 예약/방문한 식당 수 조회
     public ResRestCountDto getReservationCounts(int userId) {
-        List<ReservationStatus> nowStatuses = Arrays.asList(ReservationStatus.RESERVATION_READY, ReservationStatus.RESERVATION_ACCEPTED);
-        int nowCount = reservationRepository.countNowReservations(userId, nowStatuses);
+        int nowCountReady = reservationRepository.countReservationsByStatus(userId, ReservationStatus.RESERVATION_READY);
+        int nowCountAccepted = reservationRepository.countReservationsByStatus(userId, ReservationStatus.RESERVATION_ACCEPTED);
+
+        int nowCount = nowCountReady + nowCountAccepted;
         int pastCount = reservationRepository.countPastReservations(userId, ReservationStatus.VISITED);
         int restCount = reservationRepository.countVisitedRestaurants(userId, ReservationStatus.VISITED);
 
