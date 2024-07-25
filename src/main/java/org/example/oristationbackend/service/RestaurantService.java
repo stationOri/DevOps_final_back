@@ -330,7 +330,7 @@ public class RestaurantService {
             restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
     RestaurantInfo restaurantInfo = new RestaurantInfo(null,null,null, ReservationType.A, RestWatingStatus.A);
     RestaurantOpen restaurantMon = new RestaurantOpen(restaurant,OpenDay.MON );
-    RestaurantOpen restaurantTue = new RestaurantOpen(restaurant,OpenDay.THU );
+    RestaurantOpen restaurantTue = new RestaurantOpen(restaurant,OpenDay.TUE );
     RestaurantOpen restaurantWed = new RestaurantOpen(restaurant,OpenDay.WED );
     RestaurantOpen restaurantThu = new RestaurantOpen(restaurant,OpenDay.THU );
     RestaurantOpen restaurantFri = new RestaurantOpen(restaurant,OpenDay.FRI );

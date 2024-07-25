@@ -100,15 +100,20 @@ public class RestaurantOpenService {
   }
 
   public int updateRestaurantOpen(int restId, OpenDay target, RestautrantOpenPutDto restaurantOpenPutDto) {
-    RestaurantOpen rest = restaurantOpenRepository.findRestaurantOpenByRestaurantAndRestDay(restaurantRepository.findById(restId).get(), target);
+    RestaurantOpen rest = restaurantOpenRepository.findRestaurantOpenByRestaurantAndRestDay(
+            restaurantRepository.findById(restId).get(), target);
+
     if (rest == null) {
       return 0;
     }
+
     rest.setRestOpen(restaurantOpenPutDto.getRestOpen());
     rest.setRestClose(restaurantOpenPutDto.getRestClose());
     rest.setRestLastorder(restaurantOpenPutDto.getRestLastorder());
     rest.setRestBreakstart(restaurantOpenPutDto.getRestBreakstart());
     rest.setRestBreakend(restaurantOpenPutDto.getRestBreakend());
+
     return restaurantOpenRepository.save(rest).getRestaurantOpenId();
-  };
+  }
+
 }
