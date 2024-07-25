@@ -30,10 +30,11 @@ public class RestaurantController {
     private final RestaurantPeakRepository restaurantPeakRepository;
     private final RestaurantPeakService restaurantPeakService;
     private final RestaurantMenuRepository restaurantMenuRepository;
+    private final RestaurantInfoService restaurantInfoService;
     private ObjectMapper objectMapper;
 
     @Autowired
-    public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService, RestTempHolidayService restTempHolidayService, RestaurantPeakRepository restaurantPeakRepository, RestaurantPeakService restaurantPeakService, RestaurantMenuRepository restaurantMenuRepository, ObjectMapper objectMapper) {
+    public RestaurantController(RestaurantService restaurantService, RestaurantMenuService restaurantMenuService, RestTempHolidayService restTempHolidayService, RestaurantPeakRepository restaurantPeakRepository, RestaurantPeakService restaurantPeakService, RestaurantMenuRepository restaurantMenuRepository, ObjectMapper objectMapper, RestaurantInfoService restaurantInfoService) {
         this.restaurantService = restaurantService;
         this.restaurantMenuService = restaurantMenuService;
         this.restTempHolidayService = restTempHolidayService;
@@ -41,6 +42,7 @@ public class RestaurantController {
         this.restaurantPeakService = restaurantPeakService;
         this.restaurantMenuRepository = restaurantMenuRepository;
         this.objectMapper = new ObjectMapper();
+        this.restaurantInfoService = restaurantInfoService;
     }
 
     // 식당 전체 조회
@@ -235,6 +237,7 @@ public class RestaurantController {
     public int deletePeak(@PathVariable(name = "peak_id") int peakId) {
         return restaurantPeakService.deleteRestaurantPeak(peakId);
     }
+
 
 
 }

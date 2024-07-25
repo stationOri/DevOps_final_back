@@ -50,6 +50,7 @@ public class Reservation {
 
     public Reservation changeStatus(ReservationStatus status){
         this.status=status;
+        this.statusChangedDate = new Timestamp(System.currentTimeMillis());
         return this;
     }
 }

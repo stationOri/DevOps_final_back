@@ -241,7 +241,7 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = false)
-    public String changeStatus(int resId, ReservationStatus status) {
+    public String changeStatus(int resId, ReservationStatus status) throws IamportResponseException, IOException {
         Reservation reservation = reservationRepository.findById(resId).orElseThrow(() -> new RuntimeException("reservation not found with reservation ID"));
         if(status.equals(ReservationStatus.RESERVATION_ACCEPTED)){
             if(reservation.getStatus()!=ReservationStatus.RESERVATION_READY){
@@ -266,6 +266,11 @@ public class ReservationService {
             Timestamp currentTimestamp = Timestamp.valueOf(now);
             if(currentTimestamp.after(reservation.getResDatetime())){
                 return "방문 및 노쇼 처리는 예약시간이 지난 후 가능합니다.";
+            }
+            if(status.equals(ReservationStatus.VISITED)){
+                PayCancelDto cancelDto2 = new PayCancelDto("방문 후 취소",reservation.getPayment().getImpUid(),reservation.getPayment().getMerchantUid(), (int) (reservation.getPayment().getAmount()),reservation.getPayment().getAmount());
+                paymentService.refundPayment(cancelDto2);
+                paymentRepository.save(reservation.getPayment().refund(reservation.getPayment().getAmount()));
             }
             reservationRepository.save(reservation.changeStatus(status));
 
