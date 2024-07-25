@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -143,12 +144,19 @@ public class ReservationService {
         List<RestReservationResDto> result= new ArrayList<>();
         for (Reservation reservation : reservations) {
             List<MenuDto> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
-            RestReservationResDto restReservationResDto = new RestReservationResDto(reservation.getUser().getUserName(), reservation.getUser().getUserId(), reservation.getRestaurant().getRestName(),
-                    reservation.getRestaurant().getRestId(), reservation.getResId(), reservation.getResDatetime(), reservation.getReqDatetime(), reservation.getResNum(),
-                    reservation.getStatus(), reservation.getRequest(), reservation.getStatusChangedDate(), reservedMenus);
+            RestReservationResDto restReservationResDto = new RestReservationResDto(reservation.getResId(),reservation.getUser().getUserName(), reservation.getUser().getUserId(), reservation.getRestaurant().getRestName(),
+                    reservation.getRestaurant().getRestId(), reservation.getResId(), convertTimestampToString(reservation.getResDatetime()), convertTimestampToString(reservation.getReqDatetime()), reservation.getResNum(),
+                    reservation.getStatus(), reservation.getRequest(), convertTimestampToString(reservation.getStatusChangedDate()), reservedMenus);
             result.add(restReservationResDto);
         }
         return result;
+    }
+
+
+    public static String convertTimestampToString(Timestamp timestamp) {
+        LocalDateTime localDateTime = timestamp.toLocalDateTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return localDateTime.format(formatter);
     }
 
     public String checkAvailableRes(ReservationReqDto reservationReqDto) {

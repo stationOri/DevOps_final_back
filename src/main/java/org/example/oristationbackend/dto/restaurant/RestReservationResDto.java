@@ -13,16 +13,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RestReservationResDto {
+    private int resId;
     private String userName;
     private int userId;
     private String restName;
     private int restaurantId;
     private int reservationId;
-    private Timestamp resDate;
-    private Timestamp reqDate;
+    private String resDate;
+    private String reqDate;
     private int resNum;
     private ReservationStatus status;
     private String request;
-    private Timestamp statusChangeDate;
+    private String statusChangeDate;
     private List<MenuDto> menuList;
 }
