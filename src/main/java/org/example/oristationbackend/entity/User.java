@@ -36,6 +36,7 @@ public class User {
     private Date quitDate; // 탈퇴일
 
     public User quitUser(){
+        this.isBlocked=true;
         this.quitDate=new java.sql.Date(System.currentTimeMillis());
         return this;
     }

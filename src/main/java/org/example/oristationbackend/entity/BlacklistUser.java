@@ -40,8 +40,9 @@ public class BlacklistUser {
   @JoinColumn(name = "admin_id")
   private Admin admin;
   
-  public int addreport(){
-      return ++this.reportNum;
+  public BlacklistUser addreport(){
+    this.reportNum=this.reportNum+1;
+      return this;
   }
   public void changeStatus(BlackStatus status){
     this.blackStatus=status;

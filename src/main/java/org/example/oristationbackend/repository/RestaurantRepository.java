@@ -15,7 +15,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
     Optional<Restaurant> findByRestPhone(String phone);
     boolean existsByRestPhone(String phone);
     List<Restaurant> findRestaurantInfoByRestNameContaining(String restName);
-
     @Query(value = """
             SELECT ri.rest_id
             FROM restaurant_info ri

@@ -354,4 +354,9 @@ public class RestaurantService {
   }
 
 
+  public String getRestarantAccount(int restId) {
+    Restaurant restaurant = restaurantRepository.findById(restId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid restaurant ID: " + restId));
+    return restaurant.getRestAccount();
+  }
 }

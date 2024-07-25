@@ -65,6 +65,10 @@ public class RestInfoController {
     restaurantService.updateRestaurantAccount(restId, accountEditDto.getRestAccount());
     return ResponseEntity.ok().build();
   }
+  @GetMapping("/account/{restId}")
+  public String getRestAccount(@PathVariable(name = "restId") int restId) {
+    return restaurantService.getRestarantAccount(restId);
+  }
 
 
 }
