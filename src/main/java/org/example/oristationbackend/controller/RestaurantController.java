@@ -124,9 +124,15 @@ public class RestaurantController {
 
     // 메뉴 수정
     @PutMapping("/menu/{menuId}")
-    public ResponseEntity<Integer> updateRestaurantMenu(@PathVariable(name = "menuId") int menuId, @RequestBody MenuModReqDto menuModReqDto) {
-        int updatedMenuId = restaurantMenuService.updateRestaurantMenu(menuId, menuModReqDto);
-        return ResponseEntity.ok(updatedMenuId);
+    public ResponseEntity<Integer> updateRestaurantMenu(
+        @PathVariable(name = "menuId") int menuId,
+        @RequestParam(value = "menuData", required = false) String menuDataJson,
+        @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+
+      MenuModReqDto menuModReqDto = menuDataJson != null ? new ObjectMapper().readValue(menuDataJson, MenuModReqDto.class) : new MenuModReqDto();
+
+      int updatedMenuId = restaurantMenuService.updateRestaurantMenu(menuId, menuModReqDto, file);
+      return ResponseEntity.ok(updatedMenuId);
     }
 
     // 메뉴 id로 메뉴 삭제

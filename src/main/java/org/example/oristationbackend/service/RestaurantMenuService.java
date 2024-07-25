@@ -59,14 +59,17 @@ public class RestaurantMenuService {
 
   // 메뉴 id로 메뉴 수정
   @Transactional
-  public int updateRestaurantMenu(int menuId, MenuModReqDto menuModReqDto) {
+  public int updateRestaurantMenu(int menuId, MenuModReqDto menuModReqDto, MultipartFile file) throws IOException {
     RestaurantMenu menuToUpdate = restaurantMenuRepository.findById(menuId)
         .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다: " + menuId));
 
     if (menuModReqDto.getMenuPrice() != 0) {
       menuToUpdate.setMenuPrice(menuModReqDto.getMenuPrice());
     }
-    if (menuModReqDto.getMenuPhoto() != null) {
+    if (file != null) {
+      String fileUrl = s3Service.uploadFile(file); // 파일이 있으면 S3에 업로드하고 URL을 얻음
+      menuToUpdate.setMenuPhoto(fileUrl);
+    } else if (menuModReqDto.getMenuPhoto() != null) {
       menuToUpdate.setMenuPhoto(menuModReqDto.getMenuPhoto());
     }
 
