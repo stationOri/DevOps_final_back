@@ -341,8 +341,7 @@ public class RestaurantService {
   }
 
   public int getRestaurantDeposit(int restId) {
-    //예약
-    return 0;
+    return reservationRepository.findTotalNoshowAmountByRestId(restId, ReservationStatus.NOSHOW);
   }
 
   // 식당 계좌 수정
@@ -353,5 +352,7 @@ public class RestaurantService {
     restaurant.setRestAccount(restAccount);
     restaurantRepository.save(restaurant);
   }
+
+
 
 }

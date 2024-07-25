@@ -18,7 +18,8 @@ import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
   int countByRestaurantAndResDatetimeAndStatusIn(Restaurant restaurant, Timestamp startTimestamp, List<ReservationStatus> statuses);
-
+  @Query("SELECT SUM(r.payment.amount) FROM Reservation r WHERE r.restaurant.restId = :restId AND r.status = :status AND FUNCTION('MONTH', r.statusChangedDate) = FUNCTION('MONTH', CURRENT_DATE) AND FUNCTION('YEAR', r.statusChangedDate) = FUNCTION('YEAR', CURRENT_DATE)")
+  int findTotalNoshowAmountByRestId(@Param("restId") int restId, @Param("status") ReservationStatus status);
   @Query("SELECT r " +
           "FROM Reservation r " +
           "WHERE r.restaurant.restId = :restId " +

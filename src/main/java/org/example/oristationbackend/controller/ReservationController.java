@@ -96,4 +96,5 @@ public class ReservationController {
           default -> "예약 대기 상태로 변경은 불가합니다.";
       };
   }
+
 }
