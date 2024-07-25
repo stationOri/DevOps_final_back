@@ -45,9 +45,21 @@ public class RestaurantService {
 
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
-    List<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findAll();
+    List<Restaurant> restaurants = restaurantRepository.findByRestIsopenTrueAndIsBlockedFalseAndRestStatus(RestaurantStatus.B);
+    List<Integer> restIds = restaurants.stream()
+        .map(Restaurant::getRestId)
+        .collect(Collectors.toList());
+
+    List<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findByRestIdIn(restIds);
+
     return restaurantInfos.stream()
-        .map(this::convertToDto)
+        .map(restaurantInfo -> {
+          Restaurant restaurant = restaurants.stream()
+              .filter(r -> r.getRestId() == restaurantInfo.getRestId())
+              .findFirst()
+              .orElse(null);
+          return new SearchResDto(restaurant, restaurantInfo);
+        })
         .collect(Collectors.toList());
   }
 
@@ -176,13 +188,13 @@ public class RestaurantService {
     );
   }
 
-  // 페이징 처리된 식당 정보 조회
+  // 페이징 처리된 조건 필터링된 식당 정보 조회
   public List<SearchResDto> getRestaurantsByPage(int page) {
     Pageable pageable = PageRequest.of(page, 20);
-    Page<RestaurantInfo> restaurantInfos=restaurantInfoRepository.findAll(pageable);
+    Page<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findAllActiveRestaurants(pageable);
     return restaurantInfos.getContent().stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
+        .map(this::convertToDto)
+        .collect(Collectors.toList());
   }
 
   // 자주 방문한 식당 조회
