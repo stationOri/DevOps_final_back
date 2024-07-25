@@ -10,8 +10,12 @@ import org.example.oristationbackend.dto.user.ReviewRestDto;
 import org.example.oristationbackend.entity.Review;
 import org.example.oristationbackend.entity.type.ReportStatus;
 import org.example.oristationbackend.service.ReviewService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -41,8 +45,17 @@ public class ReviewController {
 
     // 리뷰 작성
     @PostMapping("/review")
-    public int addReview(@RequestBody ReviewReqDto reviewReqDto){
-        return reviewService.addReview(reviewReqDto);
+    public ResponseEntity<?> addReview(
+        @ModelAttribute ReviewReqDto reviewReqDto,
+        @RequestParam(value = "file", required = false) MultipartFile file,
+        @RequestParam(value = "file2", required = false) MultipartFile file2,
+        @RequestParam(value = "file3", required = false) MultipartFile file3) {
+        try {
+            int result = reviewService.addReview(reviewReqDto, file, file2, file3);
+            return ResponseEntity.ok(result);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
+        }
     }
 
     // 리뷰 좋아요

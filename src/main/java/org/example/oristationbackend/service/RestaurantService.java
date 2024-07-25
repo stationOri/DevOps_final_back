@@ -320,7 +320,6 @@ public class RestaurantService {
         .collect(Collectors.toList());
   }
 
-
   // 식당 등록
   @Transactional(readOnly = false)
   public int addRestaurant(RestRegisterDto restRegisterDto, MultipartFile file) throws IOException {
@@ -330,48 +329,35 @@ public class RestaurantService {
 
     Login login = new Login(0, restRegisterDto.getEmail(), null, ChatType.RESTAURANT, null, null, null);
     login = loginRepository.save(login);
+
     String fileUrl = s3Service.uploadFile(file);
+
     Restaurant restaurant = new Restaurant(
-            login,
-            0,
-            restRegisterDto.getRestName(),
-            restRegisterDto.getRestPhone(),
-            restRegisterDto.getRestName2(),
-            fileUrl,
-            restRegisterDto.getRestData(),
-            restRegisterDto.getRestData(),
-            false,
-            new Date(System.currentTimeMillis()),
-            null,
-            RestaurantStatus.A,
-            false,
-            null,
-            null
+        login,
+        0,
+        restRegisterDto.getRestName(),
+        restRegisterDto.getRestPhone(),
+        restRegisterDto.getRestName2(),
+        "",
+        fileUrl,
+        restRegisterDto.getRestData(),
+        false,
+        new Date(System.currentTimeMillis()),
+        null,
+        RestaurantStatus.A,
+        false,
+        null,
+        null
     );
-    RestaurantInfo restaurantInfo = new RestaurantInfo(null,null,null, ReservationType.A, RestWatingStatus.A);
-    RestaurantOpen restaurantMon = new RestaurantOpen(restaurant,OpenDay.MON );
-    RestaurantOpen restaurantTue = new RestaurantOpen(restaurant,OpenDay.TUE );
-    RestaurantOpen restaurantWed = new RestaurantOpen(restaurant,OpenDay.WED );
-    RestaurantOpen restaurantThu = new RestaurantOpen(restaurant,OpenDay.THU );
-    RestaurantOpen restaurantFri = new RestaurantOpen(restaurant,OpenDay.FRI );
-    RestaurantOpen restaurantSat = new RestaurantOpen(restaurant,OpenDay.SAT );
-    RestaurantOpen restaurantSun = new RestaurantOpen(restaurant,OpenDay.SUN );
+    RestaurantInfo restaurantInfo = new RestaurantInfo(null, null, null, ReservationType.A, RestWatingStatus.A);
     restaurantInfo.setRestaurant(restaurant);
     restaurant.setRestaurantInfo(restaurantInfo);
 
     restaurantRepository.save(restaurant);
-    restaurantOpenRepository.save(restaurantMon);
-    restaurantOpenRepository.save(restaurantTue);
-    restaurantOpenRepository.save(restaurantWed);
-    restaurantOpenRepository.save(restaurantThu);
-    restaurantOpenRepository.save(restaurantFri);
-    restaurantOpenRepository.save(restaurantSat);
-    restaurantOpenRepository.save(restaurantSun);
     login.setRestaurant(restaurant);
 
     return loginRepository.save(login).getLoginId();
   }
-
   private boolean existRestaurant(String phone) {
     return restaurantRepository.existsByRestPhone(phone);
   }
