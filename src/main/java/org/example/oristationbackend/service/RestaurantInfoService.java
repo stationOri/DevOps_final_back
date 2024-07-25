@@ -2,8 +2,10 @@ package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.restaurant.KeywordResponseDto;
+import org.example.oristationbackend.dto.restaurant.RevWaitSettingResDto;
 import org.example.oristationbackend.entity.Keyword;
 import org.example.oristationbackend.entity.RestaurantInfo;
+import org.example.oristationbackend.entity.type.ReservationType;
 import org.example.oristationbackend.repository.KeywordRepository;
 import org.example.oristationbackend.repository.RestaurantInfoRepository;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class RestaurantInfoService {
     public String FindWaitingStatusByRestId(int restId) {
         return restaurantInfoRepository.findRestaurantInfoByRestId(restId).getRestWaitingStatus().toString();
     }
-
+    //키워드 받아오기
     public List<KeywordResponseDto> findkeywordByRestId(int restId) {
         RestaurantInfo restaurantInfoByRestId = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
 
@@ -122,6 +124,60 @@ public class RestaurantInfoService {
         restaurantInfo.setRestPost(restPost);
         restaurantInfoRepository.save(restaurantInfo);
     }
+
+    //예약 및 웨이팅 받아오기
+    public RevWaitSettingResDto findRevWaitSettingByRestId(int restId) {
+
+        RestaurantInfo restaurantInfo = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
+
+        if (restaurantInfo == null) {
+            throw new RuntimeException("Restaurant not found with ID: " + restId);
+        }
+
+        RevWaitSettingResDto resDto = new RevWaitSettingResDto();
+        resDto.setRevWait(restaurantInfo.getRevWait()); // 예: A, B, C
+        resDto.setRestReserveopenRule(restaurantInfo.getRestReserveopenRule()); // 예: WEEK, MONTH
+        resDto.setRestReserveInterval(restaurantInfo.getRestReserveInterval()); // 예: ONEHOUR, HALFHOUR
+        resDto.setMaxPpl(restaurantInfo.getMaxPpl());
+        resDto.setRestTablenum(restaurantInfo.getRestTablenum());
+        resDto.setRestDepositMethod(restaurantInfo.getRestDepositMethod()); // 예: A, B
+        resDto.setRestDeposit(restaurantInfo.getRestDeposit());
+
+        return resDto;
+    }
+
+    @Transactional
+    public int updateResWaitSetting(int restId, RevWaitSettingResDto resDto) {
+        RestaurantInfo restaurantInfo = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
+        if (restaurantInfo == null) {
+            return 0;
+        }
+
+        if (resDto.getRevWait().equals(ReservationType.A)) {
+            // RevWait이 "A"일 때 나머지 필드 초기화
+            restaurantInfo.setRevWait(resDto.getRevWait());
+            restaurantInfo.setRestReserveopenRule(null); // 혹은 "WEEK" 또는 "MONTH"로 설정할 수 있음
+            restaurantInfo.setRestReserveInterval(null); // 혹은 "HALFHOUR" 또는 "ONEHOUR"로 설정할 수 있음
+            restaurantInfo.setMaxPpl(0);
+            restaurantInfo.setRestTablenum(0);
+            restaurantInfo.setRestDepositMethod(null); // "A" 또는 "B"로 설정할 수 있음
+            restaurantInfo.setRestDeposit(0);
+        } else {
+            // RevWait이 "A"가 아닐 때는 전달된 값으로 설정
+            restaurantInfo.setRevWait(resDto.getRevWait());
+            restaurantInfo.setRestReserveopenRule(resDto.getRestReserveopenRule());
+            restaurantInfo.setRestReserveInterval(resDto.getRestReserveInterval());
+            restaurantInfo.setMaxPpl(resDto.getMaxPpl());
+            restaurantInfo.setRestTablenum(resDto.getRestTablenum());
+            restaurantInfo.setRestDepositMethod(resDto.getRestDepositMethod());
+            restaurantInfo.setRestDeposit(resDto.getRestDeposit());
+        }
+
+        restaurantInfoRepository.save(restaurantInfo);
+
+        return restId;
+    }
+
 
 
 

@@ -3,6 +3,7 @@ package org.example.oristationbackend.controller;
 import org.example.oristationbackend.dto.restaurant.AccountEditDto;
 import org.example.oristationbackend.dto.restaurant.NoticeEditDto;
 import org.example.oristationbackend.dto.restaurant.RestResInfoDto;
+import org.example.oristationbackend.dto.restaurant.RevWaitSettingResDto;
 import org.example.oristationbackend.service.RestResInfoService;
 import org.example.oristationbackend.service.RestaurantInfoService;
 import org.example.oristationbackend.service.RestaurantService;
@@ -65,6 +66,25 @@ public class RestInfoController {
     restaurantService.updateRestaurantAccount(restId, accountEditDto.getRestAccount());
     return ResponseEntity.ok().build();
   }
+
+  //예약 및 웨이팅 받아오기
+  @GetMapping("/setting/revwait/{restId}")
+  public ResponseEntity<RevWaitSettingResDto> getRestRevWait(@PathVariable(name = "restId") int restId) {
+    RevWaitSettingResDto setting = restaurantInfoService.findRevWaitSettingByRestId(restId);
+    return ResponseEntity.ok(setting);
+  }
+
+
+  //예약 및 웨이팅 설정
+  @PutMapping("/setting/revwait/{restId}")
+  public int putRestRevWait(
+          @PathVariable(name = "restId") int restId,
+          @RequestBody RevWaitSettingResDto revwait
+  ) {
+    return restaurantInfoService.updateResWaitSetting(restId, revwait);
+  }
+
+  //
 
 
 }
