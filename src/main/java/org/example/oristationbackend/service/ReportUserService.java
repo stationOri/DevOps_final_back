@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,14 +81,20 @@ public class ReportUserService {
                 Optional<BlacklistUser> optionalBlacklistUser = blacklistUserRepository.findBlacklistUserByUserUserId(userId);
                 if (optionalBlacklistUser.isPresent()) {
                     BlacklistUser blacklistUser = optionalBlacklistUser.get();
-                    if(blacklistUser.addreport()>6){
+                    blacklistUser= blacklistUser.addreport();
+                    if(blacklistUser.getReportNum()>5){
                         blacklistUser.changeStatus(BlackStatus.D);
                         quitUser(userId);
                     }
                     blacklistUserRepository.save(blacklistUser);
                 }else{
+                    java.util.Date utilDate = new java.util.Date();
+                    long milliSeconds = utilDate.getTime();
+                    java.sql.Date sqlDate = new java.sql.Date(milliSeconds);
                     BlacklistUser blacklistUser=new BlacklistUser(0,new Timestamp(System.currentTimeMillis()),
-                            BlackStatus.A,1,null,ruser.getUser(),admin);
+                            BlackStatus.B,3, sqlDate,ruser.getUser(),admin);
+                    User user= ruser.getUser();
+                    userRepository.save(user);
                     blacklistUserRepository.save(blacklistUser);
                 }
             }

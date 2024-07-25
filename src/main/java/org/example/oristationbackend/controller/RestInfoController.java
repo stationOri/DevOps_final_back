@@ -67,6 +67,10 @@ public class RestInfoController {
     restaurantService.updateRestaurantAccount(restId, accountEditDto.getRestAccount());
     return ResponseEntity.ok().build();
   }
+  @GetMapping("/account/{restId}")
+  public String getRestAccount(@PathVariable(name = "restId") int restId) {
+    return restaurantService.getRestarantAccount(restId);
+  }
 
   //예약 및 웨이팅 받아오기
   @GetMapping("/setting/revwait/{restId}")

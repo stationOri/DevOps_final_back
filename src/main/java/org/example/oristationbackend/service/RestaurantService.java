@@ -244,6 +244,7 @@ public class RestaurantService {
     return restaurantInfos.stream().map(restaurantInfo -> {
       Restaurant restaurant = restaurantInfo.getRestaurant();  // 식당 정보 가져오기 (양방향 관계 가정)
       List<NearRestReviewDto> reviews = reviewRepository.findByRestaurant_RestId(restaurant.getRestId()).stream()
+          .limit(2)
           .map(review -> new NearRestReviewDto(
               review.getReviewId(),
               review.getReviewGrade(),
@@ -376,4 +377,9 @@ public class RestaurantService {
   }
 
 
+  public String getRestarantAccount(int restId) {
+    Restaurant restaurant = restaurantRepository.findById(restId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid restaurant ID: " + restId));
+    return restaurant.getRestAccount();
+  }
 }
