@@ -2,8 +2,10 @@ package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.restaurant.RestaurantOpenDto;
+import org.example.oristationbackend.dto.restaurant.RestautrantOpenPutDto;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantOpen;
+import org.example.oristationbackend.entity.type.OpenDay;
 import org.example.oristationbackend.repository.RestaurantOpenRepository;
 import org.example.oristationbackend.repository.RestaurantRepository;
 import org.hibernate.Hibernate;
@@ -62,7 +64,7 @@ public class RestaurantOpenService {
     return convertToDto(savedRestaurantOpen);
   }
 
-  // 식당 오픈시간 수정
+//  // 식당 오픈시간 수정
   public RestaurantOpenDto updateRestaurantOpen(RestaurantOpenDto restaurantOpenDto) {
     Optional<RestaurantOpen> restaurantOpenOptional = restaurantOpenRepository.findById(restaurantOpenDto.getRestaurantOpenId());
 
@@ -96,4 +98,17 @@ public class RestaurantOpenService {
         restaurantOpen.getRestBreakend()
     );
   }
+
+  public int updateRestaurantOpen(int restId, OpenDay target, RestautrantOpenPutDto restaurantOpenPutDto) {
+    RestaurantOpen rest = restaurantOpenRepository.findRestaurantOpenByRestaurantAndRestDay(restaurantRepository.findById(restId).get(), target);
+    if (rest == null) {
+      return 0;
+    }
+    rest.setRestOpen(restaurantOpenPutDto.getRestOpen());
+    rest.setRestClose(restaurantOpenPutDto.getRestClose());
+    rest.setRestLastorder(restaurantOpenPutDto.getRestLastorder());
+    rest.setRestBreakstart(restaurantOpenPutDto.getRestBreakstart());
+    rest.setRestBreakend(restaurantOpenPutDto.getRestBreakend());
+    return restaurantOpenRepository.save(rest).getRestaurantOpenId();
+  };
 }
