@@ -2,18 +2,25 @@ package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.restaurant.KeywordResponseDto;
+import org.example.oristationbackend.dto.restaurant.RestMainSettingReqDto;
+import org.example.oristationbackend.dto.restaurant.RestMainSettingResDto;
 import org.example.oristationbackend.dto.restaurant.RevWaitSettingResDto;
 import org.example.oristationbackend.entity.Keyword;
+import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantInfo;
 import org.example.oristationbackend.entity.type.ReservationType;
 import org.example.oristationbackend.repository.KeywordRepository;
 import org.example.oristationbackend.repository.RestaurantInfoRepository;
+import org.example.oristationbackend.repository.RestaurantRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,6 +28,8 @@ import java.util.List;
 public class RestaurantInfoService {
     private final RestaurantInfoRepository restaurantInfoRepository;
     private final KeywordRepository keywordRepository;
+    private final RestaurantRepository restaurantRepository;
+    private final S3Service s3Service;
 
     //예약/웨이팅 사용하는지 유무
     public String FindRev_WaitingTypeByRestId(int restId) {
@@ -174,6 +183,39 @@ public class RestaurantInfoService {
         }
 
         restaurantInfoRepository.save(restaurantInfo);
+
+        return restId;
+    }
+
+    //점포 운영 정보 가져오기
+    public RestMainSettingResDto findRestMainSettingByRestId(int restId) {
+        RestaurantInfo info = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
+        Restaurant rest = restaurantRepository.findById(restId).get();
+        RestMainSettingResDto resDto = new RestMainSettingResDto();
+        if (info != null && rest != null) {
+            resDto.setRestAddress(info.getRestAddress());
+            resDto.setRestIntro(info.getRestIntro());
+            resDto.setRestPhone(info.getRestPhone());
+            resDto.setRestName(rest.getRestName());
+            resDto.setRestPhoto(rest.getRestPhoto());
+        }
+        return resDto;
+    }
+
+    //점포 운영 정보 업데이트
+    @Transactional
+    public int updateRestMainSetting(int restId, RestMainSettingReqDto resDto, MultipartFile file) throws IOException {
+        RestaurantInfo info = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
+        Restaurant rest = restaurantRepository.findById(restId).get();
+
+        String fileUrl = file != null ? s3Service.uploadFile(file) : null;
+        info.setRestAddress(resDto.getRestAddress());
+        info.setRestIntro(resDto.getRestIntro());
+        info.setRestPhone(resDto.getRestPhone());
+        rest.setRestPhoto(fileUrl);
+
+        restaurantInfoRepository.save(info);
+        restaurantRepository.save(rest);
 
         return restId;
     }

@@ -100,11 +100,7 @@ public class RestaurantController {
     @GetMapping("/menu/{restId}")
     public ResponseEntity<List<MenuListResDto>> getAllMenusByRestId(@PathVariable(name = "restId") int restId) {
         List<MenuListResDto> menus = restaurantMenuService.getAllMenusByRestaurantId(restId);
-        if (menus.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
             return ResponseEntity.ok(menus);
-        }
     }
 
     // 메뉴 추가

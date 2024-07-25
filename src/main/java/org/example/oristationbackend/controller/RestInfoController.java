@@ -1,15 +1,16 @@
 package org.example.oristationbackend.controller;
 
-import org.example.oristationbackend.dto.restaurant.AccountEditDto;
-import org.example.oristationbackend.dto.restaurant.NoticeEditDto;
-import org.example.oristationbackend.dto.restaurant.RestResInfoDto;
-import org.example.oristationbackend.dto.restaurant.RevWaitSettingResDto;
+import org.example.oristationbackend.dto.restaurant.*;
 import org.example.oristationbackend.service.RestResInfoService;
 import org.example.oristationbackend.service.RestaurantInfoService;
 import org.example.oristationbackend.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/restaurants/info")
@@ -84,7 +85,25 @@ public class RestInfoController {
     return restaurantInfoService.updateResWaitSetting(restId, revwait);
   }
 
-  //
+  //식당 점포운영 불러오기
+  @GetMapping("/setting/{restId}")
+  public ResponseEntity<RestMainSettingResDto> getMaininfo(@PathVariable(name = "restId") int restId) {
+    return ResponseEntity.ok(restaurantInfoService.findRestMainSettingByRestId(restId));
+  }
+
+  //식당 점포 운영 수정하기
+  @PutMapping("/setting/{restId}")
+  public ResponseEntity<?> putMaininfo(
+          @PathVariable(name = "restId") int restId,
+          @ModelAttribute RestMainSettingReqDto maininfo,
+          @RequestParam(value = "file", required = false) MultipartFile file) {
+    try {
+      int result = restaurantInfoService.updateRestMainSetting(restId, maininfo, file);
+      return ResponseEntity.ok(result);
+    } catch (IOException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
+    }
+  }
 
 
 }
