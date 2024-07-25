@@ -10,6 +10,10 @@ public enum ReportStatus {
   @Getter
   private final String description;
 
+  public String getDescription(){
+    return description;
+  }
+
   ReportStatus(String description) {
     this.description = description;
   }

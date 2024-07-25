@@ -14,11 +14,12 @@ import java.sql.Date;
 @Setter
 public class UserReportResDto {
     private int userReportId;
-    private String userEmail;
     private String userName;
-    private Date reportDate;
+    private String reportDate;
+    private String reviewContent;
     private String reportContent;
-    private ReportStatus reportStatus;
-    private int adminId;
+    private String reporter_id;
+    private String reportStatus;
+    private String adminId;
 
 }

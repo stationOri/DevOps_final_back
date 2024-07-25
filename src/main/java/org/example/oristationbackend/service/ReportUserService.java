@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,6 +34,7 @@ public class ReportUserService {
     private final AdminRepository adminRepository;
     private final BlacklistUserRepository blacklistUserRepository;
     private final ReviewRepository reviewRepository;
+
     @Transactional(readOnly = false)
     public int reportUser(UserReportReqDto userReportReqDto){
         try {
@@ -107,11 +110,34 @@ public class ReportUserService {
         User user = optionaluser.orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
         userRepository.save(user.quitUser());
     }
-    public List<UserReportResDto> getReportListByUser(int userId){
-        return reportUserRepository.findReportUserByUserId(userId);
-    }
-    public List<UserReportResDto> getReportListByStatus(ReportStatus status){
-        return reportUserRepository.findReportUserByStatus(status);
+//    public List<UserReportResDto> getReportListByUser(int userId){
+//        return reportUserRepository.findReportUserByUserId(userId);
+//    }
+//    public List<UserReportResDto> getReportListByStatus(ReportStatus status){
+//        return reportUserRepository.findReportUserByStatus(status);
+//    }
+
+    public List<UserReportResDto> getUserReportListAll() {
+        List<ReportUser> reportUserList = reportUserRepository.findAll();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        return  reportUserList.stream()
+
+                .map(user->{
+                    String formattedDate = user.getReportDate().toLocalDate().format(formatter);
+                    return new UserReportResDto(
+                            user.getUserReportId(),
+                            user.getUser().getUserName(),
+                            formattedDate,
+                            user.getReview().getReviewData(),
+                            user.getReportContent(),
+                            user.getRestaurant().getLogin().getEmail(),
+                            user.getReportStatus().getDescription(),
+                            user.getAdmin().getLogin().getEmail()
+                    );
+                })
+                .collect(Collectors.toList());
+
     }
 
 

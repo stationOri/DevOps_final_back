@@ -26,12 +26,18 @@ public class ReportUserController {
         return reportUserService.changeReportStatus(userReportStatusReqDto);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<UserReportResDto> getReportListByUser(@PathVariable("userId") int userId){
-        return reportUserService.getReportListByUser(userId);
-    }
-    @GetMapping("/status/{reportStatus}")
-    public List<UserReportResDto> getReportListByStatus(@PathVariable("reportStatus")ReportStatus status){
-        return reportUserService.getReportListByStatus(status);
+//    @GetMapping("/user/{userId}")
+//    public List<UserReportResDto> getReportListByUser(@PathVariable("userId") int userId){
+//        return reportUserService.getReportListByUser(userId);
+//    }
+//    @GetMapping("/status/{reportStatus}")
+//    public List<UserReportResDto> getReportListByStatus(@PathVariable("reportStatus")ReportStatus status){
+//        return reportUserService.getReportListByStatus(status);
+//    }
+
+    @GetMapping
+    public List<UserReportResDto> getUserReportList(){
+        List<UserReportResDto> list = reportUserService.getUserReportListAll();
+        return list != null ? list : List.of();
     }
 }
