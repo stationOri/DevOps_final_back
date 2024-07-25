@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -77,14 +78,14 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findAll();
         return reservations.stream()
                 .map(reservation -> new AdminReservationResDto(
-                    reservation.getResId(),
-                    reservation.getRestaurant().getRestId(),
-                    reservation.getRestaurant().getRestName(),
-                    reservation.getUser().getUserId(),
+                        reservation.getResId(),
+                        reservation.getRestaurant().getRestId(),
+                        reservation.getRestaurant().getRestName(),
+                        reservation.getUser().getUserId(),
                         formatTimestamp(reservation.getReqDatetime()),
                         formatTimestamp(reservation.getResDatetime()),
-                    reservation.getResNum(),
-                    reservation.getStatus().getDescription()
+                        reservation.getResNum(),
+                        reservation.getStatus().getDescription()
                 ))
                 .collect(Collectors.toList());
     }
@@ -110,15 +111,15 @@ public class ReservationService {
     // 엔티티를 DTO로 변환
     private UserReservationResDto convertToDto(Reservation reservation) {
         return new UserReservationResDto(
-            reservation.getResId(),
-            reservation.getRestaurant().getRestId(),
-            reservation.getResDatetime(),
-            reservation.getRestaurant().getRestName(),
-            reservation.getRestaurant().getRestPhoto(),
-            reservation.getResNum(),
-            reservation.getStatus(),
-            reservation.getPayment().getStatus(),
-            reservation.getRefund()
+                reservation.getResId(),
+                reservation.getRestaurant().getRestId(),
+                reservation.getResDatetime(),
+                reservation.getRestaurant().getRestName(),
+                reservation.getRestaurant().getRestPhoto(),
+                reservation.getResNum(),
+                reservation.getStatus(),
+                reservation.getPayment().getStatus(),
+                reservation.getRefund()
         );
     }
 
@@ -142,13 +143,20 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findReservationsByDateRange(restId,startofday,endofday);
         List<RestReservationResDto> result= new ArrayList<>();
         for (Reservation reservation : reservations) {
-        List<MenuDto> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
-            RestReservationResDto restReservationResDto = new RestReservationResDto(reservation.getUser().getUserName(), reservation.getUser().getUserId(), reservation.getRestaurant().getRestName(),
-                    reservation.getRestaurant().getRestId(), reservation.getResId(), reservation.getResDatetime(), reservation.getReqDatetime(), reservation.getResNum(),
-                    reservation.getStatus(), reservation.getRequest(), reservation.getStatusChangedDate(), reservedMenus);
+            List<MenuDto> reservedMenus = reservedMenuRepository.findByReservation_ResId(reservation.getResId());
+            RestReservationResDto restReservationResDto = new RestReservationResDto(reservation.getResId(),reservation.getUser().getUserName(), reservation.getUser().getUserId(), reservation.getRestaurant().getRestName(),
+                    reservation.getRestaurant().getRestId(), reservation.getResId(), convertTimestampToString(reservation.getResDatetime()), convertTimestampToString(reservation.getReqDatetime()), reservation.getResNum(),
+                    reservation.getStatus(), reservation.getRequest(), convertTimestampToString(reservation.getStatusChangedDate()), reservedMenus);
             result.add(restReservationResDto);
         }
         return result;
+    }
+
+
+    public static String convertTimestampToString(Timestamp timestamp) {
+        LocalDateTime localDateTime = timestamp.toLocalDateTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return localDateTime.format(formatter);
     }
 
     public String checkAvailableRes(ReservationReqDto reservationReqDto) {
@@ -224,11 +232,24 @@ public class ReservationService {
 
         Payment payment = new Payment(savedReservation,0,user,(int) payDto.getAmount().longValue(),0,currentTimestamp,payDto.getImp_uid(),payDto.getMerchant_uid(), PaymentStatus.PAYMENT_DONE);
         paymentRepository.save(payment);
+        LocalDateTime localDateTime2 = reservation.getResDatetime().toLocalDateTime();
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        StringBuilder sb= new StringBuilder();
+        sb.append("[WaitMate]");
+        sb.append(reservation.getUser().getUserName());
+        sb.append("사장님, ");
+        sb.append(reservation.getRestaurant().getRestName());
+        sb.append(" 식당에 ");
+        sb.append(localDateTime.format(formatter));
+        sb.append(" 예약 요청이 접수되었습니다. 빠른 시일 내로 예약 상태 변경 부탁드립니다. 감사합니다.");
+        SmsDto smsDto=new SmsDto(reservation.getRestaurant().getRestPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+        SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+        System.out.println(resp.getStatusMessage());
         return "success";
     }
 
     @Transactional(readOnly = false)
-    public String changeStatus(int resId, ReservationStatus status) {
+    public String changeStatus(int resId, ReservationStatus status) throws IamportResponseException, IOException {
         Reservation reservation = reservationRepository.findById(resId).orElseThrow(() -> new RuntimeException("reservation not found with reservation ID"));
         if(status.equals(ReservationStatus.RESERVATION_ACCEPTED)){
             if(reservation.getStatus()!=ReservationStatus.RESERVATION_READY){
@@ -253,6 +274,11 @@ public class ReservationService {
             Timestamp currentTimestamp = Timestamp.valueOf(now);
             if(currentTimestamp.after(reservation.getResDatetime())){
                 return "방문 및 노쇼 처리는 예약시간이 지난 후 가능합니다.";
+            }
+            if(status.equals(ReservationStatus.VISITED)){
+                PayCancelDto cancelDto2 = new PayCancelDto("방문 후 취소",reservation.getPayment().getImpUid(),reservation.getPayment().getMerchantUid(), (int) (reservation.getPayment().getAmount()),reservation.getPayment().getAmount());
+                paymentService.refundPayment(cancelDto2);
+                paymentRepository.save(reservation.getPayment().refund(reservation.getPayment().getAmount()));
             }
             reservationRepository.save(reservation.changeStatus(status));
 
@@ -315,6 +341,20 @@ public class ReservationService {
                 PayCancelDto cancelDto3 = new PayCancelDto("식당 측 예약 거절",payment.getImpUid(),payment.getMerchantUid(),payment.getAmount(),payment.getAmount());
                 paymentService.refundPayment(cancelDto3);
                 paymentRepository.save(payment.refund(payment.getAmount()));
+                LocalDateTime localDateTime2 = reservation.getResDatetime().toLocalDateTime();
+                DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                StringBuilder sb2= new StringBuilder();
+                sb2.append("[WaitMate]");
+                sb2.append(reservation.getUser().getUserName());
+                sb2.append("고객님, ");
+                sb2.append(reservation.getRestaurant().getRestName());
+                sb2.append(" 식당에 ");
+                sb2.append(localDateTime2.format(formatter2));
+                sb2.append(" 예약 요청하신 건이 식당 측에서 거절되었습니다. 감사합니다.");
+
+                SmsDto smsDto2=new SmsDto(reservation.getUser().getUserPhone(),sb2.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+                SingleMessageSentResponse resp2=smsService.sendOne(smsDto2); //해당 코드로 전송
+                System.out.println(resp2.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
                 return "success";
             default:
                 return "";

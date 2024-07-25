@@ -87,7 +87,7 @@ public class ReservationController {
   public String addReservation(@RequestBody CombinedDto combinedDto) {
     return reservationService.saveReservation(combinedDto.getReservationReqDto(),combinedDto.getPayDto());
   }
-  @PutMapping("/changestatus/{resId}")
+  @PutMapping("/status/{resId}")
   public String changeState(@PathVariable(name = "resId") int resId,@RequestBody ReservationUpdateDto updateDto) throws IamportResponseException, IOException {
       return switch (updateDto.getStatus()) {
           case RESERVATION_ACCEPTED, VISITED, NOSHOW -> reservationService.changeStatus(resId, updateDto.getStatus());
@@ -96,4 +96,5 @@ public class ReservationController {
           default -> "예약 대기 상태로 변경은 불가합니다.";
       };
   }
+
 }
