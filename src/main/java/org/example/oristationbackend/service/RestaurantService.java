@@ -17,7 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -32,12 +34,14 @@ public class RestaurantService {
   private final RestaurantRepository restaurantRepository;
   private final RestaurantInfoRepository restaurantInfoRepository;
   private final ReservationRepository reservationRepository;
+  private final RestaurantOpenRepository restaurantOpenRepository;
   private final RestaurantPeakRepository restaurantPeakRepository;
   private final KeywordRepository keywordRepository;
   private final LoginRepository loginRepository;
   private final ReviewRepository reviewRepository;
   private final ReviewLikesRepository reviewLikesRepository;
   private final DistanceCalculator distanceCalculator;
+  private final S3Service s3Service;
 
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
@@ -240,6 +244,7 @@ public class RestaurantService {
     return restaurantInfos.stream().map(restaurantInfo -> {
       Restaurant restaurant = restaurantInfo.getRestaurant();  // 식당 정보 가져오기 (양방향 관계 가정)
       List<NearRestReviewDto> reviews = reviewRepository.findByRestaurant_RestId(restaurant.getRestId()).stream()
+          .limit(2)
           .map(review -> new NearRestReviewDto(
               review.getReviewId(),
               review.getReviewGrade(),
@@ -316,26 +321,44 @@ public class RestaurantService {
         .collect(Collectors.toList());
   }
 
-
   // 식당 등록
   @Transactional(readOnly = false)
-  public int addRestaurant(RestRegisterDto restRegisterDto) {
-      if(existRestaurant((restRegisterDto.getRestPhone()))){
-        return 0;
-      }
+  public int addRestaurant(RestRegisterDto restRegisterDto, MultipartFile file) throws IOException {
+    if (existRestaurant(restRegisterDto.getRestPhone())) {
+      return 0;
+    }
+
     Login login = new Login(0, restRegisterDto.getEmail(), null, ChatType.RESTAURANT, null, null, null);
     login = loginRepository.save(login);
-    Restaurant restaurant= new Restaurant(login,0,restRegisterDto.getRestName(),restRegisterDto.getRestPhone(),restRegisterDto.getRestName2(),"",restRegisterDto.getRestData(),
-            restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
-    RestaurantInfo restaurantInfo = new RestaurantInfo(null,null,null, ReservationType.A, RestWatingStatus.A);
+
+    String fileUrl = s3Service.uploadFile(file);
+
+    Restaurant restaurant = new Restaurant(
+        login,
+        0,
+        restRegisterDto.getRestName(),
+        restRegisterDto.getRestPhone(),
+        restRegisterDto.getRestName2(),
+        "",
+        fileUrl,
+        restRegisterDto.getRestData(),
+        false,
+        new Date(System.currentTimeMillis()),
+        null,
+        RestaurantStatus.A,
+        false,
+        null,
+        null
+    );
+    RestaurantInfo restaurantInfo = new RestaurantInfo(null, null, null, ReservationType.A, RestWatingStatus.A);
     restaurantInfo.setRestaurant(restaurant);
     restaurant.setRestaurantInfo(restaurantInfo);
+
     restaurantRepository.save(restaurant);
     login.setRestaurant(restaurant);
+
     return loginRepository.save(login).getLoginId();
   }
-
-
   private boolean existRestaurant(String phone) {
     return restaurantRepository.existsByRestPhone(phone);
   }

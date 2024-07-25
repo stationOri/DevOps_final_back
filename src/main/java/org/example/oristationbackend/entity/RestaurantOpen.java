@@ -40,5 +40,10 @@ public class RestaurantOpen {
 
     @Column(length=20)
     private String restBreakend; // 식당 휴식 마감 시간
+
+    public RestaurantOpen(Restaurant restaurant, OpenDay restDay) {
+        this.restaurant = restaurant;
+        this.restDay = restDay;
+    }
 }
 

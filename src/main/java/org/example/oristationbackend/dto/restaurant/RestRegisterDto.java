@@ -14,6 +14,4 @@ public class RestRegisterDto {
     private String restName2;
     private String restData;
     private String restImage;
-
-
 }
