@@ -7,10 +7,12 @@ import org.example.oristationbackend.repository.LoginRepository;
 import org.example.oristationbackend.repository.UserRepository;
 import org.example.oristationbackend.service.RestaurantService;
 import org.example.oristationbackend.service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/register")
@@ -19,12 +21,22 @@ public class RegisterController {
     private final UserService userService;
     private final RestaurantService restaurantService;
 
+    // 사용자 회원가입
     @PostMapping("/user")
     public int userRegister(@RequestBody UserRegisterReqDto userRegisterReqDto) {
         return userService.addUser(userRegisterReqDto);
     }
+
+    //
     @PostMapping("/restaurant")
-    public int restRegister(@RequestBody RestRegisterDto restRegisterDto) {
-        return restaurantService.addRestaurant(restRegisterDto);
+    public ResponseEntity<?> registerRestaurant(
+        @ModelAttribute RestRegisterDto restRegisterDto,
+        @RequestParam("file") MultipartFile file) {
+        try {
+            int result = restaurantService.addRestaurant(restRegisterDto, file);
+            return ResponseEntity.ok(result);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
+        }
     }
 }
