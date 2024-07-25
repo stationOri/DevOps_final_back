@@ -2,6 +2,7 @@ package org.example.oristationbackend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.oristationbackend.dto.user.ReviewReqDto;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
+@Data
 @Table(name = "review")
 @NoArgsConstructor
 @AllArgsConstructor

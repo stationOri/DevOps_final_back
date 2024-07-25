@@ -16,7 +16,9 @@ import org.example.oristationbackend.repository.ReviewRepository;
 import org.example.oristationbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final ReviewLikesRepository reviewLikesRepository;
+    private final S3Service s3Service;
 
     // 식당 페이지에서 리뷰 조회(사용자 화면)
     public List<ReviewRestDto> getReviewsByrestIdAnduserId(int restId,int userId){
@@ -46,18 +49,36 @@ public class ReviewService {
     }
 
     // 리뷰 등록
-    @Transactional(readOnly = false)
-    public int addReview(ReviewReqDto reviewReqDto) {
-        User user = userRepository.findById(reviewReqDto.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found with id: " +reviewReqDto.getUserId()));
-        Restaurant restaurant = restaurantRepository.findById(reviewReqDto.getRestId()).orElseThrow(() -> new IllegalArgumentException("Restaurant not found with id: " +reviewReqDto.getRestId()));
+    @Transactional
+    public int addReview(ReviewReqDto reviewReqDto, MultipartFile file, MultipartFile file2, MultipartFile file3) throws IOException {
+        User user = userRepository.findById(reviewReqDto.getUserId())
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + reviewReqDto.getUserId()));
+        Restaurant restaurant = restaurantRepository.findById(reviewReqDto.getRestId())
+            .orElseThrow(() -> new IllegalArgumentException("Restaurant not found with id: " + reviewReqDto.getRestId()));
 
-        Review review = new Review(0,reviewReqDto.getReviewGrade(),reviewReqDto.getReviewData(),reviewReqDto.getReviewImg()
-        ,reviewReqDto.getReviewImg2(),reviewReqDto.getReviewImg3(),false, new Timestamp(System.currentTimeMillis()),0,restaurant,user,null);
+        String fileUrl = file != null ? s3Service.uploadFile(file) : null;
+        String fileUrl2 = file2 != null ? s3Service.uploadFile(file2) : null;
+        String fileUrl3 = file3 != null ? s3Service.uploadFile(file3) : null;
+
+        Review review = new Review();
+        review.setReviewId(0);
+        review.setReviewGrade(reviewReqDto.getReviewGrade());
+        review.setReviewData(reviewReqDto.getReviewData());
+        review.setReviewImg(fileUrl);
+        review.setReviewImg2(fileUrl2);
+        review.setReviewImg3(fileUrl3);
+        review.setBlind(false);
+        review.setReviewDate(new Timestamp(System.currentTimeMillis()));
+        review.setLikeNum(0);
+        review.setRestaurant(restaurant);
+        review.setUser(user);
+        review.setReviewLikes(null);
+
         return reviewRepository.save(review).getReviewId();
     }
 
     // 리뷰 좋아요
-    @Transactional(readOnly = false)
+    @Transactional
     public int likeReview(int reviewId, int userId) {
         if(reviewLikesRepository.existsByUser_UserIdAndReview_ReviewId(userId,reviewId) ){
             throw new DuplicateLikeException("이미 좋아요 한 리뷰입니다.");
@@ -73,7 +94,7 @@ public class ReviewService {
     }
 
     // 리뷰 삭제
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteReview(int reviewId) {
         Review review=reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found with id: " +reviewId));
         reviewLikesRepository.deleteByReview(review);

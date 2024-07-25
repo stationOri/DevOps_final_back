@@ -15,5 +15,4 @@ public class ReviewReqDto {
     private String reviewImg;
     private String reviewImg2;
     private String reviewImg3;
-
 }
