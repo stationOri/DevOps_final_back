@@ -41,6 +41,7 @@ public class RestaurantService {
   private final ReviewRepository reviewRepository;
   private final ReviewLikesRepository reviewLikesRepository;
   private final DistanceCalculator distanceCalculator;
+  private final S3Service s3Service;
 
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
@@ -329,8 +330,24 @@ public class RestaurantService {
 
     Login login = new Login(0, restRegisterDto.getEmail(), null, ChatType.RESTAURANT, null, null, null);
     login = loginRepository.save(login);
-    Restaurant restaurant= new Restaurant(login,0,restRegisterDto.getRestName(),restRegisterDto.getRestPhone(),restRegisterDto.getRestName2(),"",restRegisterDto.getRestData(),
-            restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
+    String fileUrl = s3Service.uploadFile(file);
+    Restaurant restaurant = new Restaurant(
+            login,
+            0,
+            restRegisterDto.getRestName(),
+            restRegisterDto.getRestPhone(),
+            restRegisterDto.getRestName2(),
+            fileUrl,
+            restRegisterDto.getRestData(),
+            restRegisterDto.getRestData(),
+            false,
+            new Date(System.currentTimeMillis()),
+            null,
+            RestaurantStatus.A,
+            false,
+            null,
+            null
+    );
     RestaurantInfo restaurantInfo = new RestaurantInfo(null,null,null, ReservationType.A, RestWatingStatus.A);
     RestaurantOpen restaurantMon = new RestaurantOpen(restaurant,OpenDay.MON );
     RestaurantOpen restaurantTue = new RestaurantOpen(restaurant,OpenDay.TUE );
@@ -339,27 +356,6 @@ public class RestaurantService {
     RestaurantOpen restaurantFri = new RestaurantOpen(restaurant,OpenDay.FRI );
     RestaurantOpen restaurantSat = new RestaurantOpen(restaurant,OpenDay.SAT );
     RestaurantOpen restaurantSun = new RestaurantOpen(restaurant,OpenDay.SUN );
-
-    String fileUrl = s3Service.uploadFile(file);
-
-    Restaurant restaurant = new Restaurant(
-        login,
-        0,
-        restRegisterDto.getRestName(),
-        restRegisterDto.getRestPhone(),
-        restRegisterDto.getRestName2(),
-        fileUrl,
-        restRegisterDto.getRestData(),
-        restRegisterDto.getRestData(),
-        false,
-        new Date(System.currentTimeMillis()),
-        null,
-        RestaurantStatus.A,
-        false,
-        null,
-        null
-    );
-    RestaurantInfo restaurantInfo = new RestaurantInfo(null, null, null, ReservationType.A, RestWatingStatus.A);
     restaurantInfo.setRestaurant(restaurant);
     restaurant.setRestaurantInfo(restaurantInfo);
 
