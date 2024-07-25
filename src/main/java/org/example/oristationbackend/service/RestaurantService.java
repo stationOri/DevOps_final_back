@@ -32,6 +32,7 @@ public class RestaurantService {
   private final RestaurantRepository restaurantRepository;
   private final RestaurantInfoRepository restaurantInfoRepository;
   private final ReservationRepository reservationRepository;
+  private final RestaurantOpenRepository restaurantOpenRepository;
   private final RestaurantPeakRepository restaurantPeakRepository;
   private final KeywordRepository keywordRepository;
   private final LoginRepository loginRepository;
@@ -328,9 +329,23 @@ public class RestaurantService {
     Restaurant restaurant= new Restaurant(login,0,restRegisterDto.getRestName(),restRegisterDto.getRestPhone(),restRegisterDto.getRestName2(),"",restRegisterDto.getRestData(),
             restRegisterDto.getRestData(),false, new Date(System.currentTimeMillis()),null,RestaurantStatus.A,false,null,null);
     RestaurantInfo restaurantInfo = new RestaurantInfo(null,null,null, ReservationType.A, RestWatingStatus.A);
+    RestaurantOpen restaurantMon = new RestaurantOpen(restaurant,OpenDay.MON );
+    RestaurantOpen restaurantTue = new RestaurantOpen(restaurant,OpenDay.THU );
+    RestaurantOpen restaurantWed = new RestaurantOpen(restaurant,OpenDay.WED );
+    RestaurantOpen restaurantThu = new RestaurantOpen(restaurant,OpenDay.THU );
+    RestaurantOpen restaurantFri = new RestaurantOpen(restaurant,OpenDay.FRI );
+    RestaurantOpen restaurantSat = new RestaurantOpen(restaurant,OpenDay.SAT );
+    RestaurantOpen restaurantSun = new RestaurantOpen(restaurant,OpenDay.SUN );
     restaurantInfo.setRestaurant(restaurant);
     restaurant.setRestaurantInfo(restaurantInfo);
     restaurantRepository.save(restaurant);
+    restaurantOpenRepository.save(restaurantMon);
+    restaurantOpenRepository.save(restaurantTue);
+    restaurantOpenRepository.save(restaurantWed);
+    restaurantOpenRepository.save(restaurantThu);
+    restaurantOpenRepository.save(restaurantFri);
+    restaurantOpenRepository.save(restaurantSat);
+    restaurantOpenRepository.save(restaurantSun);
     login.setRestaurant(restaurant);
     return loginRepository.save(login).getLoginId();
   }
