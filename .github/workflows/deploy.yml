@@ -22,6 +22,7 @@ jobs:
         run: |
           echo "현재 디렉토리:"
           pwd
+          ls
           echo "src/main/resources 디렉토리 존재 여부:"
           ls -al ./src/main/resources || echo "디렉토리가 존재하지 않습니다."
           echo "APPLICATION_YML 값 확인:"
