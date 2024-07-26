@@ -9,6 +9,7 @@ import org.example.oristationbackend.entity.Keyword;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantInfo;
 import org.example.oristationbackend.entity.type.ReservationType;
+import org.example.oristationbackend.entity.type.RestWatingStatus;
 import org.example.oristationbackend.repository.KeywordRepository;
 import org.example.oristationbackend.repository.RestaurantInfoRepository;
 import org.example.oristationbackend.repository.RestaurantRepository;
@@ -220,7 +221,27 @@ public class RestaurantInfoService {
         return restId;
     }
 
+    //식당 예약 상태 변경
+    @Transactional
+    public int updateWaitingStatus(int restId, RestWatingStatus restWatingStatus) {
+        RestaurantInfo info = restaurantInfoRepository.findRestaurantInfoByRestId(restId);
+        info.setRestWaitingStatus(restWatingStatus);
+        restaurantInfoRepository.save(info);
+        return restId;
+    }
 
+    //식당 isopen get
+    public boolean getisopen(int restId) {
+        return restaurantRepository.findById(restId).get().isRestIsopen();
+    }
 
+    //식당 isopen put
+    @Transactional
+    public boolean putisopen(int restId, boolean isopen) {
+        Restaurant restaurant = restaurantRepository.findById(restId).get();
+        restaurant.setRestIsopen(isopen);
+        restaurantRepository.save(restaurant);
+        return isopen;
+    }
 
 }

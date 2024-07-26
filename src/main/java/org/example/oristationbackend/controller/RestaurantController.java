@@ -13,6 +13,7 @@ import org.example.oristationbackend.repository.RestaurantMenuRepository;
 import org.example.oristationbackend.repository.RestaurantPeakRepository;
 import org.example.oristationbackend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -138,27 +139,29 @@ public class RestaurantController {
         return ResponseEntity.ok().build();
     }
 
-    //식당 승인 전
-    @GetMapping("/beforeAccept")
-    public ResponseEntity<List<restAcceptReadyDto>> getRestaurantsBeforeAccept() {
-        List<restAcceptReadyDto> resultRestaurants = restaurantService.findRestraurantByStatusBefore(RestaurantStatus.A);
-        if (resultRestaurants == null) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(resultRestaurants);
-        }
+  // 식당 승인 전
+  @GetMapping("/beforeAccept/{page}")
+  public ResponseEntity<Page<restAcceptReadyDto>> getRestaurantsBeforeAccept(
+      @PathVariable(name = "page") int page) {
+    Page<restAcceptReadyDto> resultRestaurants = restaurantService.findRestraurantByStatusBefore(RestaurantStatus.A, page);
+    if (resultRestaurants == null || resultRestaurants.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(resultRestaurants);
     }
+  }
 
-    //식당 승인 후
-    @GetMapping("/afterAccept")
-    public ResponseEntity<List<restAfterAcceptDto>> getRestaurantsAfterAccept() {
-        List<restAfterAcceptDto> resultRestaurants = restaurantService.findRestraurantByStatusAfter(RestaurantStatus.B);
-        if (resultRestaurants == null) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(resultRestaurants);
-        }
+  // 식당 승인 후
+  @GetMapping("/afterAccept/{page}")
+  public ResponseEntity<Page<restAfterAcceptDto>> getRestaurantsAfterAccept(
+      @PathVariable(name = "page") int page) {
+    Page<restAfterAcceptDto> resultRestaurants = restaurantService.findRestraurantByStatusAfter(RestaurantStatus.B, page);
+    if (resultRestaurants == null || resultRestaurants.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    } else {
+      return ResponseEntity.ok(resultRestaurants);
     }
+  }
 
     //식당 승인 및 거절
     @PutMapping("/status/{rest_id}")
