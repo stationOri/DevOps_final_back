@@ -2,6 +2,7 @@ package org.example.oristationbackend.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.RestRegisterDto;
@@ -15,6 +16,7 @@ import org.example.oristationbackend.util.DistanceCalculator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,7 +44,7 @@ public class RestaurantService {
   private final ReviewLikesRepository reviewLikesRepository;
   private final DistanceCalculator distanceCalculator;
   private final S3Service s3Service;
-
+  private final SmsService smsService;
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
     List<Restaurant> restaurants = restaurantRepository.findByRestIsopenTrueAndIsBlockedFalseAndRestStatus(RestaurantStatus.B);
@@ -79,44 +81,43 @@ public class RestaurantService {
         .collect(Collectors.toList());
   }
 
-  //식당 승인 전 매장 불러오기
-  public List<restAcceptReadyDto> findRestraurantByStatusBefore(RestaurantStatus status) {
+  // 식당 승인 전 매장 불러오기
+  public Page<restAcceptReadyDto> findRestraurantByStatusBefore(RestaurantStatus status, int page) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
+    Pageable pageable = PageRequest.of(page, 10, Sort.by("joinDate").descending());
+    Page<Restaurant> restaurantsPage = restaurantRepository.findRestaurantByRestStatus(status, pageable);
 
-    return restaurants.stream()
-            .map(restaurant -> new restAcceptReadyDto(
-                    restaurant.getRestId(),
-                    restaurant.getRestName(),
-                    restaurant.getRestStatus(),
-                    restaurant.getRestNum(),
-                    restaurant.getRestOwner(),
-                    restaurant.getRestPhone(),
-                    restaurant.getRestData(),
-                    formatter.format(restaurant.getJoinDate())))
-            .collect(Collectors.toList());
+    return restaurantsPage.map(restaurant -> new restAcceptReadyDto(
+        restaurant.getRestId(),
+        restaurant.getRestName(),
+        restaurant.getRestStatus(),
+        restaurant.getRestNum(),
+        restaurant.getRestOwner(),
+        restaurant.getRestPhone(),
+        restaurant.getRestData(),
+        formatter.format(restaurant.getJoinDate())));
   }
 
-  //식당 승인 후 매장 불러오기
-  public List<restAfterAcceptDto> findRestraurantByStatusAfter(RestaurantStatus status) {
+  // 식당 승인 후 매장 불러오기
+  public Page<restAfterAcceptDto> findRestraurantByStatusAfter(RestaurantStatus status, int page) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
 
-    return restaurants.stream()
-            .map(restaurant -> new restAfterAcceptDto(
-                    restaurant.getRestId(),
-                    restaurant.getRestName(),
-                    restaurant.getRestStatus().getDescription(),
-                    restaurant.getRestNum(),
-                    restaurant.getRestOwner(),
-                    restaurant.getRestPhone(),
-                    restaurant.getRestData(),
-                    restaurant.getJoinDate() != null ? formatter.format(restaurant.getJoinDate()) : "",
-                    restaurant.getQuitDate() != null ? formatter.format(restaurant.getQuitDate()) : "",
-                    restaurant.isBlocked(),
-                    restaurant.isRestIsopen()))
-            .collect(Collectors.toList());
+    Pageable pageable = PageRequest.of(page, 20, Sort.by("joinDate").descending());
+    Page<Restaurant> restaurantsPage = restaurantRepository.findRestaurantByRestStatus(status, pageable);
+
+    return restaurantsPage.map(restaurant -> new restAfterAcceptDto(
+        restaurant.getRestId(),
+        restaurant.getRestName(),
+        restaurant.getRestStatus().getDescription(),
+        restaurant.getRestNum(),
+        restaurant.getRestOwner(),
+        restaurant.getRestPhone(),
+        restaurant.getRestData(),
+        restaurant.getJoinDate() != null ? formatter.format(restaurant.getJoinDate()) : "",
+        restaurant.getQuitDate() != null ? formatter.format(restaurant.getQuitDate()) : "",
+        restaurant.isBlocked(),
+        restaurant.isRestIsopen()));
   }
 
   // 식당 정보 수정
@@ -126,6 +127,27 @@ public class RestaurantService {
     if (optionalRestaurant.isPresent()) {
       Restaurant restaurant = optionalRestaurant.get();
       restaurant.setRestStatus(status);
+      if(status.equals(RestaurantStatus.B)){
+        StringBuilder sb= new StringBuilder();
+        sb.append("[WaitMate]");
+        sb.append(restaurant.getRestOwner());
+        sb.append(" 사장님, ");
+        sb.append(restaurant.getRestName());
+        sb.append(" 식당이 관리자에 의해 승인되었습니다. 로그인하여 가게 정보를 등록하고 서비스를 이용해주세요. 감사합니다");
+        SmsDto smsDto=new SmsDto(restaurant.getRestPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+        SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+      }
+      else if(status.equals(RestaurantStatus.C)){
+        StringBuilder sb= new StringBuilder();
+        sb.append("[WaitMate]");
+        sb.append(restaurant.getRestOwner());
+        sb.append(" 사장님, ");
+        sb.append(restaurant.getRestName());
+        sb.append(" 식당이 관리자에 의해 승인 거절되었습니다. 다시 회원가입하여주세요)");
+        SmsDto smsDto=new SmsDto(restaurant.getRestPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+        SingleMessageSentResponse resp=smsService.sendOne(smsDto); //
+      }
+      restaurant.setRestPhone("0");
       return restaurantRepository.save(restaurant).getRestId();
     } else {
       throw new EntityNotFoundException("Restaurant not found with id: " + restId);
