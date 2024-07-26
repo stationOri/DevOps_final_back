@@ -1,6 +1,7 @@
 package org.example.oristationbackend.controller;
 
 import org.example.oristationbackend.dto.restaurant.*;
+import org.example.oristationbackend.entity.type.RestWatingStatus;
 import org.example.oristationbackend.service.RestResInfoService;
 import org.example.oristationbackend.service.RestaurantInfoService;
 import org.example.oristationbackend.service.RestaurantService;
@@ -44,6 +45,7 @@ public class RestInfoController {
     return ResponseEntity.ok(status);
   }
 
+  //웨이팅 상태 불러오기
   @GetMapping("/waitingstatus/{restId}")
   public ResponseEntity<String> getRestWaitById(@PathVariable(name = "restId") int restId) {
     String status = restaurantInfoService.FindWaitingStatusByRestId(restId);
@@ -108,6 +110,37 @@ public class RestInfoController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
     }
   }
+
+  //식당 예약 상태 변경
+  @PutMapping("/rest/{restId}/waitstatus/{status}")
+  public ResponseEntity<?> putRestWaitStatus(@PathVariable(name="restId") int restId, @PathVariable(name="status")RestWatingStatus status){
+      int result = restaurantInfoService.updateWaitingStatus(restId,status);
+      return ResponseEntity.ok(result);
+  }
+
+  //식당 isopen get
+  @GetMapping("/isopen/{restId}")
+    public ResponseEntity<Boolean> isOpen(@PathVariable(name = "restId") int restId) {
+      return ResponseEntity.ok(restaurantInfoService.getisopen(restId));
+  }
+
+  //식당 isopen put
+  @PutMapping("/isopen/{restId}/{isOpen}")
+  public ResponseEntity<Boolean> updateisOpen(
+          @PathVariable(name = "restId") int restId,
+          @PathVariable(name = "isOpen") String isOpen) {
+
+    boolean isOpenBoolean;
+    try {
+      isOpenBoolean = Boolean.parseBoolean(isOpen);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(false);
+    }
+
+    boolean result = restaurantInfoService.putisopen(restId, isOpenBoolean);
+    return ResponseEntity.ok(result);
+  }
+
 
 
 }
