@@ -295,7 +295,8 @@ public class ReservationService {
     public String changeCancel(int resId, ReservationStatus status, String reason) throws IamportResponseException, IOException {
         Reservation reservation = reservationRepository.findById(resId).orElseThrow(() -> new RuntimeException("reservation not found with reservation ID"));
         Payment payment = paymentRepository.findById(resId).orElseThrow(()-> new RuntimeException("payment not found with reservation ID"));
-        if(!(reservation.getStatus()==ReservationStatus.RESERVATION_ACCEPTED||reservation.getStatus()==ReservationStatus.RESERVATION_READY)){
+
+        if(!(reservation.getStatus().equals(ReservationStatus.RESERVATION_ACCEPTED)||reservation.getStatus().equals(ReservationStatus.RESERVATION_READY))){
             return "예약 취소가 가능한 상태가 아닙니다.";
         }
         reservationRepository.save(reservation.changeStatus(status));
@@ -324,21 +325,26 @@ public class ReservationService {
                 System.out.println(resp.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
                 return  "success";
             case RESERVATION_CANCELED_BYUSER:
-                LocalDate today = LocalDate.now();
-                LocalDate dateFromTimestamp = reservation.getResDatetime().toLocalDateTime().toLocalDate();
-                long daysDifference = ChronoUnit.DAYS.between(dateFromTimestamp, today);
-                int amount=payment.getAmount();
                 double cal=0;
-                daysDifference=daysDifference*-1;
-                if(daysDifference>=7){
-                    cal= 1;
-                }else if(daysDifference>=3){
-                    cal= 0.5;
-                }else if(daysDifference>=1){
-                    cal=0.1;
+                int amount=payment.getAmount();
+                if(reservation.getStatus().equals(ReservationStatus.RESERVATION_READY)){
+                    cal=1;
                 }else{
-                    return "당일 및 예약일 이후 취소는 불가합니다.";
+                    LocalDate today = LocalDate.now();
+                    LocalDate dateFromTimestamp = reservation.getResDatetime().toLocalDateTime().toLocalDate();
+                    long daysDifference = ChronoUnit.DAYS.between(dateFromTimestamp, today);
+                    daysDifference=daysDifference*-1;
+                    if(daysDifference>=7){
+                        cal= 1;
+                    }else if(daysDifference>=3){
+                        cal= 0.5;
+                    }else if(daysDifference>=1){
+                        cal=0.1;
+                    }else{
+                        return "당일 및 예약일 이후 취소는 불가합니다.";
+                    }
                 }
+
                 emptyNotice(reservation);
                 PayCancelDto cancelDto2 = new PayCancelDto("사용자 측 취소",payment.getImpUid(),payment.getMerchantUid(), (int) (payment.getAmount()*cal),payment.getAmount());
                 paymentService.refundPayment(cancelDto2);
