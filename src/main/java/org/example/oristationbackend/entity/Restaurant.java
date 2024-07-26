@@ -59,4 +59,9 @@ public class Restaurant {
 
     @OneToOne(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private RestaurantInfo restaurantInfo;
+    public Restaurant changeblocked(boolean blocked) {
+        this.isBlocked = blocked;
+        this.setRestIsopen(false);
+        return this;
+    }
 }

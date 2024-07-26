@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.oristationbackend.entity.type.BlackStatus;
 
 import java.sql.Date;
@@ -11,6 +12,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "blacklist_rest")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,5 +41,13 @@ public class BlacklistRest {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "admin_id")
   private Admin admin;
+  public BlacklistRest addreport(){
+    this.reportNum=this.reportNum+1;
+    return this;
+  }
+  public BlacklistRest changeStatus(BlackStatus status){
+    this.blackStatus=status;
+    return this;
+  }
 
 }

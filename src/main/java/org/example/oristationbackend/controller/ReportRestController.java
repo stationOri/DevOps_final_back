@@ -1,6 +1,7 @@
 package org.example.oristationbackend.controller;
 
 import org.example.oristationbackend.dto.admin.RestReportListResDto;
+import org.example.oristationbackend.dto.admin.RestReportStatusReqDto;
 import org.example.oristationbackend.dto.user.RestReportReqDto;
 import org.example.oristationbackend.service.ReportRestService;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,9 @@ public class ReportRestController {
     public int addReport(@RequestBody RestReportReqDto restReportReqDto) {
         return reportRestService.addReport(restReportReqDto);
     }
-//    @PutMapping("/{reportId}")
-//    public
+    @PutMapping()
+    public int changeReportStatus( @RequestBody RestReportStatusReqDto changeDto) {
+        return reportRestService.changeReportStatus(changeDto);
+    }
 
 }

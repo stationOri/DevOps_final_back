@@ -39,4 +39,9 @@ public class ReportRest {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "rest_id")
   private Restaurant restaurant;
+  public ReportRest changeStatus(ReportStatus status,Admin admin){
+    this.reportStatus=status;
+    this.admin=admin;
+    return this;
+  }
 }
