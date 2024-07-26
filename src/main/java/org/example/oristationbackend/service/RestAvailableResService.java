@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.*;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -80,22 +81,49 @@ public class RestAvailableResService {
     }
   }
 
-  // 식당의 오픈 시간을 받아서 해당 식당의 예약 가능 시간을 계산하여 반환
   private Map<String, Boolean> calculateAvailableTimes(RestaurantOpen openTime, RestaurantInfo restaurantInfo, LocalDate date) {
     Map<String, Boolean> times = new HashMap<>();
     int intervalInMinutes = restaurantInfo.getRestReserveInterval() == MinuteType.ONEHOUR ? 60 : 30;
 
     LocalTime currentTime = LocalTime.parse(openTime.getRestOpen());
+    LocalTime lastOrderTime = LocalTime.parse(openTime.getRestLastorder());
 
-    while (currentTime.isBefore(LocalTime.parse(openTime.getRestLastorder())) || currentTime.equals(LocalTime.parse(openTime.getRestLastorder()))) {
-      if (!(currentTime.isAfter(LocalTime.parse(openTime.getRestBreakstart())) && currentTime.isBefore(LocalTime.parse(openTime.getRestBreakend())))) {
+    // 브레이크 시간 처리: null 및 빈 문자열에 대한 처리
+    LocalTime breakStartTime = parseTimeOrNull(openTime.getRestBreakstart());
+    LocalTime breakEndTime = parseTimeOrNull(openTime.getRestBreakend());
+
+    while (currentTime.isBefore(lastOrderTime) || currentTime.equals(lastOrderTime)) {
+      // 브레이크 시간이 정의되어 있고 현재 시간이 브레이크 기간에 포함되는지 확인
+      boolean isInBreakPeriod = false;
+      if (breakStartTime != null && breakEndTime != null) {
+        isInBreakPeriod = currentTime.isAfter(breakStartTime) && currentTime.isBefore(breakEndTime);
+      }
+
+      // 브레이크 시간에 포함되지 않는 경우 예약 가능 여부 체크
+      if (!isInBreakPeriod) {
         times.put(currentTime.toString(), isReservationPossible(currentTime, restaurantInfo, date));
       }
+
       currentTime = currentTime.plusMinutes(intervalInMinutes);
     }
 
     return times;
   }
+
+  // 문자열을 LocalTime으로 파싱하거나 null을 반환하는 메서드
+  private LocalTime parseTimeOrNull(String timeString) {
+    if (timeString == null || timeString.trim().isEmpty()) {
+      return null;
+    }
+    try {
+      return LocalTime.parse(timeString);
+    } catch (DateTimeParseException e) {
+      // 파싱 오류가 발생한 경우 null 반환
+      return null;
+    }
+  }
+
+
 
   // 특정 시간대에 예약이 가능한지 여부를 판단
   private boolean isReservationPossible(LocalTime currentTime, RestaurantInfo restaurantInfo, LocalDate date) {
