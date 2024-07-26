@@ -25,7 +25,9 @@ jobs:
           cd src
           ls
           cd main
-          echo "src/main/resources 디렉토리 존재 여부:"
+          ls
+          cd resources
+          ls
           ls -al ./src/main/resources || echo "디렉토리가 존재하지 않습니다."
 
       - name: application.yml 파일 생성
