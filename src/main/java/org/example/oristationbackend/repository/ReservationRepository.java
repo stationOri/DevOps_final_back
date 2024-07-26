@@ -85,7 +85,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
       "ORDER BY reservationCount DESC")
   List<Object[]> findHotRestaurants(@Param("twoWeeksAgo") LocalDateTime twoWeeksAgo,
                                     @Param("status") ReservationStatus status);
-
+  @Query("SELECT r FROM Reservation r WHERE DATE(r.resDatetime) = DATE(:today) AND r.status = :status")
+  List<Reservation> findReservationsByToday(@Param("today") Timestamp today, @Param("status") ReservationStatus status);
 
 
 
