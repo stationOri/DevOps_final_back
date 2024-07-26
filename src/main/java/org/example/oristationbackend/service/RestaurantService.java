@@ -2,6 +2,7 @@ package org.example.oristationbackend.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.RestRegisterDto;
@@ -42,7 +43,7 @@ public class RestaurantService {
   private final ReviewLikesRepository reviewLikesRepository;
   private final DistanceCalculator distanceCalculator;
   private final S3Service s3Service;
-
+  private final SmsService smsService;
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
     List<Restaurant> restaurants = restaurantRepository.findByRestIsopenTrueAndIsBlockedFalseAndRestStatus(RestaurantStatus.B);
@@ -126,6 +127,27 @@ public class RestaurantService {
     if (optionalRestaurant.isPresent()) {
       Restaurant restaurant = optionalRestaurant.get();
       restaurant.setRestStatus(status);
+      if(status.equals(RestaurantStatus.B)){
+        StringBuilder sb= new StringBuilder();
+        sb.append("[WaitMate]");
+        sb.append(restaurant.getRestOwner());
+        sb.append(" 사장님, ");
+        sb.append(restaurant.getRestName());
+        sb.append(" 식당이 관리자에 의해 승인되었습니다. 로그인하여 가게 정보를 등록하고 서비스를 이용해주세요. 감사합니다");
+        SmsDto smsDto=new SmsDto(restaurant.getRestPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+        SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+      }
+      else if(status.equals(RestaurantStatus.C)){
+        StringBuilder sb= new StringBuilder();
+        sb.append("[WaitMate]");
+        sb.append(restaurant.getRestOwner());
+        sb.append(" 사장님, ");
+        sb.append(restaurant.getRestName());
+        sb.append(" 식당이 관리자에 의해 승인 거절되었습니다. 다시 회원가입하여주세요)");
+        SmsDto smsDto=new SmsDto(restaurant.getRestPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+        SingleMessageSentResponse resp=smsService.sendOne(smsDto); //
+      }
+      restaurant.setRestPhone("0");
       return restaurantRepository.save(restaurant).getRestId();
     } else {
       throw new EntityNotFoundException("Restaurant not found with id: " + restId);

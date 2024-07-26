@@ -241,8 +241,8 @@ public class ReservationService {
         DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         StringBuilder sb= new StringBuilder();
         sb.append("[WaitMate]");
-        sb.append(reservation.getRestaurant().getRestName());
-        sb.append("사장님, ");
+        sb.append(reservation.getRestaurant().getRestOwner());
+        sb.append(" 사장님, ");
         sb.append(reservation.getRestaurant().getRestName());
         sb.append(" 식당에 ");
         sb.append(localDateTime.format(formatter));
