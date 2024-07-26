@@ -15,6 +15,7 @@ import org.example.oristationbackend.util.DistanceCalculator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,44 +80,43 @@ public class RestaurantService {
         .collect(Collectors.toList());
   }
 
-  //식당 승인 전 매장 불러오기
-  public List<restAcceptReadyDto> findRestraurantByStatusBefore(RestaurantStatus status) {
+  // 식당 승인 전 매장 불러오기
+  public Page<restAcceptReadyDto> findRestraurantByStatusBefore(RestaurantStatus status, int page) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
+    Pageable pageable = PageRequest.of(page, 10, Sort.by("joinDate").descending());
+    Page<Restaurant> restaurantsPage = restaurantRepository.findRestaurantByRestStatus(status, pageable);
 
-    return restaurants.stream()
-            .map(restaurant -> new restAcceptReadyDto(
-                    restaurant.getRestId(),
-                    restaurant.getRestName(),
-                    restaurant.getRestStatus(),
-                    restaurant.getRestNum(),
-                    restaurant.getRestOwner(),
-                    restaurant.getRestPhone(),
-                    restaurant.getRestData(),
-                    formatter.format(restaurant.getJoinDate())))
-            .collect(Collectors.toList());
+    return restaurantsPage.map(restaurant -> new restAcceptReadyDto(
+        restaurant.getRestId(),
+        restaurant.getRestName(),
+        restaurant.getRestStatus(),
+        restaurant.getRestNum(),
+        restaurant.getRestOwner(),
+        restaurant.getRestPhone(),
+        restaurant.getRestData(),
+        formatter.format(restaurant.getJoinDate())));
   }
 
-  //식당 승인 후 매장 불러오기
-  public List<restAfterAcceptDto> findRestraurantByStatusAfter(RestaurantStatus status) {
+  // 식당 승인 후 매장 불러오기
+  public Page<restAfterAcceptDto> findRestraurantByStatusAfter(RestaurantStatus status, int page) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    List<Restaurant> restaurants = restaurantRepository.findRestaurantByRestStatus(status);
 
-    return restaurants.stream()
-            .map(restaurant -> new restAfterAcceptDto(
-                    restaurant.getRestId(),
-                    restaurant.getRestName(),
-                    restaurant.getRestStatus().getDescription(),
-                    restaurant.getRestNum(),
-                    restaurant.getRestOwner(),
-                    restaurant.getRestPhone(),
-                    restaurant.getRestData(),
-                    restaurant.getJoinDate() != null ? formatter.format(restaurant.getJoinDate()) : "",
-                    restaurant.getQuitDate() != null ? formatter.format(restaurant.getQuitDate()) : "",
-                    restaurant.isBlocked(),
-                    restaurant.isRestIsopen()))
-            .collect(Collectors.toList());
+    Pageable pageable = PageRequest.of(page, 20, Sort.by("joinDate").descending());
+    Page<Restaurant> restaurantsPage = restaurantRepository.findRestaurantByRestStatus(status, pageable);
+
+    return restaurantsPage.map(restaurant -> new restAfterAcceptDto(
+        restaurant.getRestId(),
+        restaurant.getRestName(),
+        restaurant.getRestStatus().getDescription(),
+        restaurant.getRestNum(),
+        restaurant.getRestOwner(),
+        restaurant.getRestPhone(),
+        restaurant.getRestData(),
+        restaurant.getJoinDate() != null ? formatter.format(restaurant.getJoinDate()) : "",
+        restaurant.getQuitDate() != null ? formatter.format(restaurant.getQuitDate()) : "",
+        restaurant.isBlocked(),
+        restaurant.isRestIsopen()));
   }
 
   // 식당 정보 수정

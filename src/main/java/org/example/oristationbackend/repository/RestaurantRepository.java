@@ -3,6 +3,8 @@ package org.example.oristationbackend.repository;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.Review;
 import org.example.oristationbackend.entity.type.RestaurantStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +29,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
                                           @Param("userLng") double userLng,
                                           @Param("radius") double radius);
     List<Restaurant> findByRestIsopenTrueAndIsBlockedFalseAndRestStatus(RestaurantStatus status);
+    Page<Restaurant> findRestaurantByRestStatus(RestaurantStatus status, Pageable pageable);
+
 }
