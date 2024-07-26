@@ -26,5 +26,5 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
     List<Integer> findNearbyRestaurantIds(@Param("userLat") double userLat,
                                           @Param("userLng") double userLng,
                                           @Param("radius") double radius);
-
+    List<Restaurant> findByRestIsopenTrueAndIsBlockedFalseAndRestStatus(RestaurantStatus status);
 }
