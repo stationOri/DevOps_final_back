@@ -18,8 +18,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: 디렉토리와 환경 변수 확인
+        run: |
+          echo "현재 디렉토리:"
+          pwd
+          echo "src/main/resources 디렉토리 존재 여부:"
+          ls -al ./src/main/resources || echo "디렉토리가 존재하지 않습니다."
+          echo "APPLICATION_YML 값 확인:"
+          echo "${{ secrets.APPLICATION_YML }}" || echo "APPLICATION_YML 값이 없습니다."
+
       - name: application.yml 파일 생성
-        run: echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+        run: |
+          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
 
       - name: 테스트 및 빌드하기
         run: |
@@ -35,13 +45,13 @@ jobs:
 
       - name: AWS ECR에 로그인하기
         id: login-ecr
-        uses : aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Docker 이미지 생성
-        run:  docker build -t web-server .
+        run: docker build -t web-final .
 
       - name: Docker 이미지에 Tag 붙이기
-        run: docker tag web-server ${{ steps.login-ecr.outputs.registry }}/web-server:latest
+        run: docker tag web-final ${{ steps.login-ecr.outputs.registry }}/web-final:latest
 
       - name: ECR에 Docker 이미지 push
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/web-server:latest
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/web-final:latest
