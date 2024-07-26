@@ -22,11 +22,11 @@ jobs:
         run: |
           echo "현재 디렉토리:"
           pwd
+          cd src
           ls
+          cd main
           echo "src/main/resources 디렉토리 존재 여부:"
           ls -al ./src/main/resources || echo "디렉토리가 존재하지 않습니다."
-          echo "APPLICATION_YML 값 확인:"
-          echo "${{ secrets.APPLICATION_YML }}" || echo "APPLICATION_YML 값이 없습니다."
 
       - name: application.yml 파일 생성
         run: |
