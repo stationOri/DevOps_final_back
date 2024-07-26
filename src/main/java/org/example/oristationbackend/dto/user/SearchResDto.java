@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.oristationbackend.dto.restaurant.RestaurantOpenDto;
 import org.example.oristationbackend.entity.Restaurant;
 import org.example.oristationbackend.entity.RestaurantInfo;
 import org.example.oristationbackend.entity.type.ReservationType;
+
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,8 +28,9 @@ public class SearchResDto {
   private String keyword1; // 키워드1
   private String keyword2; // 키워드2
   private String keyword3; // 키워드3
+  private List<RestaurantOpenDto> restOpentimes; // 식당 오픈 시간
 
-  public SearchResDto(Restaurant restaurant, RestaurantInfo restaurantInfo) {
+  public SearchResDto(Restaurant restaurant, RestaurantInfo restaurantInfo, List<RestaurantOpenDto> restOpentimes) {
     this.restId = restaurant.getRestId();
     this.restName = restaurant.getRestName();
     this.restAddress = restaurantInfo.getRestAddress();
@@ -45,5 +49,6 @@ public class SearchResDto {
     if (restaurantInfo.getKeyword3() != null) {
       this.keyword3 = restaurantInfo.getKeyword3().getKeyword();
     }
+    this.restOpentimes = restOpentimes;
   }
 }
