@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.sql.Date;
 
@@ -16,6 +17,7 @@ public class User {
     @OneToOne
     @MapsId
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private Login login;
     @Id
     private int userId; // 사용자 id

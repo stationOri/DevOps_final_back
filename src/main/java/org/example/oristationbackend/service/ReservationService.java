@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -24,8 +26,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +45,7 @@ public class ReservationService {
     private final RestaurantMenuRepository restaurantMenuRepository;
     private final SmsService smsService;
     private final PaymentService paymentService;
+    private final EmptyRepository emptyRepository;
     //예약 시간 조회
     public List<String> findReservedTime(int restId, String targetDate) {
         try {
@@ -236,7 +241,7 @@ public class ReservationService {
         DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         StringBuilder sb= new StringBuilder();
         sb.append("[WaitMate]");
-        sb.append(reservation.getUser().getUserName());
+        sb.append(reservation.getRestaurant().getRestName());
         sb.append("사장님, ");
         sb.append(reservation.getRestaurant().getRestName());
         sb.append(" 식당에 ");
@@ -315,6 +320,7 @@ public class ReservationService {
                 sb.append(")");
                 SmsDto smsDto=new SmsDto(reservation.getUser().getUserPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
                 SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+                emptyNotice(reservation);
                 System.out.println(resp.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
                 return  "success";
             case RESERVATION_CANCELED_BYUSER:
@@ -323,6 +329,7 @@ public class ReservationService {
                 long daysDifference = ChronoUnit.DAYS.between(dateFromTimestamp, today);
                 int amount=payment.getAmount();
                 double cal=0;
+                daysDifference=daysDifference*-1;
                 if(daysDifference>=7){
                     cal= 1;
                 }else if(daysDifference>=3){
@@ -332,6 +339,7 @@ public class ReservationService {
                 }else{
                     return "당일 및 예약일 이후 취소는 불가합니다.";
                 }
+                emptyNotice(reservation);
                 PayCancelDto cancelDto2 = new PayCancelDto("사용자 측 취소",payment.getImpUid(),payment.getMerchantUid(), (int) (payment.getAmount()*cal),payment.getAmount());
                 paymentService.refundPayment(cancelDto2);
                 paymentRepository.save(payment.refund(payment.getAmount()));
@@ -358,6 +366,29 @@ public class ReservationService {
                 return "success";
             default:
                 return "";
+        }
+    }
+    private void emptyNotice(Reservation reservation) {
+        Timestamp timestamp= reservation.getResDatetime();
+        Date date = new Date(timestamp.getTime());
+        Time time = new Time(timestamp.getTime());
+        List<Empty> emptyList=emptyRepository.findByDateAndTime(date,time,reservation.getRestaurant());
+        LocalDateTime localDateTime = timestamp.toLocalDateTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        for (Empty empty : emptyList) {
+            StringBuilder sb= new StringBuilder();
+            sb.append("[WaitMate]");
+            sb.append(empty.getUser().getUserName());
+            sb.append("고객님, ");
+            sb.append(reservation.getRestaurant().getRestName());
+            sb.append(" 식당에 ");
+            sb.append(localDateTime.format(formatter));
+            sb.append(" 시간에 빈 테이블이 생겼습니다. 사이트에 접속하여 예약 부탁드립니다. 감사합니다.");
+            SmsDto smsDto=new SmsDto(empty.getUser().getUserPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+            SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+            empty.setStatus(true);
+            emptyRepository.save(empty);
+            System.out.println(resp.getStatusMessage());
         }
     }
 
