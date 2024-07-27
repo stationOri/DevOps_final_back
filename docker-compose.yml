@@ -1,6 +1,6 @@
 version: '1'
 services:
   web:
-    image: web:v2
+    image: backend-app:latest
     ports:
       -8080
