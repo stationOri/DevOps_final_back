@@ -52,6 +52,6 @@ jobs:
 
       - name: Docker 이미지에 Tag 붙이기
         run: |
-          docker tag web-server ${{ steps.login-ecr.outputs.registry }}/back-end:latest
+          docker tag web-server ${{ steps.login-ecr.outputs.registry }}/web-server:latest
       - name: ECR에 Docker 이미지 push
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/back-end:latest
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/web-server:latest
