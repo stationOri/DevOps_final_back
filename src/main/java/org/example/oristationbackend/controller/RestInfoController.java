@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/restaurants/info")
+@RequestMapping("/api/restaurants/info")
 public class RestInfoController {
   private final RestResInfoService restResInfoService;
   private final RestaurantInfoService restaurantInfoService;

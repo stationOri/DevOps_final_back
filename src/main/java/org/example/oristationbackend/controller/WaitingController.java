@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/waiting")
+@RequestMapping("/api/waiting")
 @RequiredArgsConstructor
 public class WaitingController {
     private final WaitingService waitingService;

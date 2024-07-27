@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/vacant")
+@RequestMapping("/api/vacant")
 @RequiredArgsConstructor
 public class EmptyController {
   private final EmptyService emptyService;

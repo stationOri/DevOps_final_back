@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/payment")
+@RequestMapping("/api/payment")
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentController {

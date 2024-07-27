@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/keywords")
+@RequestMapping("/api/keywords")
 public class KeywordController {
   private final KeywordService keywordService;
   private final RestaurantInfoService restaurantInfoService;;

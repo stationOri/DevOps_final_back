@@ -29,7 +29,7 @@ import java.sql.Timestamp;
 import java.util.TimeZone;
 
 @RestController
-@RequestMapping("/reservations")
+@RequestMapping("/api/reservations")
 @RequiredArgsConstructor
 public class ReservationController {
   private final RestAvailableResService restAvailableResService;

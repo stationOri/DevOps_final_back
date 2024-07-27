@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/register")
+@RequestMapping("/api/register")
 @RequiredArgsConstructor
 public class RegisterController {
     private final UserService userService;

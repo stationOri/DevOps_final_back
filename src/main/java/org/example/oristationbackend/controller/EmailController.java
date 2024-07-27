@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/mail")
+@RequestMapping("/api/mail")
 @RequiredArgsConstructor
 public class EmailController {
 

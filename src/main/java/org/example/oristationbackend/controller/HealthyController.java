@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/healthy")
+@RequestMapping("/api/healthy")
 public class HealthyController {
     @GetMapping
     public ResponseEntity<String> healthycheck() {
