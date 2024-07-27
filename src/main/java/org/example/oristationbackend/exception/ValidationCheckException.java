@@ -107,8 +107,5 @@ public class ValidationCheckException extends RuntimeException{
         return super.clone();
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
+
 }

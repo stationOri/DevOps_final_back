@@ -2,6 +2,7 @@ package org.example.oristationbackend.entity.type;
 
 import lombok.Getter;
 
+@Getter
 public enum OpenDay {
 
     MON("월"),
@@ -13,7 +14,6 @@ public enum OpenDay {
     SUN("일"),
     HOL("공휴일");
 
-    @Getter
     private final String description;
 
     OpenDay(String description) {
