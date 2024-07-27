@@ -1,12 +1,8 @@
 package org.example.oristationbackend.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.oristationbackend.controller.ReportUserController;
-import org.example.oristationbackend.dto.admin.RestReportIdResDto;
-import org.example.oristationbackend.dto.admin.RestReportListResDto;
 import org.example.oristationbackend.dto.admin.UserReportResDto;
 import org.example.oristationbackend.dto.admin.UserReportStatusReqDto;
-import org.example.oristationbackend.dto.restaurant.ReviewInfoDto;
 import org.example.oristationbackend.dto.restaurant.UserReportReqDto;
 import org.example.oristationbackend.entity.*;
 import org.example.oristationbackend.entity.type.BlackStatus;
@@ -14,11 +10,8 @@ import org.example.oristationbackend.entity.type.ReportStatus;
 import org.example.oristationbackend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;

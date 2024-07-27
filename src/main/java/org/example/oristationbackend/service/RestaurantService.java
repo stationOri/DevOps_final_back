@@ -6,6 +6,7 @@ import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.example.oristationbackend.dto.admin.restAcceptReadyDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
 import org.example.oristationbackend.dto.restaurant.RestRegisterDto;
+import org.example.oristationbackend.dto.restaurant.RestaurantOpenDto;
 import org.example.oristationbackend.dto.user.*;
 import org.example.oristationbackend.entity.*;
 import org.example.oristationbackend.entity.type.*;
@@ -25,7 +26,9 @@ import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,6 +48,7 @@ public class RestaurantService {
   private final DistanceCalculator distanceCalculator;
   private final S3Service s3Service;
   private final SmsService smsService;
+
   // 전체 식당 정보 조회
   public List<SearchResDto> findAllRestaurants() {
     List<Restaurant> restaurants = restaurantRepository.findByRestIsopenTrueAndIsBlockedFalseAndRestStatus(RestaurantStatus.B);
@@ -60,17 +64,27 @@ public class RestaurantService {
               .filter(r -> r.getRestId() == restaurantInfo.getRestId())
               .findFirst()
               .orElse(null);
-          return new SearchResDto(restaurant, restaurantInfo);
+          List<RestaurantOpen> restaurantOpens = restaurantOpenRepository.findByRestaurantRestId(restaurant.getRestId());
+          List<RestaurantOpenDto> restOpentimes = restaurantOpens.stream()
+              .map(RestaurantOpenDto::new)
+              .collect(Collectors.toList());
+          return new SearchResDto(restaurant, restaurantInfo, restOpentimes);
         })
         .collect(Collectors.toList());
   }
 
   // 식당 id로 식당 정보 조회
   public SearchResDto findRestaurantById(int restId) {
-    RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restId)
+    Restaurant restaurant = restaurantRepository.findById(restId)
         .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restId));
+    RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restId)
+        .orElseThrow(() -> new RuntimeException("식당 정보를 찾을 수 없습니다: " + restId));
+    List<RestaurantOpen> restaurantOpens = restaurantOpenRepository.findByRestaurantRestId(restId);
+    List<RestaurantOpenDto> restOpentimes = restaurantOpens.stream()
+        .map(RestaurantOpenDto::new)
+        .collect(Collectors.toList());
 
-    return convertToDto(restaurantInfo);
+    return new SearchResDto(restaurant, restaurantInfo, restOpentimes);
   }
 
   // 식당 이름으로 식당 정보 조회
@@ -159,60 +173,28 @@ public class RestaurantService {
     Restaurant restaurant = restaurantRepository.findById(restaurantInfo.getRestId())
         .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restaurantInfo.getRestId()));
 
-    Keyword keyword1 = restaurantInfo.getKeyword1();
-    Keyword keyword2 = restaurantInfo.getKeyword2();
-    Keyword keyword3 = restaurantInfo.getKeyword3();
+    List<RestaurantOpen> restaurantOpens = restaurantOpenRepository.findByRestaurantRestId(restaurant.getRestId());
+    List<RestaurantOpenDto> restOpentimes = restaurantOpens.stream()
+        .map(RestaurantOpenDto::new)
+        .collect(Collectors.toList());
 
-    String keyword1Name = keyword1 != null ? keyword1.getKeyword() : null;
-    String keyword2Name = keyword2 != null ? keyword2.getKeyword() : null;
-    String keyword3Name = keyword3 != null ? keyword3.getKeyword() : null;
-
-    return new SearchResDto(
-        restaurant.getRestId(),
-        restaurant.getRestName(),
-        restaurantInfo.getRestAddress(),
-        restaurant.getRestPhone(),
-        restaurantInfo.getRestGrade(),
-        restaurant.getRestPhoto(),
-        restaurantInfo.getRestIntro(),
-        restaurantInfo.getRestPost(),
-        restaurantInfo.getRevWait(),
-        keyword1Name,
-        keyword2Name,
-        keyword3Name
-    );
+    return new SearchResDto(restaurant, restaurantInfo, restOpentimes);
   }
   private SearchResDto convertToDtoRest(Restaurant restaurant) {
     RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restaurant.getRestId())
-        .orElseThrow(() -> new RuntimeException("식당을 찾을 수 없습니다: " + restaurant.getRestId()));
+        .orElseThrow(() -> new RuntimeException("식당 정보를 찾을 수 없습니다: " + restaurant.getRestId()));
 
-    Keyword keyword1 = restaurantInfo.getKeyword1();
-    Keyword keyword2 = restaurantInfo.getKeyword2();
-    Keyword keyword3 = restaurantInfo.getKeyword3();
+    List<RestaurantOpen> restaurantOpens = restaurantOpenRepository.findByRestaurantRestId(restaurant.getRestId());
+    List<RestaurantOpenDto> restOpentimes = restaurantOpens.stream()
+        .map(RestaurantOpenDto::new)
+        .collect(Collectors.toList());
 
-    String keyword1Name = keyword1 != null ? keyword1.getKeyword() : null;
-    String keyword2Name = keyword2 != null ? keyword2.getKeyword() : null;
-    String keyword3Name = keyword3 != null ? keyword3.getKeyword() : null;
-
-    return new SearchResDto(
-        restaurant.getRestId(),
-        restaurant.getRestName(),
-        restaurantInfo.getRestAddress(),
-        restaurant.getRestPhone(),
-        restaurantInfo.getRestGrade(),
-        restaurant.getRestPhoto(),
-        restaurantInfo.getRestIntro(),
-        restaurantInfo.getRestPost(),
-        restaurantInfo.getRevWait(),
-        keyword1Name,
-        keyword2Name,
-        keyword3Name
-    );
+    return new SearchResDto(restaurant, restaurantInfo, restOpentimes);
   }
 
   // 페이징 처리된 조건 필터링된 식당 정보 조회
   public List<SearchResDto> getRestaurantsByPage(int page) {
-    Pageable pageable = PageRequest.of(page, 20);
+    Pageable pageable = PageRequest.of(page, 100);
     Page<RestaurantInfo> restaurantInfos = restaurantInfoRepository.findAllActiveRestaurants(pageable);
     return restaurantInfos.getContent().stream()
         .map(this::convertToDto)

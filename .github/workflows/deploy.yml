@@ -1,0 +1,60 @@
+name: 컨테이너 기반 배포하기
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ContainerBased-Deploy-Job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 의 파일 가져오기
+        uses: actions/checkout@v4
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: application.yml 파일 생성
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: 테스트 및 빌드하기
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build --warning-mode all --info
+
+      - name: AWS ECR 접근하기 위해 AWS credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_PUBLIC }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_PRIVATE }}
+
+      - name: AWS ECR에 로그인하기
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Docker 이미지 생성
+        run: docker build -t web-server .
+
+      - name: Docker 이미지에 Tag 붙이기
+        run: |
+          IMAGE_TAG=$(date +%Y%m%d%H%M%S)
+          docker tag web-server ${{ steps.login-ecr.outputs.registry }}/web-server:${IMAGE_TAG}
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+
+      - name: ECR에 Docker 이미지 push
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/web-server:${{ env.IMAGE_TAG }}

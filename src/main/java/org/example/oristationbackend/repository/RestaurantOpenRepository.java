@@ -13,4 +13,5 @@ public interface RestaurantOpenRepository extends JpaRepository<RestaurantOpen, 
   List<RestaurantOpen> findByRestaurantAndRestDay(Restaurant restaurant, OpenDay day);
   List<RestaurantOpen> findByRestaurantRestId(int restId);
   RestaurantOpen findRestaurantOpenByRestaurantAndRestDay(Restaurant restaurant, OpenDay day);
+
 }
