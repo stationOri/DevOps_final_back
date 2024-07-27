@@ -48,10 +48,10 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Docker 이미지 생성
-        run: docker build -t web-server .
+        run: docker build -t backend-app .
 
       - name: Docker 이미지에 Tag 붙이기
         run: |
-          docker tag web-server ${{ steps.login-ecr.outputs.registry }}/web-server:latest
+          docker tag backend-app ${{ steps.login-ecr.outputs.registry }}/backend-app:latest
       - name: ECR에 Docker 이미지 push
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/web-server:latest
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/backend-app:latest
