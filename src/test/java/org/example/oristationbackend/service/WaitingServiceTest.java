@@ -69,9 +69,9 @@ class WaitingServiceTest {
         loginRepository.save(login4);
 
         RestaurantInfo restaurantInfo2 = new RestaurantInfo(restaurant2.getRestId(),10, MoneyMethod.A,"가게 주소","가게 소개","01012341234", PeriodType.WEEK, MinuteType.HALFHOUR,4.3,
-                10,4,"restPost",ReservationType.C,RestWatingStatus.A,restaurant2,null,null,null);
+                10,4,"restPost",0,0,ReservationType.C,RestWatingStatus.A,restaurant2,null,null,null);
         RestaurantInfo restaurantInfo = new RestaurantInfo(restaurant.getRestId(),10, MoneyMethod.A,"가게 주소","가게 소개","01012341234", PeriodType.WEEK, MinuteType.HALFHOUR,4.3,
-                10,4,"restPost",ReservationType.C,RestWatingStatus.C,restaurant,null,null,null);
+                10,4,"restPost",0,0,ReservationType.C,RestWatingStatus.C,restaurant,null,null,null);
         restaurant.setRestaurantInfo(restaurantInfo);
         restaurant2.setRestaurantInfo(restaurantInfo2);
         restaurantRepository.save(restaurant2);

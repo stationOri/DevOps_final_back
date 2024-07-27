@@ -2,6 +2,7 @@ package org.example.oristationbackend.entity.type;
 
 import lombok.Getter;
 
+@Getter
 public enum UserWaitingStatus {
     IN_QUEUE("대기등록"),
     WALKIN_REQUESTED("입장요청"),
@@ -9,7 +10,6 @@ public enum UserWaitingStatus {
     QUEUE_CANCELED("대기취소"),
     NOSHOW("노쇼");
 
-    @Getter
     private final String description;
 
     UserWaitingStatus(String description) {
