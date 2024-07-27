@@ -1,0 +1,6 @@
+version: '1'
+services:
+  web:
+    image: web:v2
+    ports:
+      -8080
