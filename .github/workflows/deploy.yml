@@ -23,6 +23,14 @@ jobs:
           mkdir -p ./src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: 테스트 및 빌드하기
         run: |
           chmod +x ./gradlew
@@ -43,7 +51,10 @@ jobs:
         run: docker build -t web-server .
 
       - name: Docker 이미지에 Tag 붙이기
-        run: docker tag web-server ${{ steps.login-ecr.outputs.registry }}/web-server:latest
+        run: |
+          IMAGE_TAG=$(date +%Y%m%d%H%M%S)
+          docker tag web-server ${{ steps.login-ecr.outputs.registry }}/web-server:${IMAGE_TAG}
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
 
       - name: ECR에 Docker 이미지 push
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/web-server:latest
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/web-server:${{ env.IMAGE_TAG }}
