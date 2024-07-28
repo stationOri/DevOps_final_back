@@ -6,6 +6,7 @@ import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.restaurant.DateRequestDto;
 import org.example.oristationbackend.dto.restaurant.MenuDto;
+import org.example.oristationbackend.dto.restaurant.NoticeDto;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.dto.user.*;
 import org.example.oristationbackend.entity.*;
@@ -399,4 +400,30 @@ public class ReservationService {
     }
 
 
+    public String notice(NoticeDto noticeDto) {
+        String dateTimeString = noticeDto.getSelectedDate() + " " + noticeDto.getSelectedTime() + ":00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        LocalDateTime before5Minutes = localDateTime.minusMinutes(5);
+        LocalDateTime after5Minutes = localDateTime.plusMinutes(5);
+        Timestamp before = Timestamp.valueOf(before5Minutes);
+        Timestamp after = Timestamp.valueOf(after5Minutes);
+        List<Reservation> reservlist= reservationRepository.findReservationsByDateRangeAndStatus(noticeDto.getRestId(),before,after,ReservationStatus.RESERVATION_ACCEPTED);
+        for (Reservation reservation : reservlist) {
+            StringBuilder sb= new StringBuilder();
+            sb.append("[WaitMate]");
+            sb.append(reservation.getUser().getUserName());
+            sb.append("고객님, ");
+            sb.append(reservation.getRestaurant().getRestName());
+            sb.append(" 식당에서 예약하신 ");
+            sb.append(localDateTime.format(formatter));
+            sb.append(" 시간대 고객님들께 알림 메시지를 전송 하였습니다. \n\n[ ");
+            sb.append(noticeDto.getNotice());
+            sb.append("]\n\n 식당 이용에 참고하여 주시길 바랍니다. 감사합니다.");
+            SmsDto smsDto=new SmsDto(reservation.getUser().getUserPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+            SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+            System.out.println(resp.getStatusMessage());
+        }
+        return "success";
+    }
 }

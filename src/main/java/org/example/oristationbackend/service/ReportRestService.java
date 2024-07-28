@@ -42,7 +42,12 @@ public class ReportRestService {
                             rest.getReportContent(),
                             rest.getUser().getLogin().getEmail(),
                             rest.getReportStatus().getDescription(),
-                            rest.getAdmin().getLogin().getEmail(),
+//                            rest.getAdmin().getLogin().getEmail(),
+                            Optional.of(rest)
+                                    .map(ReportRest::getAdmin)
+                                    .map(Admin::getLogin)
+                                    .map(Login::getEmail)
+                                    .orElse("0"),
                             rest.getRestaurant().getRestId()
                     );
                 })

@@ -3,6 +3,7 @@ package org.example.oristationbackend.repository;
 import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
 import org.example.oristationbackend.entity.Reservation;
 import org.example.oristationbackend.entity.Restaurant;
+import org.example.oristationbackend.entity.User;
 import org.example.oristationbackend.entity.type.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -40,6 +41,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
           @Param("endTimestamp") Timestamp endTimestamp,
           @Param("status") ReservationStatus status // 파라미터 사이에 쉼표 추가
   );
+
 
   // 많이 방문한 식당 조회
   @Query("SELECT res.restaurant, COUNT(res) AS revCount " +
