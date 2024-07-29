@@ -9,6 +9,7 @@ import org.example.oristationbackend.dto.user.ReviewResDto;
 import org.example.oristationbackend.dto.user.ReviewRestDto;
 import org.example.oristationbackend.entity.Review;
 import org.example.oristationbackend.entity.type.ReportStatus;
+import org.example.oristationbackend.service.ReviewLikeService;
 import org.example.oristationbackend.service.ReviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
+    private final ReviewLikeService reviewLikeService;
 
     // 식당 페이지에서 리뷰 조회(사용자 화면)
     @GetMapping("/rest/{restId}/user/{user_id}")
@@ -68,6 +70,12 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public void deleteReview(@PathVariable("reviewId")int reviewId){
         reviewService.deleteReview(reviewId);
+    }
+
+    //리뷰 좋아요 취소
+    @DeleteMapping("/review/{reviewId}/user/{userId}")
+    public void deleteReview(@PathVariable("reviewId") int reviewId, @PathVariable("userId") int userId){
+        reviewLikeService.reviewlikescancel(userId,reviewId);
     }
 
 }

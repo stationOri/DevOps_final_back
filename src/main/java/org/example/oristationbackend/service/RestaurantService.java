@@ -369,6 +369,21 @@ public class RestaurantService {
     RestaurantInfo restaurantInfo = new RestaurantInfo(null, null, null, ReservationType.A, RestWatingStatus.A);
     restaurantInfo.setRestaurant(restaurant);
     restaurant.setRestaurantInfo(restaurantInfo);
+    RestaurantOpen restaurantMon = new RestaurantOpen("","","","","",restaurant,OpenDay.MON );
+    RestaurantOpen restaurantTue = new RestaurantOpen("","","","","",restaurant,OpenDay.THU );
+    RestaurantOpen restaurantWed = new RestaurantOpen("","","","","",restaurant,OpenDay.WED );
+    RestaurantOpen restaurantThu = new RestaurantOpen("","","","","",restaurant,OpenDay.THU );
+    RestaurantOpen restaurantFri = new RestaurantOpen("","","","","",restaurant,OpenDay.FRI );
+    RestaurantOpen restaurantSat = new RestaurantOpen("","","","","",restaurant,OpenDay.SAT );
+    RestaurantOpen restaurantSun = new RestaurantOpen("","","","","",restaurant,OpenDay.SUN );
+    restaurantOpenRepository.save(restaurantMon);
+    restaurantOpenRepository.save(restaurantTue);
+    restaurantOpenRepository.save(restaurantWed);
+    restaurantOpenRepository.save(restaurantThu);
+    restaurantOpenRepository.save(restaurantFri);
+    restaurantOpenRepository.save(restaurantSat);
+    restaurantOpenRepository.save(restaurantSun);
+
 
     restaurantRepository.save(restaurant);
     login.setRestaurant(restaurant);

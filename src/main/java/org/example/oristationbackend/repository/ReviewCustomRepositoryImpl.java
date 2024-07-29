@@ -27,6 +27,7 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
         return queryFactory
                 .select(Projections.fields(ReviewRestDto.class,
+                        review.reviewId,
                         review.user.userNickname,review.reviewGrade,review.reviewData,review.reviewImg,
                         review.reviewImg2,review.reviewImg3,review.reviewDate,review.likeNum,review.blind,
                                 likes.isNotNull().as("likedByUser")))

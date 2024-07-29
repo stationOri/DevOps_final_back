@@ -12,4 +12,5 @@ public interface ReviewLikesRepository extends JpaRepository<ReviewLikes, Intege
     void deleteByReview_ReviewId(int reviewId);
 
     void deleteByReview(Review review);
+    void deleteByUser_UserIdAndReview_ReviewId(int userId, int reviewId);
 }
