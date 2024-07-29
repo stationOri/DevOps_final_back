@@ -50,8 +50,13 @@ dependencies {
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
+//    implementation 'com.amazonaws:aws-java-sdk-sqs'
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.0.1")
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
 
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.269'
 }
 
 tasks.withType(JavaCompile) {

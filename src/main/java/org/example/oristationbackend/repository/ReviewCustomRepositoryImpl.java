@@ -1,6 +1,7 @@
 package org.example.oristationbackend.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -25,6 +26,11 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
     @Override
     public List<ReviewRestDto> findReviewAndLikesByRestaurantIdAndUserId(int restId, int userId) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+        QReview review = QReview.review;
+        QReviewLikes likes = QReviewLikes.reviewLikes;
+
+        BooleanExpression likeCondition = likes.user.userId.eq(userId).and(likes.review.reviewId.eq(review.reviewId));
+        BooleanExpression reviewCondition = review.restaurant.restId.eq(restId);
         return queryFactory
                 .select(Projections.fields(ReviewRestDto.class,
                         review.reviewId,
@@ -32,8 +38,10 @@ public class ReviewCustomRepositoryImpl implements ReviewCustomRepository{
                         review.reviewImg2,review.reviewImg3,review.reviewDate,review.likeNum,review.blind,
                                 likes.isNotNull().as("likedByUser")))
                 .from(review)
-                .leftJoin(likes).on(review.user.userId.eq(likes.user.userId).and(likes.user.userId.eq(userId))) // senderId가 restaurantId와 일치하는 경우 조인
-                .where(review.restaurant.restId.eq(restId)) // chatRoomId와 일치하는 메시지 조회
+                .leftJoin(likes).on(likeCondition)
+                .where(reviewCondition)
                 .fetch(); // 결과 리스트 반환;
     }
+
+
 }
