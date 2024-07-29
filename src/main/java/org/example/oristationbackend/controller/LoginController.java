@@ -124,14 +124,14 @@ public class LoginController {
                             path="?token=";
                     }
                 }else{
-                    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "https://waitmate.shop/?isok="+msg).build();
+                    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "https:/localhost:3000/?isok="+msg).build();
                 }
             }else{
                 path="?signin=true&token=";
             }
             String jwtToken=loginService.genJwtToken(registerDto.getUserName(),loginWrapper);
 
-            String frontendRedirectUrl = "https://waitmate.shop/"+path+ URLEncoder.encode(jwtToken, "UTF-8");
+            String frontendRedirectUrl = "https://localhost:3000/"+path+ URLEncoder.encode(jwtToken, "UTF-8");
 
             return ResponseEntity.status(302).header(HttpHeaders.LOCATION, frontendRedirectUrl).build();
 
