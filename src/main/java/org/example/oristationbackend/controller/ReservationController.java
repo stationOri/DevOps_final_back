@@ -4,10 +4,7 @@ import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.RequiredArgsConstructor;
 import org.example.oristationbackend.dto.admin.AdminReservationResDto;
 import org.example.oristationbackend.dto.admin.restAfterAcceptDto;
-import org.example.oristationbackend.dto.restaurant.DateRequestDto;
-import org.example.oristationbackend.dto.restaurant.ReservationUpdateDto;
-import org.example.oristationbackend.dto.restaurant.RestAvailableResDto;
-import org.example.oristationbackend.dto.restaurant.RestReservationResDto;
+import org.example.oristationbackend.dto.restaurant.*;
 import org.example.oristationbackend.dto.user.CombinedDto;
 import org.example.oristationbackend.dto.user.ResRestCountDto;
 import org.example.oristationbackend.dto.user.ReservationReqDto;
@@ -95,6 +92,10 @@ public class ReservationController {
                   reservationService.changeCancel(resId, updateDto.getStatus(),updateDto.getReason());
           default -> "예약 대기 상태로 변경은 불가합니다.";
       };
+  }
+  @PostMapping("/notice")
+  public String notice(@RequestBody NoticeDto noticeDto) {
+    return reservationService.notice(noticeDto);
   }
 
 }
