@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReviewRestDto {
+    private int reviewId;
     private String userNickname;
     private double reviewGrade;
     private String reviewData;
