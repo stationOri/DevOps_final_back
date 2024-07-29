@@ -87,6 +87,8 @@ public class ReviewService {
         Review review=reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("Review not found with id: " +reviewId));
 
         ReviewLikes like= new ReviewLikes(0,review,user);
+        int num = review.getLikeNum();
+        review.setLikeNum(++num);
 //        review=review.like(like);
 //        like.setReview(review);
         reviewRepository.save(review);

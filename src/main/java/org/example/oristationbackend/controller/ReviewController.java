@@ -73,7 +73,7 @@ public class ReviewController {
     }
 
     //리뷰 좋아요 취소
-    @DeleteMapping("/review/{reviewId}/user/{userId}")
+    @DeleteMapping("/{reviewId}/user/{userId}")
     public void deleteReview(@PathVariable("reviewId") int reviewId, @PathVariable("userId") int userId){
         reviewLikeService.reviewlikescancel(userId,reviewId);
     }
