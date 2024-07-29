@@ -118,6 +118,7 @@ public class ReportUserService {
 
                 .map(user->{
                     String formattedDate = user.getReportDate().toLocalDate().format(formatter);
+                    String adminEmail = (user.getAdmin() != null) ? user.getAdmin().getLogin().getEmail() : "배정 전";
                     return new UserReportResDto(
                             user.getUserReportId(),
                             user.getUser().getUserName(),
@@ -126,7 +127,7 @@ public class ReportUserService {
                             user.getReportContent(),
                             user.getRestaurant().getLogin().getEmail(),
                             user.getReportStatus().getDescription(),
-                            user.getAdmin().getLogin().getEmail()
+                            adminEmail
                     );
                 })
                 .collect(Collectors.toList());
