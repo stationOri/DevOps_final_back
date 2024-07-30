@@ -285,7 +285,7 @@ public class ReservationService {
             if(reservation.getStatus()!=ReservationStatus.VISITED){
                 PayCancelDto cancelDto2 = new PayCancelDto("방문 후 취소",reservation.getPayment().getImpUid(),reservation.getPayment().getMerchantUid(), (int) (reservation.getPayment().getAmount()),reservation.getPayment().getAmount());
                 paymentService.refundPayment(cancelDto2);
-                paymentRepository.save(reservation.getPayment().refund(reservation.getPayment().getAmount()))
+                paymentRepository.save(reservation.getPayment().refund(reservation.getPayment().getAmount()));
             };
             reservationRepository.save(reservation.changeStatus(status));
         }
