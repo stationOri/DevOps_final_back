@@ -81,6 +81,7 @@ public class RestAvailableResService {
     }
   }
 
+  // 특정 시간대의 예약 가능 여부를 계산
   private Map<String, Boolean> calculateAvailableTimes(RestaurantOpen openTime, RestaurantInfo restaurantInfo, LocalDate date) {
     Map<String, Boolean> times = new HashMap<>();
     int intervalInMinutes = restaurantInfo.getRestReserveInterval() == MinuteType.ONEHOUR ? 60 : 30;
@@ -92,16 +93,40 @@ public class RestAvailableResService {
     LocalTime breakStartTime = parseTimeOrNull(openTime.getRestBreakstart());
     LocalTime breakEndTime = parseTimeOrNull(openTime.getRestBreakend());
 
-    while (currentTime.isBefore(lastOrderTime) || currentTime.equals(lastOrderTime)) {
-      // 브레이크 시간이 정의되어 있고 현재 시간이 브레이크 기간에 포함되는지 확인
-      boolean isInBreakPeriod = false;
-      if (breakStartTime != null && breakEndTime != null) {
-        isInBreakPeriod = currentTime.isAfter(breakStartTime) && currentTime.isBefore(breakEndTime);
-      }
+    // 현재 날짜와 시간
+    ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+    LocalDate today = now.toLocalDate();
+    LocalTime nowTime = now.toLocalTime();
 
-      // 브레이크 시간에 포함되지 않는 경우 예약 가능 여부 체크
-      if (!isInBreakPeriod) {
-        times.put(currentTime.toString(), isReservationPossible(currentTime, restaurantInfo, date));
+    // 현재 날짜와 3시간 후 시간
+    ZonedDateTime nowPlusThreeHours = now.plusHours(3);
+    LocalTime threeHoursLater = nowPlusThreeHours.toLocalTime();
+
+    while (currentTime.isBefore(lastOrderTime) || currentTime.equals(lastOrderTime)) {
+      // 현재 시간과 날짜를 비교
+      ZonedDateTime currentDateTime = ZonedDateTime.of(date, currentTime, ZoneId.of("Asia/Seoul"));
+      ZonedDateTime currentDateTimeNow = ZonedDateTime.of(today, nowTime, ZoneId.of("Asia/Seoul"));
+
+      // 현재 시간 이전인지 여부
+      boolean isBeforeNow = currentDateTime.isBefore(currentDateTimeNow);
+
+      // 현재 시간부터 3시간 후까지의 시간대인지 여부
+      boolean isWithinThreeHours = !currentDateTime.isBefore(currentDateTimeNow) &&
+          !currentDateTime.isAfter(currentDateTimeNow.plusHours(3));
+
+      if (isBeforeNow || isWithinThreeHours) {
+        // 현재 시간 이전이거나 현재 시간부터 3시간 후까지는 예약 불가능
+        times.put(currentTime.toString(), false);
+      } else {
+        // 나머지 시간대는 예약 가능 여부 체크
+        boolean isInBreakPeriod = false;
+        if (breakStartTime != null && breakEndTime != null) {
+          isInBreakPeriod = currentTime.isAfter(breakStartTime) && currentTime.isBefore(breakEndTime);
+        }
+
+        if (!isInBreakPeriod) {
+          times.put(currentTime.toString(), isReservationPossible(currentTime, restaurantInfo, date));
+        }
       }
 
       currentTime = currentTime.plusMinutes(intervalInMinutes);
