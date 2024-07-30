@@ -18,6 +18,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -141,6 +142,11 @@ public class LoginController {
         } finally {
             request.getSession().removeAttribute("state");
         }
+    }
+
+    @GetMapping("/id/{loginId}")
+    public String idLogin(@PathVariable(name = "loginId") int loginId) {
+        return loginService.loginType(loginId);
     }
 
 }

@@ -31,6 +31,10 @@ public class LoginService {
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final AdminRepository adminRepository;
+
+    public String loginType(int loginId) {
+        return loginRepository.findById(loginId).get().getChatType().getDescription();
+    }
     public LoginWrapper checkRegister(RegisterDto registerDto){
         String phone= registerDto.getPhone();
         Optional<User> user=userRepository.findByUserPhone(phone);
