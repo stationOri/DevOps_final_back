@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 public class BlacklistUser {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int blacklistUserId;
+  private int blacklistUserId; // 블랙리스트 id
 
   @Column(name = "processing_date", nullable = false)
   private Timestamp processingDate;
