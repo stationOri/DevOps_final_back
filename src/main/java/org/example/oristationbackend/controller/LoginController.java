@@ -125,14 +125,14 @@ public class LoginController {
                             path="?token=";
                     }
                 }else{
-                    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "http://waitmate.shop/?isok=" + msg).build(); // 여기서 URL 형식을 수정
+                    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "https://waitmate.shop/?isok=" + msg).build(); // 여기서 URL 형식을 수정
                 }
             }else{
                 path="?signin=true&token=";
             }
             String jwtToken=loginService.genJwtToken(registerDto.getUserName(),loginWrapper);
 
-            String frontendRedirectUrl = "http://waitmate.shop/"+path+ URLEncoder.encode(jwtToken, "UTF-8");
+            String frontendRedirectUrl = "https://waitmate.shop/"+path+ URLEncoder.encode(jwtToken, "UTF-8");
 
             return ResponseEntity.status(302).header(HttpHeaders.LOCATION, frontendRedirectUrl).build();
 
