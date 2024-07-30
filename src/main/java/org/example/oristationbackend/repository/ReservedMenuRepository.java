@@ -14,4 +14,6 @@ public interface ReservedMenuRepository extends JpaRepository<ReservedMenu, Inte
             "FROM ReservedMenu rm " +
             "WHERE rm.reservation.resId = :resId")
     List<MenuDto> findByReservation_ResId(@Param("resId")int resId);
+
+    boolean existsByRestaurantMenu_MenuId(int menuId);
 }

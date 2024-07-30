@@ -16,7 +16,7 @@ import java.sql.Date;
 public class ReportUser {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int userReportId;
+  private int userReportId; // 신고 id
 
   @Column(name = "report_date", nullable = false)
   private Date reportDate;

@@ -125,7 +125,7 @@ public class LoginController {
                             path="?token=";
                     }
                 }else{
-                    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "https:/waitmate.shop/?isok="+msg).build();
+                    return ResponseEntity.status(302).header(HttpHeaders.LOCATION, "https://waitmate.shop/?isok=" + msg).build(); // 여기서 URL 형식을 수정
                 }
             }else{
                 path="?signin=true&token=";
