@@ -134,9 +134,9 @@ public class RestaurantController {
 
     // 메뉴 id로 메뉴 삭제
     @DeleteMapping("/menu/{menuId}")
-    public ResponseEntity<Void> deleteRestaurantMenu(@PathVariable(name = "menuId") int menuId) {
-        restaurantMenuService.deleteRestaurantMenu(menuId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Integer> deleteRestaurantMenu(@PathVariable(name = "menuId") int menuId) {
+        int i = restaurantMenuService.deleteRestaurantMenu(menuId);
+        return ResponseEntity.ok(i);
     }
 
   // 식당 승인 전
