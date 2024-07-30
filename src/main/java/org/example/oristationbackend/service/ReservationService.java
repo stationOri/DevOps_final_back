@@ -21,10 +21,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.sql.Timestamp;
@@ -276,19 +273,21 @@ public class ReservationService {
             SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
             System.out.println(resp.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
         }
-        else{
+        else {
             LocalDateTime now = LocalDateTime.now();
             Timestamp currentTimestamp = Timestamp.valueOf(now);
+            Duration duration = Duration.between(reservation.getResDatetime().toLocalDateTime(), now);
             if(currentTimestamp.after(reservation.getResDatetime())){
                 return "방문 및 노쇼 처리는 예약시간이 지난 후 가능합니다.";
+            }else if(duration.toHours() >= 1){
+                return "노쇼 처리는 예약시간 한 시간이 지난 후 가능합니다.";
             }
-            if(status.equals(ReservationStatus.VISITED)){
+            if(reservation.getStatus()!=ReservationStatus.VISITED){
                 PayCancelDto cancelDto2 = new PayCancelDto("방문 후 취소",reservation.getPayment().getImpUid(),reservation.getPayment().getMerchantUid(), (int) (reservation.getPayment().getAmount()),reservation.getPayment().getAmount());
                 paymentService.refundPayment(cancelDto2);
-                paymentRepository.save(reservation.getPayment().refund(reservation.getPayment().getAmount()));
-            }
+                paymentRepository.save(reservation.getPayment().refund(reservation.getPayment().getAmount()))
+            };
             reservationRepository.save(reservation.changeStatus(status));
-
         }
         return  "success";
     }
