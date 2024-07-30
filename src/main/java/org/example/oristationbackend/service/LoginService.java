@@ -33,7 +33,7 @@ public class LoginService {
     private final AdminRepository adminRepository;
 
     public String loginType(int loginId) {
-        return loginRepository.findById(loginId).get().getChatType().getDescription();
+        return loginRepository.findLoginByLoginId(loginId).get().getChatType().toString();
     }
     public LoginWrapper checkRegister(RegisterDto registerDto){
         String phone= registerDto.getPhone();
