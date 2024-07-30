@@ -91,3 +91,6 @@ tasks.named('test') {
 //tasks.compileQuerydsl {
 //    options.annotationProcessorPath = configurations.querydsl
 //}
+bootRun {
+    jvmArgs = ["-Duser.timezone=Asia/Seoul"]
+}

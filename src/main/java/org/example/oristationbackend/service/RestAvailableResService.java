@@ -59,6 +59,28 @@ public class RestAvailableResService {
     return dto;
   }
 
+  // 특정 식당의 특정 날짜의 예약 불가능 시간을 반환
+  public RestAvailableResDto getFullTimes(int restId, LocalDate date) {
+    RestaurantInfo restaurantInfo = restaurantInfoRepository.findById(restId)
+        .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+    DayOfWeek dayOfWeek = date.getDayOfWeek();
+    OpenDay openDay = determineOpenDay(dayOfWeek);
+
+    List<RestaurantOpen> openTimes = restaurantOpenRepository.findByRestaurantAndRestDay(restaurantInfo.getRestaurant(), openDay);
+
+    RestAvailableResDto dto = new RestAvailableResDto();
+    dto.setRestId(restId);
+    dto.setRestDay(openDay);
+
+    for (RestaurantOpen openTime : openTimes) {
+      Map<String, Boolean> times = calculateFullTimes(openTime, restaurantInfo, date);
+      dto.addAvailability(date.toString(), times);
+    }
+
+    return dto;
+  }
+
   // DayOfWeek 값을 기반으로 OpenDay 열거형을 결정
   private OpenDay determineOpenDay(DayOfWeek dayOfWeek) {
     switch (dayOfWeek) {
@@ -135,6 +157,42 @@ public class RestAvailableResService {
     return times;
   }
 
+  // 예약이 다 차있는 시간대만 반환
+  private Map<String, Boolean> calculateFullTimes(RestaurantOpen openTime, RestaurantInfo restaurantInfo, LocalDate date) {
+    Map<String, Boolean> times = new HashMap<>();
+    int intervalInMinutes = restaurantInfo.getRestReserveInterval() == MinuteType.ONEHOUR ? 60 : 30;
+
+    LocalTime currentTime = LocalTime.parse(openTime.getRestOpen());
+    LocalTime lastOrderTime = LocalTime.parse(openTime.getRestLastorder());
+
+    // 브레이크 시간 처리: null 및 빈 문자열에 대한 처리
+    LocalTime breakStartTime = parseTimeOrNull(openTime.getRestBreakstart());
+    LocalTime breakEndTime = parseTimeOrNull(openTime.getRestBreakend());
+
+    while (currentTime.isBefore(lastOrderTime) || currentTime.equals(lastOrderTime)) {
+      // 브레이크 시간이 정의되어 있고 현재 시간이 브레이크 기간에 포함되는지 확인
+      boolean isInBreakPeriod = false;
+      if (breakStartTime != null && breakEndTime != null) {
+        isInBreakPeriod = currentTime.isAfter(breakStartTime) && currentTime.isBefore(breakEndTime);
+      }
+
+      // 브레이크 시간에 포함되지 않는 경우 예약 가능 여부 체크
+      if (!isInBreakPeriod) {
+        int maxTables = restaurantInfo.getRestTablenum();
+        int currentTables = countReservationsForTime(currentTime, restaurantInfo, date);
+
+        // 예약 가능한 테이블이 없으면 (다 찬 경우)
+        if (currentTables >= maxTables) {
+          times.put(currentTime.toString(), true);  // true를 사용하여 예약이 다 찼음을 표시
+        }
+      }
+
+      currentTime = currentTime.plusMinutes(intervalInMinutes);
+    }
+
+    return times;
+  }
+
   // 문자열을 LocalTime으로 파싱하거나 null을 반환하는 메서드
   private LocalTime parseTimeOrNull(String timeString) {
     if (timeString == null || timeString.trim().isEmpty()) {
@@ -147,8 +205,6 @@ public class RestAvailableResService {
       return null;
     }
   }
-
-
 
   // 특정 시간대에 예약이 가능한지 여부를 판단
   private boolean isReservationPossible(LocalTime currentTime, RestaurantInfo restaurantInfo, LocalDate date) {

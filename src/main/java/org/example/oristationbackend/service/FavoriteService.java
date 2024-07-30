@@ -84,28 +84,39 @@ public class FavoriteService {
   private FavRestResDto convertToDto(Restaurant restaurant) {
     List<RestaurantOpen> restaurantOpens = restaurantOpenRepository.findByRestaurantRestId(restaurant.getRestId());
     List<RestaurantOpenDto> openTimes = restaurantOpens.stream()
-        .map(open -> new RestaurantOpenDto(
-            open.getRestaurantOpenId(),
-            open.getRestaurant().getRestId(),
-            open.getRestDay(),
-            open.getRestOpen(),
-            open.getRestClose(),
-            open.getRestLastorder(),
-            open.getRestBreakstart(),
-            open.getRestBreakend()
-        ))
-        .collect(Collectors.toList());
+            .map(open -> new RestaurantOpenDto(
+                    open.getRestaurantOpenId(),
+                    open.getRestaurant().getRestId(),
+                    open.getRestDay(),
+                    open.getRestOpen(),
+                    open.getRestClose(),
+                    open.getRestLastorder(),
+                    open.getRestBreakstart(),
+                    open.getRestBreakend()
+            ))
+            .collect(Collectors.toList());
+
+    // Use ternary operators to check for null keywords and provide a default value of "0"
+    String keyword1 = restaurant.getRestaurantInfo().getKeyword1() != null
+            ? restaurant.getRestaurantInfo().getKeyword1().getKeyword()
+            : "0";
+    String keyword2 = restaurant.getRestaurantInfo().getKeyword2() != null
+            ? restaurant.getRestaurantInfo().getKeyword2().getKeyword()
+            : "0";
+    String keyword3 = restaurant.getRestaurantInfo().getKeyword3() != null
+            ? restaurant.getRestaurantInfo().getKeyword3().getKeyword()
+            : "0";
 
     return new FavRestResDto(
-        restaurant.getRestId(),
-        restaurant.getRestPhoto(),
-        restaurant.getRestName(),
-        restaurant.getRestaurantInfo().getRestAddress(),
-        openTimes,
-        restaurant.getRestaurantInfo().getKeyword1().getKeyword(),
-        restaurant.getRestaurantInfo().getKeyword2().getKeyword(),
-        restaurant.getRestaurantInfo().getKeyword3().getKeyword(),
-        true
+            restaurant.getRestId(),
+            restaurant.getRestPhoto(),
+            restaurant.getRestName(),
+            restaurant.getRestaurantInfo().getRestAddress(),
+            openTimes,
+            keyword1,
+            keyword2,
+            keyword3,
+            true
     );
   }
 }
