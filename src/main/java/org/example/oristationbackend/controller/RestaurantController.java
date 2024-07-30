@@ -242,7 +242,10 @@ public class RestaurantController {
     public int deletePeak(@PathVariable(name = "peak_id") int peakId) {
         return restaurantPeakService.deleteRestaurantPeak(peakId);
     }
-
+    @GetMapping("/isopen/{restId}")
+    public boolean isopened(@PathVariable(name="restId") int restId){
+        return restaurantService.isopened(restId);
+    }
 
 
 }

@@ -413,4 +413,10 @@ public class RestaurantService {
             .orElseThrow(() -> new IllegalArgumentException("Invalid restaurant ID: " + restId));
     return restaurant.getRestAccount();
   }
+
+  public boolean isopened(int restId) {
+    Restaurant restaurant = restaurantRepository.findById(restId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid restaurant ID: " + restId));
+    return restaurant.isRestIsopen();
+  }
 }
