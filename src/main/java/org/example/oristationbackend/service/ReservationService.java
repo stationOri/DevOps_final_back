@@ -21,10 +21,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.sql.Timestamp;
@@ -275,19 +272,22 @@ public class ReservationService {
             SmsDto smsDto=new SmsDto(reservation.getUser().getUserPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
             SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
             System.out.println(resp.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
-        }else{
+        }
+        else {
             LocalDateTime now = LocalDateTime.now();
             Timestamp currentTimestamp = Timestamp.valueOf(now);
+            Duration duration = Duration.between(reservation.getResDatetime().toLocalDateTime(), now);
             if(currentTimestamp.after(reservation.getResDatetime())){
                 return "방문 및 노쇼 처리는 예약시간이 지난 후 가능합니다.";
+            }else if(duration.toHours() >= 1){
+                return "노쇼 처리는 예약시간 한 시간이 지난 후 가능합니다.";
             }
-            if(status.equals(ReservationStatus.VISITED)){
+            if(reservation.getStatus()!=ReservationStatus.VISITED){
                 PayCancelDto cancelDto2 = new PayCancelDto("방문 후 취소",reservation.getPayment().getImpUid(),reservation.getPayment().getMerchantUid(), (int) (reservation.getPayment().getAmount()),reservation.getPayment().getAmount());
                 paymentService.refundPayment(cancelDto2);
                 paymentRepository.save(reservation.getPayment().refund(reservation.getPayment().getAmount()));
-            }
+            };
             reservationRepository.save(reservation.changeStatus(status));
-
         }
         return  "success";
     }
@@ -351,7 +351,26 @@ public class ReservationService {
                 paymentService.refundPayment(cancelDto2);
                 paymentRepository.save(payment.refund(payment.getAmount()));
                 return "success";
+            case RESERVATION_CANCELED_BYADMIN:
+                PayCancelDto cancelDto4 = new PayCancelDto("관리자 측 취소"+reason,payment.getImpUid(),payment.getMerchantUid(),payment.getAmount(),payment.getAmount());
+                paymentService.refundPayment(cancelDto4);
+                paymentRepository.save(payment.refund(payment.getAmount()));
+                LocalDateTime localDateTime4 = reservation.getResDatetime().toLocalDateTime();
+                DateTimeFormatter formatter4 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                StringBuilder sb4= new StringBuilder();
+                sb4.append("[WaitMate]");
+                sb4.append(reservation.getUser().getUserName());
+                sb4.append("고객님, ");
+                sb4.append(reservation.getRestaurant().getRestName());
+                sb4.append(" 식당에 ");
+                sb4.append(localDateTime4.format(formatter4));
+                sb4.append(" 예약 요청하신 건이 관리자 측에서 취소되었습니다. 감사합니다. ");
 
+                SmsDto smsDto4=new SmsDto(reservation.getUser().getUserPhone(),sb4.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
+                SingleMessageSentResponse resp4=smsService.sendOne(smsDto4); //해당 코드로 전송
+                emptyNotice(reservation);
+                System.out.println(resp4.getStatusMessage()); // 상태 확인(정상: 정상 접수(이통사로 접수 예정))
+                return  "success";
             case RESERVATION_REJECTED:
                 PayCancelDto cancelDto3 = new PayCancelDto("식당 측 예약 거절",payment.getImpUid(),payment.getMerchantUid(),payment.getAmount(),payment.getAmount());
                 paymentService.refundPayment(cancelDto3);
