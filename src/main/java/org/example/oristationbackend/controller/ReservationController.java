@@ -88,7 +88,7 @@ public class ReservationController {
   public String changeState(@PathVariable(name = "resId") int resId,@RequestBody ReservationUpdateDto updateDto) throws IamportResponseException, IOException {
       return switch (updateDto.getStatus()) {
           case RESERVATION_ACCEPTED, VISITED, NOSHOW -> reservationService.changeStatus(resId, updateDto.getStatus());
-          case RESERVATION_CANCELED_BYREST, RESERVATION_CANCELED_BYUSER, RESERVATION_REJECTED ->
+          case RESERVATION_CANCELED_BYREST, RESERVATION_CANCELED_BYUSER, RESERVATION_CANCELED_BYADMIN, RESERVATION_REJECTED ->
                   reservationService.changeCancel(resId, updateDto.getStatus(),updateDto.getReason());
           default -> "예약 대기 상태로 변경은 불가합니다.";
       };
