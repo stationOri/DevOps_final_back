@@ -83,7 +83,7 @@ public class ScheduledService {
                 sb.append(localDateTime.format(formatter));
                 sb.append(" 예약 요청하신 건이 12시간이 지나 자동으로 취소되었습니다.");
                 SmsDto smsDto=new SmsDto(reservation.getUser().getUserPhone(),sb.toString()); //SmsDto(전송할번호: 01012341234 형식, 내용: String)
-                SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
+                //SingleMessageSentResponse resp=smsService.sendOne(smsDto); //해당 코드로 전송
                 System.out.println(reservation.getResId());
             }
         }
