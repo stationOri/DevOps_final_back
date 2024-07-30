@@ -90,6 +90,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
   @Query("SELECT r FROM Reservation r WHERE DATE(r.resDatetime) = DATE(:today) AND r.status = :status")
   List<Reservation> findReservationsByToday(@Param("today") Timestamp today, @Param("status") ReservationStatus status);
 
+  List<Reservation> findByStatus(ReservationStatus status);
 
 
 

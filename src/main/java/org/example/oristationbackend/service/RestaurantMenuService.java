@@ -77,9 +77,14 @@ public class RestaurantMenuService {
   }
 
   // 메뉴 id로 메뉴 삭제
-  @Transactional
-  public void deleteRestaurantMenu(int menuId) {
-    restaurantMenuRepository.deleteById(menuId);
+  @Transactional(readOnly = false)
+  public int deleteRestaurantMenu(int menuId) {
+    try {
+      restaurantMenuRepository.deleteById(menuId);
+      return 1; // 성공적으로 삭제된 경우 1을 반환
+    } catch (Exception e) {
+      return -1; // 에러가 발생한 경우 -1을 반환
+    }
   }
 
   // 엔티티를 dto로 변환

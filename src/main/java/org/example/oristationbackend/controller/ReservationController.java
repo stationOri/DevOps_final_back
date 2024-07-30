@@ -40,6 +40,14 @@ public class ReservationController {
     return ResponseEntity.ok(dto);
   }
 
+  // 특정 식당의 특정 날짜의 예약 불가능 시간 조회
+  @GetMapping("/{restId}/unavailabletimes/{date}")
+  public ResponseEntity<RestAvailableResDto> getUnavailableTimes(@PathVariable("restId") int restId, @PathVariable("date") String dateString) {
+    LocalDate date = LocalDate.parse(dateString);
+    RestAvailableResDto dto = restAvailableResService.getFullTimes(restId, date);
+    return ResponseEntity.ok(dto);
+  }
+
   // 관리자 예약 조회
   @GetMapping ("/admin")
   public ResponseEntity<List<AdminReservationResDto>> getAllReservationInfos() {
