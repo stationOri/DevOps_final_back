@@ -212,11 +212,16 @@ public class ReservationService {
         Restaurant restaurant = restaurantRepository.findById(reservationReqDto.getRestId())
                 .orElseThrow(() -> new RuntimeException("Restaurant not found"));
         String dateTimeString = reservationReqDto.getSelectedDate() + " " + reservationReqDto.getSelectedTime() + ":00";
+        System.out.println("dateTimeString: " + dateTimeString);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        System.out.println("localDateTime: " + localDateTime);
         Timestamp resdate= Timestamp.valueOf(localDateTime);
+        System.out.println("resdate: " + resdate);
 
         LocalDateTime now = LocalDateTime.now();
+        System.out.println("now: " + now);
         Timestamp currentTimestamp = Timestamp.valueOf(now);
 
         Reservation reservation = new Reservation(0,currentTimestamp,resdate,currentTimestamp,reservationReqDto.getResNum(),0,ReservationStatus.RESERVATION_READY,
