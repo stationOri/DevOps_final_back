@@ -277,9 +277,9 @@ public class ReservationService {
             LocalDateTime now = LocalDateTime.now();
             Timestamp currentTimestamp = Timestamp.valueOf(now);
             Duration duration = Duration.between(reservation.getResDatetime().toLocalDateTime(), now);
-            if(currentTimestamp.after(reservation.getResDatetime())){
-                return "방문 및 노쇼 처리는 예약시간이 지난 후 가능합니다.";
-            }else if(duration.toHours() >= 1){
+            if(currentTimestamp.before(reservation.getResDatetime())){
+                return "방문처리는 예약시간이 지난 후 가능합니다.";
+            }else if(duration.toHours() < 1){
                 return "노쇼 처리는 예약시간 한 시간이 지난 후 가능합니다.";
             }
             if(reservation.getStatus()!=ReservationStatus.VISITED){
