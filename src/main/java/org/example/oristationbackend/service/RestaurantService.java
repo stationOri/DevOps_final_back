@@ -370,7 +370,7 @@ public class RestaurantService {
     restaurantInfo.setRestaurant(restaurant);
     restaurant.setRestaurantInfo(restaurantInfo);
     RestaurantOpen restaurantMon = new RestaurantOpen("","","","","",restaurant,OpenDay.MON );
-    RestaurantOpen restaurantTue = new RestaurantOpen("","","","","",restaurant,OpenDay.THU );
+    RestaurantOpen restaurantTue = new RestaurantOpen("","","","","",restaurant,OpenDay.TUE );
     RestaurantOpen restaurantWed = new RestaurantOpen("","","","","",restaurant,OpenDay.WED );
     RestaurantOpen restaurantThu = new RestaurantOpen("","","","","",restaurant,OpenDay.THU );
     RestaurantOpen restaurantFri = new RestaurantOpen("","","","","",restaurant,OpenDay.FRI );
